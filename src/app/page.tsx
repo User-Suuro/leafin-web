@@ -1,39 +1,24 @@
-'use client';
+// File: src/app/page.tsx
+"use client";
 
 import { useEffect, useState } from "react";
 
-type DeviceStatus = { status: "online" | "offline"; timestamp: string | null };
-
-export default function HomePage() {
-  const [data, setData]   = useState<DeviceStatus | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export default function Home() {
+  const [status, setStatus] = useState<"connected" | "disconnected">("disconnected");
 
   useEffect(() => {
-    // poll once a second; adjust if you like
-    const id = setInterval(() => {
-      fetch("/api/device-status", { cache: "no-store" })
-        .then(r => r.ok ? r.json() : Promise.reject(`${r.status}`))
-        .then(setData)
-        .catch(e => setError(String(e)));
-    }, 1_000);
+    const interval = setInterval(async () => {
+      const res = await fetch("/api/device-status-check", { cache: "no-store" });
+      const json = await res.json();
+      setStatus(json.online ? "connected" : "disconnected");
+    }, 3000); // every 3 seconds
 
-    return () => clearInterval(id);
+    return () => clearInterval(interval);
   }, []);
 
-  if (error)       return <p>Error: {error}</p>;
-  if (!data)       return <p>Loading…</p>;
-
   return (
-    <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>ESP Connection Status</h1>
-      <p>
-        <strong>Status:</strong>{" "}
-        {data.status === "online" ? "✅ Connected" : "❌ Offline"}
-      </p>
-      <p>
-        <strong>Last heartbeat:</strong>{" "}
-        {data.timestamp ?? "never"}
-      </p>
+    <main>
+      <h1>Device is: {status === "connected" ? "✅ Connected" : "❌ Disconnected"}</h1>
     </main>
   );
 }
