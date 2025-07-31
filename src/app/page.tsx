@@ -1,34 +1,50 @@
-export default async function HomePage() {
-  let data: { status: string; timestamp?: string } | null = null;
-  let error: string | null = null;
+'use client';
 
-  try {
-    const res = await fetch("/api/device-status", { cache: "no-store" });
+import { useEffect, useState } from "react";
 
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} - ${res.statusText}`);
-    }
+type DeviceStatus = {
+  status: string;
+  timestamp: string;
+};
 
-    data = await res.json();
-  } catch (err: any) {
-    error = err.message || "Unknown error occurred";
+export default function HomePage() {
+  const [data, setData] = useState<DeviceStatus | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/device-status", { cache: "no-store" })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then(setData)
+      .catch((err) => setError(err.message));
+  }, []);
+
+  if (error) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+        <h1>Connection Error</h1>
+        <p>{error}</p>
+      </main>
+    );
+  }
+
+  if (!data) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+        <h1>Loading...</h1>
+      </main>
+    );
   }
 
   return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>ESP Connection Status</h1>
-
-      {error ? (
-        <>
-          <h2 style={{ color: "crimson" }}>Connection Error</h2>
-          <p>{error}</p>
-        </>
-      ) : (
-        <>
-          <p><strong>Status:</strong> {data?.status}</p>
-          <p><strong>Timestamp:</strong> {data?.timestamp ?? "N/A"}</p>
-        </>
-      )}
+      <p><strong>Status:</strong> {data.status}</p>
+      <p><strong>Timestamp:</strong> {data.timestamp}</p>
     </main>
   );
 }
