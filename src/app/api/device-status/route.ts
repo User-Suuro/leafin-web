@@ -1,23 +1,16 @@
 // File: src/app/api/device-status/route.ts
-
-let lastSeen: Date | null = null;
+import { updateLastSeen } from "@/lib/device-status-store";
 
 export async function GET() {
-  // Update the last seen timestamp whenever this endpoint is accessed
-  lastSeen = new Date();
+  updateLastSeen();
 
   return new Response(JSON.stringify({
     status: "connected",
-    timestamp: lastSeen.toISOString()
+    timestamp: new Date().toISOString()
   }), {
     status: 200,
     headers: {
       "Content-Type": "application/json"
     }
   });
-}
-
-// Helper function to expose lastSeen for frontend polling
-export function getLastSeen() {
-  return lastSeen;
 }
