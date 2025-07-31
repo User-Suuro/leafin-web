@@ -1,22 +1,34 @@
 export default async function HomePage() {
-  const res = await fetch("https://esp-conn-check.vercel.app/api/device-status", { cache: "no-store" });
+  let data: { status: string; timestamp?: string } | null = null;
+  let error: string | null = null;
 
-  if (!res.ok) {
-    return (
-      <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-        <h1>Connection Error</h1>
-        <p>Could not fetch status. Server returned: {res.status} - {res.statusText}</p>
-      </main>
-    );
+  try {
+    const res = await fetch("/api/device-status", { cache: "no-store" });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+    }
+
+    data = await res.json();
+  } catch (err: any) {
+    error = err.message || "Unknown error occurred";
   }
-
-  const data = await res.json();
 
   return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>ESP Connection Status</h1>
-      <p><strong>Status:</strong> {data.status}</p>
-      <p><strong>Timestamp:</strong> {data.timestamp}</p>
+
+      {error ? (
+        <>
+          <h2 style={{ color: "crimson" }}>Connection Error</h2>
+          <p>{error}</p>
+        </>
+      ) : (
+        <>
+          <p><strong>Status:</strong> {data?.status}</p>
+          <p><strong>Timestamp:</strong> {data?.timestamp ?? "N/A"}</p>
+        </>
+      )}
     </main>
   );
 }
