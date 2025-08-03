@@ -1,24 +1,21 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+// File: src/app/api/send-turbidity/route.ts
 
-// Simulated turbidity value (replace this with your DB or sensor logic)
+import { NextRequest, NextResponse } from "next/server";
+
 let latestTurbidity = 0;
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    const { turbidity } = req.body;
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const turbidity = body.turbidity;
 
-    if (typeof turbidity === "number") {
-      latestTurbidity = turbidity;
-      return res.status(200).json({ message: "Turbidity received" });
-    } else {
-      return res.status(400).json({ error: "Invalid turbidity value" });
-    }
+  if (typeof turbidity === "number") {
+    latestTurbidity = turbidity;
+    return NextResponse.json({ message: "Turbidity received" }, { status: 200 });
+  } else {
+    return NextResponse.json({ error: "Invalid turbidity value" }, { status: 400 });
   }
+}
 
-  if (req.method === "GET") {
-    return res.status(200).json({ turbidity: latestTurbidity });
-  }
-
-  res.setHeader("Allow", ["GET", "POST"]);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
+export async function GET() {
+  return NextResponse.json({ turbidity: latestTurbidity }, { status: 200 });
 }
