@@ -7,6 +7,7 @@ export default function Home() {
   const [status, setStatus] = useState<"connected" | "disconnected">("disconnected");
   const [weight, setWeight] = useState<number | null>(null);
   const [turbidity, setTurbidity] = useState<number | null>(null);
+  const [ph, setPh] = useState<number | null>(null);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -22,8 +23,12 @@ export default function Home() {
         const res3 = await fetch("/api/send-turbidity", { cache: "no-store" });
         const json3 = await res3.json();
         setTurbidity(json3.turbidity);
+
+        const res4 = await fetch("/api/send-ph", { cache: "no-store" });
+        const json4 = await res4.json();
+        setPh(json4.ph);
       } catch (error) {
-        console.error("Error fetching status, weight, or turbidity", error);
+        console.error("Error fetching data", error);
       }
     }, 3000);
 
@@ -35,6 +40,7 @@ export default function Home() {
       <h1>Device is: {status === "connected" ? "✅ Connected" : "❌ Disconnected"}</h1>
       <h2>Weight: {weight !== null ? `${weight.toFixed(2)} g` : "Loading..."}</h2>
       <h2>Turbidity: {turbidity !== null ? `${turbidity.toFixed(2)} NTU` : "Loading..."}</h2>
+      <h2>pH Level: {ph !== null ? ph.toFixed(2) : "Loading..."}</h2>
     </main>
   );
 }

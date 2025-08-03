@@ -19,3 +19,4 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({ turbidity: latestTurbidity }, { status: 200 });
 }
+    
