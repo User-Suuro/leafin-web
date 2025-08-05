@@ -3,35 +3,39 @@
 import { useEffect, useState } from "react";
 
 interface SensorData {
-  status: "Connected" | "Disconnected";
   time: string;
+  date: string;
   ph: string;
   turbidity: string;
+  timestamp: number;
 }
 
 export default function Home() {
-  const [sensorData, setSensorData] = useState<SensorData | null>(null);
+  const [data, setData] = useState<SensorData | null>(null);
+  const [status, setStatus] = useState<"Connected" | "Disconnected">("Disconnected");
 
+  // Fetch sensor data every 6 seconds
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
         const res = await fetch("/api/send-sensor-data", { cache: "no-store" });
-        const data = await res.json();
+        const json = await res.json();
 
-        // Transform the server response to match the SensorData interface
-        const transformed: SensorData = {
-          status: data.connected ? "Connected" : "Disconnected",
-          time: data.time,
-          ph: data.ph,
-          turbidity: data.turbid, // map `turbid` to `turbidity`
-        };
+        const now = Date.now();
+        const elapsed = now - json.timestamp;
 
-        setSensorData(transformed);
+        if (elapsed < 10000) {
+          setStatus("Connected");
+        } else {
+          setStatus("Disconnected");
+        }
+
+        setData(json);
       } catch (error) {
-        console.error("Error fetching sensor data:", error);
-        setSensorData(null);
+        console.error("Error fetching:", error);
+        setStatus("Disconnected");
       }
-    }, 3000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
@@ -40,15 +44,12 @@ export default function Home() {
     <main>
       <h1>
         Device Status:{" "}
-        {sensorData ? (
-          sensorData.status === "Connected" ? "✅ Connected" : "❌ Disconnected"
-        ) : (
-          "Loading..."
-        )}
+        {status === "Connected" ? "✅ Connected" : "❌ Disconnected"}
       </h1>
-      <h2>🕒 Time: {sensorData?.time ?? "Loading..."}</h2>
-      <h2>💧 Turbidity: {sensorData?.turbidity ?? "Loading..."} NTU</h2>
-      <h2>🧪 pH Level: {sensorData?.ph ?? "Loading..."}</h2>
+      <h2>🕒 Time: {data?.time ?? "Loading..."}</h2>
+      <h2>📅 Date: {data?.date ?? "Loading..."}</h2>
+      <h2>💧 Turbidity: {data?.turbidity ?? "Loading..."} NTU</h2>
+      <h2>🧪 pH Level: {data?.ph ?? "Loading..."}</h2>
     </main>
   );
 }
