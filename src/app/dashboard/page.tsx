@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen">
@@ -8,9 +10,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600 bg-blue-500">
           <i className="fas fa-th"></i>
         </div>
-        <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600">
-          <i className="fas fa-heartbeat"></i>
-        </div>
+        <Link href="/monitoring">
+          <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600">
+            <i className="fas fa-heartbeat"></i>
+          </div>
+        </Link>
         <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600">
           <i className="fas fa-clipboard-list"></i>
         </div>
