@@ -6,7 +6,7 @@ interface SensorData {
   time: string;
   date: string;
   ph: string;
-  turbidity: string;
+  turbid: string;
   timestamp: number;
 }
 
@@ -24,7 +24,7 @@ export default function Home() {
         const now = Date.now();
         const elapsed = now - json.timestamp;
 
-        if (elapsed < 10000) {
+        if (elapsed < 20000) {
           setStatus("Connected");
         } else {
           setStatus("Disconnected");
@@ -48,7 +48,7 @@ export default function Home() {
       </h1>
       <h2>🕒 Time: {data?.time ?? "Loading..."}</h2>
       <h2>📅 Date: {data?.date ?? "Loading..."}</h2>
-      <h2>💧 Turbidity: {data?.turbidity ?? "Loading..."} NTU</h2>
+      <h2>💧 Turbidity: {data?.turbid ?? "Loading..."} NTU</h2>
       <h2>🧪 pH Level: {data?.ph ?? "Loading..."}</h2>
     </main>
   );

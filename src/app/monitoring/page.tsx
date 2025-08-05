@@ -1,148 +1,203 @@
-import React from "react";
+"use client";
+
+import { useState } from "react";
 import {
-  Home,
-  Thermometer,
-  Droplet,
-  Rss,
-  Leaf,
+  HeartPulse,
+  LayoutDashboard,
+  ClipboardList,
+  HandCoins,
   BarChart,
-  CircleUserRound,
-  LogOut,
-  CalendarDays,
-  Clock,
-  Flame,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Thermometer,
+  FlaskConical,
+  Droplets,
+  Lightbulb,
 } from "lucide-react";
 
-const MonitoringDashboard: React.FC = () => {
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-green-700 text-white p-5 flex flex-col justify-between">
-        <div>
-          <div className="text-2xl font-bold mb-8">🌿 Leafin Things</div>
-          <nav className="space-y-4">
-            <div className="flex items-center space-x-3 hover:text-gray-200 cursor-pointer">
-              <Home size={20} />
-              <span>Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-3 hover:text-gray-200 cursor-pointer">
-              <BarChart size={20} />
-              <span>Analytics</span>
-            </div>
-            <div className="flex items-center space-x-3 hover:text-gray-200 cursor-pointer">
-              <Leaf size={20} />
-              <span>Plants</span>
-            </div>
-            <div className="flex items-center space-x-3 hover:text-gray-200 cursor-pointer">
-              <Droplet size={20} />
-              <span>Water</span>
-            </div>
-            <div className="flex items-center space-x-3 hover:text-gray-200 cursor-pointer">
-              <Rss size={20} />
-              <span>Sensors</span>
-            </div>
-          </nav>
-        </div>
+export default function Monitoring() {
+  const [activeTab, setActiveTab] = useState("timeline");
 
-        <div className="space-y-4">
-          <div className="flex items-center space-x-3 cursor-pointer hover:text-gray-200">
-            <CircleUserRound size={20} />
-            <span>Profile</span>
-          </div>
-          <div className="flex items-center space-x-3 cursor-pointer hover:text-gray-200">
-            <LogOut size={20} />
-            <span>Logout</span>
-          </div>
-        </div>
+  const tabs = [
+    { id: "timeline", label: "Timeline" },
+    { id: "water-quality", label: "Water Quality" },
+    { id: "fertilizer", label: "Fertilizer" },
+    { id: "feeder", label: "Feeder" },
+    { id: "sensors", label: "Sensors" },
+  ];
+
+  const isActive = (tabId: string) => activeTab === tabId;
+
+  return (
+    <div className="flex">
+      {/* Sidebar */}
+      <div className="w-16 bg-blue-600 text-white flex flex-col items-center py-4 space-y-4">
+        <LayoutDashboard className="w-6 h-6 cursor-pointer" />
+        <HeartPulse className="w-6 h-6 cursor-pointer" />
+        <ClipboardList className="w-6 h-6 cursor-pointer" />
+        <HandCoins className="w-6 h-6 cursor-pointer" />
+        <BarChart className="w-6 h-6 cursor-pointer" />
+        <Settings className="w-6 h-6 mt-auto cursor-pointer" />
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Monitoring Dashboard</h1>
+      {/* Main Content */}
+      <div className="flex-1 p-6">
+        <h1 className="text-2xl font-bold mb-2">Monitoring</h1>
+        <div className="h-1 bg-gray-300 mb-4" />
 
-        {/* Top cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white shadow rounded p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 font-medium">Temperature</span>
-              <Thermometer className="text-red-500" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800 mt-2">27°C</div>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 font-medium">pH Level</span>
-              <Droplet className="text-blue-500" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800 mt-2">6.8</div>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 font-medium">Water Flow</span>
-              <Rss className="text-green-500" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800 mt-2">Normal</div>
-          </div>
-          <div className="bg-white shadow rounded p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 font-medium">Ammonia</span>
-              <Flame className="text-yellow-500" />
-            </div>
-            <div className="text-2xl font-bold text-gray-800 mt-2">0.25 ppm</div>
-          </div>
+        {/* Tabs */}
+        <div className="flex space-x-4 mb-6">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded ${
+                isActive(tab.id)
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Timeline + Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Timeline */}
-          <div className="bg-white p-6 rounded shadow">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Monitoring Timeline</h2>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <div className="mt-1.5 w-3 h-3 bg-green-500 rounded-full"></div>
-                <div className="ml-4">
-                  <p className="text-gray-700">Sensor readings updated</p>
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <CalendarDays size={14} /> Aug 5
-                    <Clock size={14} /> 10:30 AM
-                  </div>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="mt-1.5 w-3 h-3 bg-blue-500 rounded-full"></div>
-                <div className="ml-4">
-                  <p className="text-gray-700">Water temperature stabilized</p>
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <CalendarDays size={14} /> Aug 4
-                    <Clock size={14} /> 4:20 PM
-                  </div>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <div className="mt-1.5 w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="ml-4">
-                  <p className="text-gray-700">pH sensor calibrated</p>
-                  <div className="text-sm text-gray-500 flex items-center gap-2">
-                    <CalendarDays size={14} /> Aug 4
-                    <Clock size={14} /> 9:15 AM
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          {/* Chart Placeholder */}
-          <div className="bg-white p-6 rounded shadow">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Water Quality Trends</h2>
-            <div className="h-64 flex items-center justify-center text-gray-400 border-2 border-dashed rounded-lg">
-              {/* Replace this with actual Chart.js component */}
-              <p>Chart.js graph here</p>
+        {/* Tab Content */}
+        <div>
+          {activeTab === "timeline" && (
+            <div>
+              {/* Example Timeline Content */}
+              <h2 className="text-xl font-semibold mb-4">Timeline (Lettuce & Tilapia)</h2>
+              {/* Replace with real components later */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 border rounded shadow">Lettuce Timeline</div>
+                <div className="p-4 border rounded shadow">Tilapia Timeline</div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === "water-quality" && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Water Quality Parameters</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <ParameterCard name="pH Level" value="5.1" status="Low"  />
+                <ParameterCard name="Ammonia" value="1.2 ppm" status="High" icon={<FlaskConical />} />
+                <ParameterCard name="Dissolved Oxygen" value="6.8 mg/L" status="Normal" icon={<Droplets />} />
+                <ParameterCard name="Temperature" value="24.5°C" status="Normal" icon={<Thermometer />} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === "fertilizer" && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Fertilizer Management</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Gauge name="Nitrogen" value="75%" color="bg-blue-500" />
+                <Gauge name="Phosphorus" value="60%" color="bg-green-500" />
+                <Gauge name="Potassium" value="45%" color="bg-yellow-500" />
+                <Gauge name="Calcium" value="88%" color="bg-purple-500" />
+              </div>
+            </div>
+          )}
+
+          {activeTab === "feeder" && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Automatic Feeder Status</h2>
+              <table className="w-full table-auto border border-gray-300">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2">Time</th>
+                    <th className="px-4 py-2">Amount</th>
+                    <th className="px-4 py-2">Status</th>
+                    <th className="px-4 py-2">Next Feed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="text-center border-t">
+                    <td className="px-4 py-2">07:00 AM</td>
+                    <td className="px-4 py-2">250g</td>
+                    <td className="px-4 py-2">Completed</td>
+                    <td className="px-4 py-2">-</td>
+                  </tr>
+                  <tr className="text-center border-t">
+                    <td className="px-4 py-2">12:00 PM</td>
+                    <td className="px-4 py-2">200g</td>
+                    <td className="px-4 py-2">Completed</td>
+                    <td className="px-4 py-2">-</td>
+                  </tr>
+                  <tr className="text-center border-t">
+                    <td className="px-4 py-2">05:00 PM</td>
+                    <td className="px-4 py-2">250g</td>
+                    <td className="px-4 py-2">Scheduled</td>
+                    <td className="px-4 py-2">1h 23m</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab === "sensors" && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">System Sensors</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <SensorCard name="Temperature" value="24.5°C" icon={<Thermometer />} />
+                <SensorCard name="pH Level" value="5.1" icon={<Droplets />} />
+                <SensorCard name="Dissolved Oxygen" value="6.8 mg/L" icon={<Droplets />} />
+                <SensorCard name="Ammonia" value="1.2 ppm" icon={<FlaskConical />} />
+                <SensorCard name="Light Intensity" value="18500 lux" icon={<Lightbulb />} />
+                <SensorCard name="Water Level" value="92%" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default MonitoringDashboard;
+// ✅ Reusable UI components
+
+function ParameterCard({ name, value, status, icon }: any) {
+  const statusColor =
+    status === "Normal"
+      ? "bg-green-500"
+      : status === "Low"
+      ? "bg-yellow-500"
+      : "bg-red-500";
+
+  return (
+    <div className="border p-4 rounded shadow">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-semibold">{name}</span>
+        {icon}
+      </div>
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="flex items-center mt-2 text-sm">
+        <span className={`w-3 h-3 rounded-full mr-2 ${statusColor}`} />
+        {status}
+      </div>
+    </div>
+  );
+}
+
+function Gauge({ name, value, color }: any) {
+  return (
+    <div className="text-center">
+      <div className={`w-24 h-24 rounded-full border-8 ${color} mx-auto mb-2`} />
+      <div className="text-lg font-bold">{value}</div>
+      <div className="text-sm text-gray-600">{name}</div>
+    </div>
+  );
+}
+
+function SensorCard({ name, value, icon }: any) {
+  return (
+    <div className="border p-4 rounded shadow text-center">
+      <div className="mb-2 flex justify-center">{icon}</div>
+      <h3 className="font-semibold">{name}</h3>
+      <p className="text-sm">{`Last Reading: ${value}`}</p>
+      <span className="text-green-600 font-medium">Online</span>
+    </div>
+  );
+}

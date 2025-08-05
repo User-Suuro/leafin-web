@@ -1,4 +1,7 @@
 import Link from "next/link";
+import React from "react";
+import { LayoutDashboard } from "lucide-react";
+
 
 export default function RootLayout() {
   return (
@@ -7,9 +10,12 @@ export default function RootLayout() {
       <div className="w-20 bg-blue-700 flex flex-col items-center py-5">
         <div className="w-14 h-14 bg-blue-900 mb-10"></div>
 
-        <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600 bg-blue-500">
-          <i className="fas fa-th"></i>
-        </div>
+        <Link href="/dashboard">
+          <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600 bg-blue-500">
+            <LayoutDashboard className="w-6 h-6" />
+          </div>
+        </Link>
+
         <Link href="/monitoring">
           <div className="w-full h-14 flex justify-center items-center text-white text-2xl mb-2 cursor-pointer hover:bg-blue-600">
             <i className="fas fa-heartbeat"></i>
