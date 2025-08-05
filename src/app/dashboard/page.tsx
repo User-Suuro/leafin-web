@@ -19,7 +19,7 @@ export default function RootLayout() {
             <CardContent className="p-5">
               <div className="flex items-center mb-4 relative">
                 <div className="w-12 h-12 flex justify-center items-center mr-4">
-                  <img src="lettuce-icon.svg" alt="Lettuce" className="w-10 h-10" />
+                 
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800">Lettuce</h2>
                 <button className="absolute right-0 text-blue-600 text-sm hover:underline">
@@ -44,7 +44,7 @@ export default function RootLayout() {
             <CardContent className="p-5">
               <div className="flex items-center mb-4 relative">
                 <div className="w-12 h-12 flex justify-center items-center mr-4">
-                  <img src="tilapia-icon.svg" alt="Tilapia" className="w-10 h-10" />
+                  
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800">Tilapia</h2>
                 <button className="absolute right-0 text-blue-600 text-sm hover:underline">
