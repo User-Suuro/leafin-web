@@ -1,11 +1,10 @@
 "use client";
 
 import { Sidebar } from "@/components/sidebar";
-import { CalendarCheck, ClipboardList } from "lucide-react";
+import { CalendarCheck } from "lucide-react";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { Textarea } from "@/shadcn/ui/textarea";
-import { Card } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/shadcn/ui/select";
 

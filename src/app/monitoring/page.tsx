@@ -3,11 +3,6 @@
 import { Sidebar } from "@/components/sidebar";
 import {
   HeartPulse,
-  LayoutDashboard,
-  ClipboardList,
-  HandCoins,
-  BarChart,
-  Settings,
   Thermometer,
   FlaskConical,
   Droplets,

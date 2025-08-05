@@ -6,14 +6,12 @@ import {
   Wallet,
   BarChart,
   RefreshCcw,
-  HandCoins,
 } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/shadcn/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
 import { Separator } from "@/shadcn/ui/separator";
