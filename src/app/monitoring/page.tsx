@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Sidebar } from "@/components/sidebar";
 import {
   HeartPulse,
   LayoutDashboard,
@@ -8,17 +8,22 @@ import {
   HandCoins,
   BarChart,
   Settings,
-  ChevronLeft,
-  ChevronRight,
   Thermometer,
   FlaskConical,
   Droplets,
   Lightbulb,
+  Clock,
+  CheckCircle,
 } from "lucide-react";
 
-export default function Monitoring() {
-  const [activeTab, setActiveTab] = useState("timeline");
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shadcn/ui/card";
+import { Badge } from "@/shadcn/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
+import { Progress } from "@/shadcn/ui/progress";
+import { Separator } from "@/shadcn/ui/separator";
 
+export default function Monitoring() {
   const tabs = [
     { id: "timeline", label: "Timeline" },
     { id: "water-quality", label: "Water Quality" },
@@ -27,177 +32,258 @@ export default function Monitoring() {
     { id: "sensors", label: "Sensors" },
   ];
 
-  const isActive = (tabId: string) => activeTab === tabId;
-
   return (
-    <div className="flex">
-      {/* Sidebar */}
-      <div className="w-16 bg-blue-600 text-white flex flex-col items-center py-4 space-y-4">
-        <LayoutDashboard className="w-6 h-6 cursor-pointer" />
-        <HeartPulse className="w-6 h-6 cursor-pointer" />
-        <ClipboardList className="w-6 h-6 cursor-pointer" />
-        <HandCoins className="w-6 h-6 cursor-pointer" />
-        <BarChart className="w-6 h-6 cursor-pointer" />
-        <Settings className="w-6 h-6 mt-auto cursor-pointer" />
-      </div>
+    <div className="flex min-h-screen">
+       <Sidebar />
 
       {/* Main Content */}
       <div className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-2">Monitoring</h1>
-        <div className="h-1 bg-gray-300 mb-4" />
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold tracking-tight">Monitoring</h1>
+          <p className="text-muted-foreground">Monitor your aquaponics system in real-time</p>
+        </div>
+        
+        <Separator className="mb-6" />
 
         {/* Tabs */}
-        <div className="flex space-x-4 mb-6">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded ${
-                isActive(tab.id)
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs defaultValue="timeline" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.id} value={tab.id} className="text-sm">
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Tab Content */}
-        <div>
-          {activeTab === "timeline" && (
+          {/* Timeline Tab */}
+          <TabsContent value="timeline" className="space-y-6">
             <div>
-              {/* Example Timeline Content */}
-              <h2 className="text-xl font-semibold mb-4">Timeline (Lettuce & Tilapia)</h2>
-              {/* Replace with real components later */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 border rounded shadow">Lettuce Timeline</div>
-                <div className="p-4 border rounded shadow">Tilapia Timeline</div>
+              <h2 className="text-2xl font-semibold mb-4">Timeline (Lettuce & Tilapia)</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Droplets className="w-5 h-5 text-green-500" />
+                      Lettuce Timeline
+                    </CardTitle>
+                    <CardDescription>Growth progress and milestones</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Timeline content will be displayed here</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <HeartPulse className="w-5 h-5 text-blue-500" />
+                      Tilapia Timeline
+                    </CardTitle>
+                    <CardDescription>Fish health and feeding schedule</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Timeline content will be displayed here</p>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "water-quality" && (
+          {/* Water Quality Tab */}
+          <TabsContent value="water-quality" className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Water Quality Parameters</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <ParameterCard name="pH Level" value="5.1" status="Low"  />
+              <h2 className="text-2xl font-semibold mb-4">Water Quality Parameters</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <ParameterCard name="pH Level" value="5.1" status="Low" icon={<Droplets />} />
                 <ParameterCard name="Ammonia" value="1.2 ppm" status="High" icon={<FlaskConical />} />
                 <ParameterCard name="Dissolved Oxygen" value="6.8 mg/L" status="Normal" icon={<Droplets />} />
                 <ParameterCard name="Temperature" value="24.5°C" status="Normal" icon={<Thermometer />} />
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "fertilizer" && (
+          {/* Fertilizer Tab */}
+          <TabsContent value="fertilizer" className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Fertilizer Management</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Gauge name="Nitrogen" value="75%" color="bg-blue-500" />
-                <Gauge name="Phosphorus" value="60%" color="bg-green-500" />
-                <Gauge name="Potassium" value="45%" color="bg-yellow-500" />
-                <Gauge name="Calcium" value="88%" color="bg-purple-500" />
+              <h2 className="text-2xl font-semibold mb-4">Fertilizer Management</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <NutrientCard name="Nitrogen" value={75} color="blue" />
+                <NutrientCard name="Phosphorus" value={60} color="green" />
+                <NutrientCard name="Potassium" value={45} color="yellow" />
+                <NutrientCard name="Calcium" value={88} color="purple" />
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "feeder" && (
+          {/* Feeder Tab */}
+          <TabsContent value="feeder" className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Automatic Feeder Status</h2>
-              <table className="w-full table-auto border border-gray-300">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-2">Time</th>
-                    <th className="px-4 py-2">Amount</th>
-                    <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Next Feed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="text-center border-t">
-                    <td className="px-4 py-2">07:00 AM</td>
-                    <td className="px-4 py-2">250g</td>
-                    <td className="px-4 py-2">Completed</td>
-                    <td className="px-4 py-2">-</td>
-                  </tr>
-                  <tr className="text-center border-t">
-                    <td className="px-4 py-2">12:00 PM</td>
-                    <td className="px-4 py-2">200g</td>
-                    <td className="px-4 py-2">Completed</td>
-                    <td className="px-4 py-2">-</td>
-                  </tr>
-                  <tr className="text-center border-t">
-                    <td className="px-4 py-2">05:00 PM</td>
-                    <td className="px-4 py-2">250g</td>
-                    <td className="px-4 py-2">Scheduled</td>
-                    <td className="px-4 py-2">1h 23m</td>
-                  </tr>
-                </tbody>
-              </table>
+              <h2 className="text-2xl font-semibold mb-4">Automatic Feeder Status</h2>
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Next Feed</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">07:00 AM</TableCell>
+                        <TableCell>250g</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Completed
+                          </Badge>
+                        </TableCell>
+                        <TableCell>-</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">12:00 PM</TableCell>
+                        <TableCell>200g</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Completed
+                          </Badge>
+                        </TableCell>
+                        <TableCell>-</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">05:00 PM</TableCell>
+                        <TableCell>250g</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-blue-700 border-blue-300">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Scheduled
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium text-blue-600">1h 23m</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "sensors" && (
+          {/* Sensors Tab */}
+          <TabsContent value="sensors" className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4">System Sensors</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <h2 className="text-2xl font-semibold mb-4">System Sensors</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <SensorCard name="Temperature" value="24.5°C" icon={<Thermometer />} />
                 <SensorCard name="pH Level" value="5.1" icon={<Droplets />} />
                 <SensorCard name="Dissolved Oxygen" value="6.8 mg/L" icon={<Droplets />} />
                 <SensorCard name="Ammonia" value="1.2 ppm" icon={<FlaskConical />} />
                 <SensorCard name="Light Intensity" value="18500 lux" icon={<Lightbulb />} />
-                <SensorCard name="Water Level" value="92%" />
+                <SensorCard name="Water Level" value="92%" icon={<Droplets />} />
               </div>
             </div>
-          )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
+
+// Reusable UI components using shadcn
+
+function ParameterCard({ name, value, status, icon }: {
+  name: string;
+  value: string;
+  status: string;
+  icon: React.ReactNode;
+}) {
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "Normal":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Low":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "High":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center justify-between">
+          {name}
+          <div className="text-muted-foreground">{icon}</div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold mb-2">{value}</div>
+        <Badge variant="outline" className={getStatusVariant(status)}>
+          {status}
+        </Badge>
+      </CardContent>
+    </Card>
+  );
+}
+
+function NutrientCard({ name, value, color }: {
+  name: string;
+  value: number;
+  color: string;
+}) {
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case "blue": return "text-blue-600";
+      case "green": return "text-green-600";
+      case "yellow": return "text-yellow-600";
+      case "purple": return "text-purple-600";
+      default: return "text-gray-600";
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium">{name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className={`text-2xl font-bold ${getColorClass(color)}`}>
+              {value}%
+            </span>
+          </div>
+          <Progress value={value} className="h-2" />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
-// ✅ Reusable UI components
-
-function ParameterCard({ name, value, status, icon }: any) {
-  const statusColor =
-    status === "Normal"
-      ? "bg-green-500"
-      : status === "Low"
-      ? "bg-yellow-500"
-      : "bg-red-500";
-
+function SensorCard({ name, value, icon }: {
+  name: string;
+  value: string;
+  icon?: React.ReactNode;
+}) {
   return (
-    <div className="border p-4 rounded shadow">
-      <div className="flex items-center justify-between mb-2">
-        <span className="font-semibold">{name}</span>
-        {icon}
-      </div>
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="flex items-center mt-2 text-sm">
-        <span className={`w-3 h-3 rounded-full mr-2 ${statusColor}`} />
-        {status}
-      </div>
-    </div>
-  );
-}
-
-function Gauge({ name, value, color }: any) {
-  return (
-    <div className="text-center">
-      <div className={`w-24 h-24 rounded-full border-8 ${color} mx-auto mb-2`} />
-      <div className="text-lg font-bold">{value}</div>
-      <div className="text-sm text-gray-600">{name}</div>
-    </div>
-  );
-}
-
-function SensorCard({ name, value, icon }: any) {
-  return (
-    <div className="border p-4 rounded shadow text-center">
-      <div className="mb-2 flex justify-center">{icon}</div>
-      <h3 className="font-semibold">{name}</h3>
-      <p className="text-sm">{`Last Reading: ${value}`}</p>
-      <span className="text-green-600 font-medium">Online</span>
-    </div>
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center justify-center gap-2">
+          {icon}
+          {name}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-center">
+        <div className="text-lg font-semibold mb-1">Last Reading: {value}</div>
+        <Badge variant="secondary" className="bg-green-100 text-green-800">
+          <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
+          Online
+        </Badge>
+      </CardContent>
+    </Card>
   );
 }
