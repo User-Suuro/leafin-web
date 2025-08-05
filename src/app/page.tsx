@@ -1,34 +1,26 @@
-// File: src/app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 
+interface SensorData {
+  status: "Connected" | "Disconnected";
+  time: string;
+  ph: string;
+  turbidity: string;
+}
+
 export default function Home() {
-  const [status, setStatus] = useState<"connected" | "disconnected">("disconnected");
-  const [weight, setWeight] = useState<number | null>(null);
-  const [turbidity, setTurbidity] = useState<number | null>(null);
-  const [ph, setPh] = useState<number | null>(null);
+  const [sensorData, setSensorData] = useState<SensorData | null>(null);
 
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res1 = await fetch("/api/device-status-check", { cache: "no-store" });
-        const json1 = await res1.json();
-        setStatus(json1.online ? "connected" : "disconnected");
-
-        const res2 = await fetch("/api/send-weight", { cache: "no-store" });
-        const json2 = await res2.json();
-        setWeight(json2.weight);
-
-        const res3 = await fetch("/api/send-turbidity", { cache: "no-store" });
-        const json3 = await res3.json();
-        setTurbidity(json3.turbidity);
-
-        const res4 = await fetch("/api/send-ph", { cache: "no-store" });
-        const json4 = await res4.json();
-        setPh(json4.ph);
+        const res = await fetch("/api/send-sensor-data", { cache: "no-store" });
+        const data = await res.json();
+        setSensorData(data);
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching sensor data:", error);
+        setSensorData(null);
       }
     }, 3000);
 
@@ -37,10 +29,10 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Device is: {status === "connected" ? "✅ Connected" : "❌ Disconnected"}</h1>
-      <h2>Weight: {weight !== null ? `${weight.toFixed(2)} g` : "Loading..."}</h2>
-      <h2>Turbidity: {turbidity !== null ? `${turbidity.toFixed(2)} NTU` : "Loading..."}</h2>
-      <h2>pH Level: {ph !== null ? ph.toFixed(2) : "Loading..."}</h2>
+      <h1>Device Status: {sensorData?.status === "Connected" ? "✅ Connected" : "❌ Disconnected"}</h1>
+      <h2>🕒 Time: {sensorData?.time ?? "Loading..."}</h2>
+      <h2>💧 Turbidity: {sensorData?.turbidity ?? "Loading..."} NTU</h2>
+      <h2>🧪 pH Level: {sensorData?.ph ?? "Loading..."}</h2>
     </main>
   );
 }
