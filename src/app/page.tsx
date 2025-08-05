@@ -17,7 +17,16 @@ export default function Home() {
       try {
         const res = await fetch("/api/send-sensor-data", { cache: "no-store" });
         const data = await res.json();
-        setSensorData(data);
+
+        // Transform the server response to match the SensorData interface
+        const transformed: SensorData = {
+          status: data.connected ? "Connected" : "Disconnected",
+          time: data.time,
+          ph: data.ph,
+          turbidity: data.turbid, // map `turbid` to `turbidity`
+        };
+
+        setSensorData(transformed);
       } catch (error) {
         console.error("Error fetching sensor data:", error);
         setSensorData(null);
@@ -29,7 +38,14 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Device Status: {sensorData?.status === "Connected" ? "✅ Connected" : "❌ Disconnected"}</h1>
+      <h1>
+        Device Status:{" "}
+        {sensorData ? (
+          sensorData.status === "Connected" ? "✅ Connected" : "❌ Disconnected"
+        ) : (
+          "Loading..."
+        )}
+      </h1>
       <h2>🕒 Time: {sensorData?.time ?? "Loading..."}</h2>
       <h2>💧 Turbidity: {sensorData?.turbidity ?? "Loading..."} NTU</h2>
       <h2>🧪 pH Level: {sensorData?.ph ?? "Loading..."}</h2>

@@ -1,26 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Internal storage for latest sensor data
 let latestStatus = {
   connected: false,
   time: 'N/A',
   ph: 'N/A',
   turbid: 'N/A',
-  lastUpdated: 'Never',
 }
 
-// GET: Client fetches the latest status and sensor values
+// GET: Called by the frontend to fetch latest sensor data
 export async function GET() {
   return NextResponse.json(latestStatus)
 }
 
-// POST: Arduino sends connection + sensor data
+// POST: Called by Arduino or external device to send sensor data
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-
     const { connected, time, ph, turbid } = body
 
-    // Validate payload
+    // Validate incoming data
     if (
       typeof connected !== 'boolean' ||
       typeof time !== 'string' ||
@@ -33,17 +32,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Update latest status
+    // Save the latest values
     latestStatus = {
       connected,
       time,
       ph,
       turbid,
-      lastUpdated: new Date().toISOString(),
     }
 
-    return NextResponse.json({ success: true, status: latestStatus })
+    return NextResponse.json({ success: true })
   } catch (error) {
+    console.error('POST error:', error)
     return NextResponse.json(
       { error: 'Failed to process request' },
       { status: 500 }
