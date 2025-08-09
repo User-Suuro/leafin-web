@@ -9,8 +9,8 @@ RUN npm install -g corepack@0.24.1 && corepack enable
 # Copy only dependency files first (for better build caching)
 COPY package.json yarn.lock ./
 
-# Install dependencies using cache mount
-RUN --mount=type=cache,id=yarn-cache,target=/usr/local/share/.cache/yarn \
+# Install dependencies using cache mount (Railway BuildKit compatible)
+RUN --mount=type=cache,id=cache-key:yarn-cache,target=/usr/local/share/.cache/yarn \
     yarn install --frozen-lockfile
 
 # Build stage
