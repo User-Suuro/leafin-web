@@ -8,8 +8,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN --mount=type=cache,id=${RAILWAY_SERVICE_ID}-yarn-cache,target=/root/.cache/yarn \
-    yarn install --frozen-lockfile --production
+RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/pnpm/store,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 COPY . .
 
