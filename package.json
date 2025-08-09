@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "shadcn-add": "shadcn add",
     "db-save": "drizzle-kit generate",
     "db-drop": "drizzle-kit drop",
     "db-push": "drizzle-kit push",
