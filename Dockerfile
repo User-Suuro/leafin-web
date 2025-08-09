@@ -1,5 +1,4 @@
 ARG NODE_VERSION=20.11.1
-ARG RAILWAY_SERVICE_ID=d7fd1032-c073-4380-9115-7a1f24e5fdee
 
 FROM node:${NODE_VERSION}-alpine
 RUN apk add --no-cache libc6-compat
@@ -8,7 +7,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/pnpm/store,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=s/$d7fd1032-c073-4380-9115-7a1f24e5fdee-/pnpm/store,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 COPY . .
 
