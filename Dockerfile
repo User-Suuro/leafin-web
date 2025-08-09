@@ -30,7 +30,7 @@ COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=pruner /app/out/json/ .
 
 # Install dependencies with PNPM cache mount
-RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.local/share/pnpm/store/v3,target=/root/.local/share/pnpm/store/v3 \
+RUN --mount=type=cache,id=cache:${RAILWAY_SERVICE_ID}-pnpm,target=/root/.local/share/pnpm/store/v3 \
     pnpm install --frozen-lockfile
 
 # Copy pruned full source
@@ -40,7 +40,7 @@ COPY --from=pruner /app/out/full/ .
 RUN turbo build --filter=${PROJECT}
 
 # Remove dev dependencies
-RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.local/share/pnpm/store/v3,target=/root/.local/share/pnpm/store/v3 \
+RUN --mount=type=cache,id=cache:${RAILWAY_SERVICE_ID}-pnpm,target=/root/.local/share/pnpm/store/v3 \
     pnpm prune --prod --no-optional
 
 # ----------- Runner Stage -----------
