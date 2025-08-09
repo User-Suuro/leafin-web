@@ -28,7 +28,7 @@ RUN turbo prune --scope=${PROJECT} --docker
 # Build Project
 FROM base AS builder
 ARG PROJECT=api
-ARG RAILWAY_SERVICE_ID=d7fd1032-c073-4380-9115-7a1f24e5fdee
+ARG RAILWAY_SERVICE_ID=521c4194-18b3-4f75-8afb-ab276ebb54a4
 
 RUN echo ${RAILWAY_SERVICE_ID}
 
