@@ -39,8 +39,13 @@ COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=pruner /app/out/json/ .
 
-# Install Dependencies
-RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.local/share/pnpm/store/v3,target=/root/.local/share/pnpm/store/v3 pnpm install --frozen-lockfile
+# Install Dependencies with cache-key prefix
+RUN --mount=type=cache,id=cache-key:${RAILWAY_SERVICE_ID}-pnpm-store,target=/root/.local/share/pnpm/store/v3 \
+    pnpm install --frozen-lockfile
+
+# Prune production deps with same cache
+RUN --mount=type=cache,id=cache-key:${RAILWAY_SERVICE_ID}-pnpm-store,target=/root/.local/share/pnpm/store/v3 \
+    pnpm prune --prod --no-optional
 
 # Copy Source Code
 COPY --from=pruner /app/out/full/ .
