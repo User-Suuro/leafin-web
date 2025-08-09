@@ -1,39 +1,70 @@
-# Use Node 22 (same as your local machine)
-FROM node:22-alpine AS deps
+ARG NODE_VERSION=22.17.1
+
+# Alpine Image
+FROM node:${NODE_VERSION}-alpine AS alpine
+RUN echo '1'
+
+RUN apk update
+RUN apk add --no-cache libc6-compat
+
+# Setup PNPM and Turbo on the Alpine Image
+FROM alpine as base
+
+RUN echo '2'
+
+RUN npm install pnpm turbo --global --no-cache
+RUN pnpm config set store-dir /root/.local/share/pnpm/store/v3
+
+# Prune Projects
+FROM base AS pruner
+ARG PROJECT=api
+
+RUN echo '3'
 
 WORKDIR /app
-
-# Install Corepack to manage Yarn version
-RUN npm install -g corepack@0.24.1 && corepack enable
-
-# Copy dependency files first to leverage caching
-COPY package.json yarn.lock ./
-
-# Install dependencies with a Railway-compatible cache mount
-RUN --mount=type=cache,id=d7fd1032-c073-4380-9115-7a1f24e5fdee:yarn-cache,target=/usr/local/share/.cache/yarn \
-    yarn install --frozen-lockfile
-
-# Build stage
-FROM node:22-alpine AS builder
-WORKDIR /app
-
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-
-# Copy all source files
 COPY . .
+RUN turbo prune --scope=${PROJECT} --docker
 
-# Build application
-RUN yarn build
+# Build Project
+FROM base AS builder
+ARG PROJECT=api
+ARG RAILWAY_SERVICE_ID=d7fd1032-c073-4380-9115-7a1f24e5fdee
 
-# Production image
-FROM node:22-alpine AS runner
+RUN echo ${RAILWAY_SERVICE_ID}
+
 WORKDIR /app
 
+# Copy lockfile and package.json's
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=pruner /app/out/json/ .
+
+# Install Dependencies
+RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.local/share/pnpm/store/v3,target=/root/.local/share/pnpm/store/v3 pnpm install --frozen-lockfile
+
+# Copy Source Code
+COPY --from=pruner /app/out/full/ .
+
+RUN turbo build --filter=${PROJECT}
+RUN --mount=type=cache,id=s/${RAILWAY_SERVICE_ID}-/root/.local/share/pnpm/store/v3,target=/root/.local/share/pnpm/store/v3 pnpm prune --prod --no-optional
+RUN rm -rf ./**/*/src
+
+# Final Image
+FROM alpine AS runner
+ARG PROJECT=api
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+USER nodejs
+
+WORKDIR /app
+COPY --from=builder --chown=nodejs:nodejs /app .
+WORKDIR /app/apps/${PROJECT}
+
+ARG PORT=3000
+ENV PORT=${PORT}
 ENV NODE_ENV=production
 
-# Copy built app
-COPY --from=builder /app ./
+EXPOSE ${PORT}
 
-EXPOSE 3000
-CMD ["yarn", "start"]
+CMD node dist/server.js
