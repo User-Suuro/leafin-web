@@ -18,7 +18,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/send-sensor-data", { cache: "no-store" });
+        const res = await fetch("/api/arduino/send-data", { cache: "no-store" });
         const json = await res.json();
 
         const now = Date.now();
