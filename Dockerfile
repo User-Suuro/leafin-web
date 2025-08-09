@@ -12,10 +12,6 @@ COPY package.json yarn.lock ./
 # Run Railway Service ID
 RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip,target=/root/.cache/pip
 
-# Install dependencies using cache mount
-RUN --mount=type=cache,id=yarn-cache,target=/usr/local/share/.cache/yarn \
-    yarn install --frozen-lockfile
-
 # Build stage
 FROM node:22-alpine AS builder
 WORKDIR /app
