@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar } from "@/components/navigation/sidebar";
 import { Card, CardContent } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 

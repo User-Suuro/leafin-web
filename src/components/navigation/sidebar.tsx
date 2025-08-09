@@ -23,27 +23,27 @@ const sidebarItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-    href: "/dashboard",
+    href: "/system",
   },
   {
     title: "Monitoring",
     icon: Activity,
-    href: "/monitoring",
+    href: "/system/monitoring",
   },
   {
     title: "Tasks",
     icon: ClipboardList,
-    href: "/tasks",
+    href: "/system/tasks",
   },
   {
     title: "Sales",
     icon: DollarSign,
-    href: "/sales",
+    href: "/system/sales",
   },
   {
     title: "Reports",
     icon: BarChart3,
-    href: "/reports",
+    href: "/system/reports",
   },
 ];
 
