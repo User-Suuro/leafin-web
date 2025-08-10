@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/navigation/sidebar";
 import {
   HeartPulse,
@@ -18,11 +19,50 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Progress } from "@/shadcn/ui/progress";
 import { Separator } from "@/shadcn/ui/separator";
 
+interface SensorData {
+  time: string;
+  date: string;
+  ph: string;
+  turbid: string;
+  timestamp: number;
+}
+
 export default function Monitoring() {
+  // Sensor data state
+  const [sensorData, setSensorData] = useState<SensorData | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<"Connected" | "Disconnected">("Disconnected");
+
+  // Fetch sensor data every 6 seconds
+  useEffect(() => {
+    const fetchSensorData = async () => {
+      try {
+        const res = await fetch("/api/arduino/send-data", { cache: "no-store" });
+        const json: SensorData = await res.json();
+
+        const now = Date.now();
+        const elapsed = now - json.timestamp;
+
+        if (elapsed < 20000) {
+          setConnectionStatus("Connected");
+        } else {
+          setConnectionStatus("Disconnected");
+        }
+
+        setSensorData(json);
+      } catch (error) {
+        console.error("Error fetching sensor data:", error);
+        setConnectionStatus("Disconnected");
+      }
+    };
+
+    fetchSensorData();
+    const interval = setInterval(fetchSensorData, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
   const tabs = [
     { id: "timeline", label: "Timeline" },
     { id: "water-quality", label: "Water Quality" },
-    { id: "fertilizer", label: "Fertilizer" },
     { id: "feeder", label: "Feeder" },
     { id: "sensors", label: "Sensors" },
   ];
@@ -89,23 +129,25 @@ export default function Monitoring() {
             <div>
               <h2 className="text-2xl font-semibold mb-4">Water Quality Parameters</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <ParameterCard name="pH Level" value="5.1" status="Low" icon={<Droplets />} />
-                <ParameterCard name="Ammonia" value="1.2 ppm" status="High" icon={<FlaskConical />} />
-                <ParameterCard name="Dissolved Oxygen" value="6.8 mg/L" status="Normal" icon={<Droplets />} />
-                <ParameterCard name="Temperature" value="24.5°C" status="Normal" icon={<Thermometer />} />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Fertilizer Tab */}
-          <TabsContent value="fertilizer" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Fertilizer Management</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <NutrientCard name="Nitrogen" value={75} color="blue" />
-                <NutrientCard name="Phosphorus" value={60} color="green" />
-                <NutrientCard name="Potassium" value={45} color="yellow" />
-                <NutrientCard name="Calcium" value={88} color="purple" />
+                <ParameterCard
+                  name="pH Level"
+                  value={sensorData?.ph ?? "Loading..."}
+                  status={determinePHStatus(sensorData?.ph)}
+                  icon={<Droplets />}
+                />
+                <ParameterCard
+                  name="Turbidity"
+                  value={sensorData?.turbid ?? "Loading..."}
+                  status={determineTurbidityStatus(sensorData?.turbid)}
+                  icon={<FlaskConical />}
+                />
+                {/* Example placeholder for Temperature, replace if you have temp sensor */}
+                <ParameterCard
+                  name="Temperature"
+                  value="24.5°C"
+                  status="Normal"
+                  icon={<Thermometer />}
+                />
               </div>
             </div>
           </TabsContent>
@@ -170,13 +212,33 @@ export default function Monitoring() {
           <TabsContent value="sensors" className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold mb-4">System Sensors</h2>
+              <div className="mb-4 font-medium">
+                Device Status:{" "}
+                {connectionStatus === "Connected" ? (
+                  <span className="text-green-600">✅ Connected</span>
+                ) : (
+                  <span className="text-red-600">❌ Disconnected</span>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <SensorCard name="Temperature" value="24.5°C" icon={<Thermometer />} />
-                <SensorCard name="pH Level" value="5.1" icon={<Droplets />} />
-                <SensorCard name="Dissolved Oxygen" value="6.8 mg/L" icon={<Droplets />} />
-                <SensorCard name="Ammonia" value="1.2 ppm" icon={<FlaskConical />} />
-                <SensorCard name="Light Intensity" value="18500 lux" icon={<Lightbulb />} />
-                <SensorCard name="Water Level" value="92%" icon={<Droplets />} />
+                <SensorCard
+                  name="pH Level"
+                  value={sensorData?.ph ?? "Loading..."}
+                  icon={<Droplets />}
+                />
+                <SensorCard
+                  name="Turbidity"
+                    value={sensorData?.turbid ?? "Loading..."}
+                  icon={<FlaskConical />}
+                />
+                {/* You can add more sensor cards here as needed */}
+                {/* Example: Temperature sensor (replace with real if available) */}
+                <SensorCard
+                  name="Temperature"
+                  value="24.5°C" // Replace if you add temperature sensor data
+                  icon={<Thermometer />}
+                />
+                {/* Add other sensors like Ammonia, Light Intensity, Water Level, etc. */}
               </div>
             </div>
           </TabsContent>
@@ -259,11 +321,11 @@ function NutrientCard({ name, value, color }: {
   );
 }
 
-function SensorCard({ name, value, icon }: {
-  name: string;
-  value: string;
-  icon?: React.ReactNode;
-}) {
+// SensorCard component as before
+function SensorCard({ name, value, icon }: { name: string; value: string; icon?: React.ReactNode }) {
+  // Consider "N/A", "Loading...", "", or null/undefined as offline
+  const isOnline = value !== undefined && value !== null && value !== "N/A" && value !== "Loading..." && value !== "";
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -274,11 +336,37 @@ function SensorCard({ name, value, icon }: {
       </CardHeader>
       <CardContent className="text-center">
         <div className="text-lg font-semibold mb-1">Last Reading: {value}</div>
-        <Badge variant="secondary" className="bg-green-100 text-green-800">
-          <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
-          Online
-        </Badge>
+        {isOnline ? (
+          <Badge variant="secondary" className="bg-green-100 text-green-800 inline-flex items-center justify-center">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
+            Online
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="bg-red-100 text-red-800 inline-flex items-center justify-center">
+            <div className="w-2 h-2 bg-red-500 rounded-full mr-1" />
+            Offline
+          </Badge>
+        )}
       </CardContent>
     </Card>
   );
+}
+
+
+function determinePHStatus(ph?: string): string {
+  if (!ph) return "Unknown";
+  const pHNum = parseFloat(ph);
+  if (isNaN(pHNum)) return "Unknown";
+  if (pHNum < 6.5) return "Low";
+  if (pHNum > 7.5) return "High";
+  return "Normal";
+}
+
+function determineTurbidityStatus(turbid?: string): string {
+  if (!turbid) return "Unknown";
+  const turbidNum = parseFloat(turbid);
+  if (isNaN(turbidNum)) return "Unknown";
+  if (turbidNum > 5) return "High";      // example threshold
+  if (turbidNum < 1) return "Low";       // example threshold
+  return "Normal";
 }

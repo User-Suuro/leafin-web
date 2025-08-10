@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/personalization/theme-provider";
+import { ToastProvider } from "@/shadcn/ui/toast-provider";
 
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
@@ -21,9 +22,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html
       lang="en"
@@ -31,9 +32,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-           <Navbar />
-          {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ToastProvider>
+            <Navbar />
+            {children}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
