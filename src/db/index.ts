@@ -13,4 +13,5 @@ const connection = await mysql.createConnection({
   queueLimit: 0,
 });
 
-export const db = drizzle({ client: connection });
+// Export Drizzle instance
+export const db = drizzle(connection);
