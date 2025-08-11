@@ -104,10 +104,10 @@ function determineStageIndex(days: number | undefined, stageDef: { name: string;
   return stageDef.length - 1;
 }
 
-// Utility: format date to YYYY-MM-DD
-function toISODateString(d: Date) {
-  return d.toISOString().split("T")[0];
-}
+// // Utility: format date to YYYY-MM-DD
+// function toISODateString(d: Date) {
+//   return d.toISOString().split("T")[0];
+// }
 
 // Timeline bar type
 type TimelineBar = {
