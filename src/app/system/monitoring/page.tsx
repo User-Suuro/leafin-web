@@ -89,16 +89,34 @@ function normalizeBatch(input: RawBatch): {
 } {
   if (!input) return {};
 
-  const hasFishDays =
-    input.fishDays !== undefined &&
-    input.fishDays !== null;
+  const hasFishDays = input.fishDays !== undefined && input.fishDays !== null;
+
+  // Helper to safely extract numeric property from unknown object
+  function getNumberProp(obj: unknown, prop: string): number | undefined {
+    if (obj && typeof obj === "object" && prop in obj) {
+      const val = (obj as Record<string, unknown>)[prop];
+      if (typeof val === "number") return val;
+      if (typeof val === "string" && !isNaN(Number(val))) return Number(val);
+    }
+    return undefined;
+  }
+
+  // Helper to safely extract string property from unknown object
+  function getStringProp(obj: unknown, prop: string): string | undefined {
+    if (obj && typeof obj === "object" && prop in obj) {
+      const val = (obj as Record<string, unknown>)[prop];
+      if (typeof val === "string") return val;
+      if (val != null) return String(val);
+    }
+    return undefined;
+  }
 
   if (input.date && hasFishDays) {
     return {
-      id: (input as FishBatch).fishBatchId ?? (input as any).id,
-      dateISO: input.date ?? (input as any).dateAdded?.toString?.(),
-      days: (input as FishBatch).fishDays ?? (input as any).days,
-      qty: (input as FishBatch).fishQuantity ?? (input as any).qty,
+      id: (input as FishBatch).fishBatchId ?? getNumberProp(input, "id"),
+      dateISO: input.date ?? getStringProp(input, "dateAdded"),
+      days: (input as FishBatch).fishDays ?? getNumberProp(input, "days"),
+      qty: (input as FishBatch).fishQuantity ?? getNumberProp(input, "qty"),
       condition: input.condition ?? undefined,
       rawEvent: input.event ?? undefined,
     };
@@ -106,15 +124,14 @@ function normalizeBatch(input: RawBatch): {
 
   const maybeDate = input.date
     ? input.date
-    : typeof input.event === "string" &&
-      /\d{4}-\d{2}-\d{2}/.test(input.event)
+    : typeof input.event === "string" && /\d{4}-\d{2}-\d{2}/.test(input.event)
     ? input.event.match(/\d{4}-\d{2}-\d{2}/)?.[0]
     : undefined;
 
   return {
     id: (input as FishBatch).fishBatchId ?? undefined,
     dateISO: maybeDate,
-    days: (input as FishBatch).fishDays ?? (input as any).days,
+    days: (input as FishBatch).fishDays ?? getNumberProp(input, "days"),
     qty: undefined,
     condition: input.condition ?? undefined,
     rawEvent: input.event ?? undefined,
@@ -144,7 +161,7 @@ type TimelineBar = {
   endDay: number; // inclusive
   type: string; // 'tilapia' | 'lettuce' | etc
   stageIndex: number;
-  raw?: any;
+  raw?: unknown;
 };
 
 /* -----------------------
@@ -269,9 +286,13 @@ function StageTimeline({
         });
 
         setBars(mappedBars);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Timeline load error:", err);
-        setError(String(err?.message ?? err ?? "Unknown error"));
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(String(err));
+        }
         setBars([]);
       } finally {
         setLoading(false);
