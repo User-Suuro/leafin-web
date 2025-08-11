@@ -6,9 +6,28 @@ import { Card, CardContent } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 import AddBatchModal from "@/components/Modal/AddBatchModal";
 
+type FishBatch = {
+  fishQuantity?: number;
+  fish_quantity?: number;
+  fishDays?: number;
+  ageDays?: number;
+  condition?: string;
+};
+
+type PlantBatch = {
+  plantQuantity?: number;
+  plant_quantity?: number;
+  condition?: string;
+};
+
+type ApiResponse = {
+  batches?: FishBatch[];
+  totalFish?: number;
+};
+
 export default function RootLayout() {
-  const [lettuceData, setLettuceData] = useState<any[]>([]);
-  const [tilapiaData, setTilapiaData] = useState<any[]>([]);
+  const [lettuceData, setLettuceData] = useState<PlantBatch[]>([]);
+  const [tilapiaData, setTilapiaData] = useState<FishBatch[]>([]);
   const [tilapiaTotal, setTilapiaTotal] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<"plant" | "fish" | "">("");
@@ -18,20 +37,8 @@ export default function RootLayout() {
 
 
   useEffect(() => {
-  type FishBatch = {
-    fishQuantity?: number;
-    fish_quantity?: number;
-    fishDays?: number;
-    ageDays?: number;
-    condition?: string;
-  };
 
-  type ApiResponse = {
-    batches?: FishBatch[];
-    totalFish?: number;
-  };
-
-
+    
     // plants (keep safe fallback if your plant endpoint returns object vs array)
     fetch("/api/plant-batch")
       .then((res) => res.json())
