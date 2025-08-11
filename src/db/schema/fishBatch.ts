@@ -6,7 +6,7 @@ export const fishBatch = mysqlTable("fish_batch", {
   fishQuantity: int("fish_quantity").notNull(),
   fishDays: int("fish_days").default(0),
   dateAdded: datetime("date_added").notNull(),
-  condition: varchar("condition", { length: 50 }),
+  condition: varchar("conditions", { length: 50 }),
 });
 
 export type FishBatch = typeof fishBatch.$inferSelect;

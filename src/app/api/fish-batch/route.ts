@@ -10,7 +10,7 @@ export async function GET() {
     const growingBatches = await db
       .select()
       .from(fishBatch)
-      .where(eq(fishBatch.condition, "Growing"));
+      .where(eq(fishBatch.condition, "Grow-out Stage"));
 
     const batchesWithDays = await Promise.all(
       growingBatches.map(async (b) => {
@@ -20,10 +20,10 @@ export async function GET() {
         );
 
         // If >= 120 days, update to "Ready"
-        if (ageDays >= 120 && b.condition === "Growing") {
+        if (ageDays >= 120 && b.condition === "Grow-out Stage") {
           await db
             .update(fishBatch)
-            .set({ condition: "Ready" })
+            .set({ condition: "Harvest Stage" })
             .where(eq(fishBatch.fishBatchId, b.fishBatchId));
         }
 
@@ -34,9 +34,9 @@ export async function GET() {
       })
     );
 
-    // ✅ Explicitly sum only "Growing" batches
+    // ✅ Explicitly sum only "Grow-out Stage" batches
     const totalFish = batchesWithDays
-      .filter((b) => b.condition === "Growing")
+      .filter((b) => b.condition === "Grow-out Stage")
       .reduce((sum, b) => sum + (b.fishQuantity ?? 0), 0);
 
     return NextResponse.json({
@@ -55,13 +55,13 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { fishQuantity, aquariumId } = data;
+    const { fishQuantity } = data;
 
     await db.insert(fishBatch).values({
       fishQuantity,
       dateAdded: new Date(),
-      fishDays: 0,
-      condition: "Growing",
+      fishDays: 60,
+      condition: "Juvenile Stage",
     });
 
     return NextResponse.json({ success: true });

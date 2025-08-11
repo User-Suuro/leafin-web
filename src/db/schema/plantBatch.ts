@@ -6,7 +6,7 @@ export const plantBatch = mysqlTable("plant_batch", {
   plantQuantity: int("plant_quantity").notNull(),
   plantDays: int("plant_days").default(0),
   dateAdded: datetime("date_added").notNull(),
-  condition: varchar("condition", { length: 50 }),
+  condition: varchar("conditions", { length: 50 }),
 });
 
 export type PlantBatch = typeof plantBatch.$inferSelect;

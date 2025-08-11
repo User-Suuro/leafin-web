@@ -10,7 +10,7 @@ export async function GET() {
     const growingBatches = await db
       .select()
       .from(plantBatch)
-      .where(eq(plantBatch.condition, "Growing"));
+      .where(eq(plantBatch.condition, "Vegetative Growth"));
 
     const batchesWithDays = await Promise.all(
       growingBatches.map(async (b) => {
@@ -19,11 +19,11 @@ export async function GET() {
           (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
         );
 
-        // If >= 45 days, update to "Ready"
-        if (ageDays >= 45 && b.condition === "Growing") {
+        // If >= 50 days, update to "Ready"
+        if (ageDays >= 50 && b.condition === "Vegetative Growth") {
           await db
             .update(plantBatch)
-            .set({ condition: "Ready" })
+            .set({ condition: "Harvest Ready" })
             .where(eq(plantBatch.plantBatchId, b.plantBatchId));
         }
 
@@ -60,8 +60,8 @@ export async function POST(req: Request) {
     await db.insert(plantBatch).values({
       plantQuantity,
       dateAdded: new Date(),
-      plantDays: 0,
-      condition: "Growing",
+      plantDays: 35,
+      condition: "Vegetative Growth",
     });
 
     return NextResponse.json({ success: true });

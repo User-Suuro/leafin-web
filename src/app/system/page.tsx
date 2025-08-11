@@ -117,14 +117,14 @@ export default function RootLayout() {
 
     
 
-  // compute max age (days) from batch data (supports fishDays or ageDays)
-  const maxAgeDays =
-    tilapiaData.length > 0
-      ? tilapiaData.reduce((max, b) => {
-          const age = b.fishDays ?? b.ageDays ?? 0;
-          return age > max ? age : max;
-        }, 0)
-      : 0;
+  // // compute max age (days) from batch data (supports fishDays or ageDays)
+  // const maxAgeDays =
+  //   tilapiaData.length > 0
+  //     ? tilapiaData.reduce((max, b) => {
+  //         const age = b.fishDays ?? b.ageDays ?? 0;
+  //         return age > max ? age : max;
+  //       }, 0)
+  //     : 0;
 
   // total plants fallback: try camelCase then snake_case
   const totalPlants = lettuceData.reduce(

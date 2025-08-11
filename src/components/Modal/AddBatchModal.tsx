@@ -45,6 +45,7 @@ export default function AddBatchModal({
       setQuantity("");
       onClose();
     } catch (err) {
+      console.error(err);
       toast({
         title: "❌ Error",
         description: "Something went wrong while adding the batch.",
