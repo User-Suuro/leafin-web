@@ -55,45 +55,72 @@ const LETTUCE_STAGES = [
   { name: "Bolting & Seeding", maxDays: Infinity },
 ];
 
-// Helper: parse possible API batch shape into canonical object
-function normalizeBatch(input: any): {
+interface FishBatch {
+  fishBatchId?: number;
+  date?: string;
+  dateAdded?: string | Date;
+  fishDays?: number;
+  fishQuantity?: number;
+  condition?: string;
+  event?: string;
+  status?: string;
+}
+
+interface PlantBatch {
+  plantBatchId?: number;
+  date?: string;
+  dateAdded?: string | Date;
+  plantDays?: number;
+  plantQuantity?: number;
+  condition?: string;
+  event?: string;
+  status?: string;
+}
+
+type RawBatch = (FishBatch | PlantBatch) & Record<string, unknown>;
+
+function normalizeBatch(input: RawBatch): {
   id?: number;
   dateISO?: string;
   days?: number;
   qty?: number;
   condition?: string;
-  rawEvent?: string | undefined;
+  rawEvent?: string;
 } {
   if (!input) return {};
-  // If it is already rich:
-  if (input.date && (input.fishDays !== undefined || input.fishDays !== null || input.fishDays === 0)) {
+
+  const hasFishDays =
+    input.fishDays !== undefined &&
+    input.fishDays !== null;
+
+  if (input.date && hasFishDays) {
     return {
-      id: input.fishBatchId ?? input.id,
-      dateISO: input.date ?? input.dateAdded ?? input.dateAdded?.toString?.(),
-      days: input.fishDays ?? input.days ?? undefined,
-      qty: input.fishQuantity ?? input.qty ?? undefined,
+      id: (input as FishBatch).fishBatchId ?? (input as any).id,
+      dateISO: input.date ?? (input as any).dateAdded?.toString?.(),
+      days: (input as FishBatch).fishDays ?? (input as any).days,
+      qty: (input as FishBatch).fishQuantity ?? (input as any).qty,
       condition: input.condition ?? undefined,
       rawEvent: input.event ?? undefined,
     };
   }
 
-  // If the API returns the simpler event objects (like your route previously)
-  // we try to parse date from `date` field or event string fallback
   const maybeDate = input.date
     ? input.date
-    : typeof input.event === "string" && /\d{4}-\d{2}-\d{2}/.test(input.event)
+    : typeof input.event === "string" &&
+      /\d{4}-\d{2}-\d{2}/.test(input.event)
     ? input.event.match(/\d{4}-\d{2}-\d{2}/)?.[0]
     : undefined;
 
   return {
-    id: input.fishBatchId ?? undefined,
+    id: (input as FishBatch).fishBatchId ?? undefined,
     dateISO: maybeDate,
-    days: input.fishDays ?? input.fishDays ?? undefined,
+    days: (input as FishBatch).fishDays ?? (input as any).days,
     qty: undefined,
     condition: input.condition ?? undefined,
     rawEvent: input.event ?? undefined,
   };
 }
+
 
 // Determine stage index given age in days and stage definition
 function determineStageIndex(days: number | undefined, stageDef: { name: string; maxDays: number }[]) {
@@ -183,7 +210,7 @@ function StageTimeline({
       setError(null);
       try {
         // allow using external prop batchesProp (already fetched in parent)
-        let rawBatches: any[] = [];
+        let rawBatches: RawBatch[] = [];
 
         if (batchesProp && batchesProp.length > 0) {
           rawBatches = batchesProp;
@@ -197,7 +224,7 @@ function StageTimeline({
         }
 
         // Map and filter batches that fall into this month (or overlap)
-        const mappedBars: TimelineBar[] = (Array.isArray(rawBatches) ? rawBatches : []).map((b: any, idx: number) => {
+        const mappedBars: TimelineBar[] = (Array.isArray(rawBatches) ? rawBatches : []).map((b: RawBatch, idx: number) => {
           const normalized = normalizeBatch(b);
           const rawDate = normalized.dateISO ?? normalized.rawEvent ?? b.date ?? b.dateAdded;
           let batchDate: Date | null = null;
