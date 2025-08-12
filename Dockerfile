@@ -15,9 +15,7 @@ COPY package.json yarn.lock ./
 
 RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip,target=/root/.cache/pip
 
-# Install dependencies using cache mount for speed
-RUN --mount=type=cache,target=/root/.cache/yarn \
-    yarn install --frozen-lockfile
+RUN yarn
 
 # Copy all project files
 COPY . .
