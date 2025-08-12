@@ -11,8 +11,9 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 # Install ALL dependencies (including dev) so next build works
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip \
-    yarn install --frozen-lockfile
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip
+
+RUN yarn install --frozen-lockfile
 
 # Copy all source files
 COPY . .
