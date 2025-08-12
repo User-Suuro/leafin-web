@@ -13,9 +13,9 @@ WORKDIR /app
 # Copy only dependency files first for better caching
 COPY package.json yarn.lock ./
 
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn,target=/root/.cache/yarn \
+RUN --mount=type=cache,id=s-d7fd1032-c073-4380-9115-7a1f24e5fdee-yarn,target=/root/.cache/yarn \
     yarn install --frozen-lockfile
-    
+
 # Copy all project files (including src/app)
 COPY . .
 
