@@ -1,16 +1,8 @@
-# Ignore dependencies and caches
-node_modules
-.next/cache
-.yarn/cache
-
-# Ignore git and local files
 .git
-.gitignore
-Dockerfile
-.dockerignore
-README.md
+.next
+node_modules
 npm-debug.log
 yarn-error.log
-
-# Ignore build artifacts not needed for runtime
-*.log
+Dockerfile
+docker-compose.yml
+*.md
