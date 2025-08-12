@@ -8,10 +8,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy dependency manifests first for better caching
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock* ./
 
 # Install ALL dependencies for build (including devDependencies)
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn \
+RUN --mount=type=cache,id=yarn-cache,target=/root/.yarn \
     yarn install --frozen-lockfile
 
 # Copy all source files
@@ -23,19 +23,35 @@ RUN yarn build
 # ---- Production Stage ----
 FROM node:${NODE_VERSION}-alpine AS runner
 
-RUN apk add --no-cache libc6-compat
+# Install required system packages and create app user for security
+RUN apk add --no-cache libc6-compat && \
+    addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
 WORKDIR /app
+
 ENV NODE_ENV=production
 
-# Copy only what's needed for runtime
-COPY package.json yarn.lock ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+# Create a non-root user
+USER nextjs
 
-# Install only production dependencies in runtime
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn \
-    yarn install --frozen-lockfile --production=true && yarn cache clean
+# Copy package files
+COPY --chown=nextjs:nodejs package.json yarn.lock* ./
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Create .next directory with proper permissions
+USER root
+RUN mkdir -p .next && chown nextjs:nodejs .next
+USER nextjs
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Use the standalone server for better performance
+CMD ["node", "server.js"]
