@@ -16,7 +16,7 @@ RUN corepack enable && yarn set version stable
 # Copy only dependency files first for better caching
 COPY package.json yarn.lock ./
 
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip,target=/root/.cache/pip
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn,target=/root/.cache/yarn
 
 RUN yarn install --production --frozen-lockfile --prefer-offline
 
