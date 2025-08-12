@@ -10,10 +10,9 @@ WORKDIR /app
 # Copy dependency manifests first for better caching
 COPY package.json yarn.lock ./
 
-# Install ALL dependencies (including dev) so next build works
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip
-
-RUN yarn install --frozen-lockfile
+# Install ALL dependencies for build (including devDependencies)
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn \
+    yarn install --frozen-lockfile
 
 # Copy all source files
 COPY . .
@@ -33,6 +32,10 @@ ENV NODE_ENV=production
 COPY package.json yarn.lock ./
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
+
+# Install only production dependencies in runtime
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn \
+    yarn install --frozen-lockfile --production=true && yarn cache clean
 
 EXPOSE 3000
 CMD ["yarn", "start"]
