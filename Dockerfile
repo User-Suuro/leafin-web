@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package.json yarn.lock* ./
 
 # Install ALL dependencies for build (including devDependencies)
-RUN --mount=type=cache,id=yarn-cache,target=/root/.yarn \
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn,target=/root/.cache/yarn \
     yarn install --frozen-lockfile
 
 # Copy all source files
