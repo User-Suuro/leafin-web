@@ -1,22 +1,42 @@
-ARG NODE_VERSION=20.11.1
+# ---- Build Stage ----
+ARG NODE_VERSION=22.17.1
+FROM node:${NODE_VERSION}-alpine AS builder
 
-FROM node:${NODE_VERSION}-alpine
+# Install required system packages
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
+# Copy dependency manifests first for better caching
 COPY package.json yarn.lock ./
 
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip,target=/root/.cache/pip
+# Railway build cache mount (kept exactly as given)
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip \
+    yarn install --frozen-lockfile
 
+# Copy all source files
 COPY . .
 
-RUN yarn
-
+# Build Next.js app
 RUN yarn build
 
-EXPOSE 3000
 
+# ---- Production Stage ----
+FROM node:${NODE_VERSION}-alpine AS runner
+
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
 ENV NODE_ENV=production
 
+# Copy only needed files for runtime
+COPY package.json yarn.lock ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+# Install only production dependencies with same Railway cache mount
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip \
+    yarn install --frozen-lockfile --production=true && yarn cache clean
+
+EXPOSE 3000
 CMD ["yarn", "start"]
