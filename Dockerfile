@@ -10,7 +10,7 @@ WORKDIR /app
 # Copy dependency manifests first for better caching
 COPY package.json yarn.lock ./
 
-# Railway build cache mount (kept exactly as given)
+# Install ALL dependencies (including dev) so next build works
 RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip \
     yarn install --frozen-lockfile
 
@@ -29,12 +29,12 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy only needed files for runtime
+# Copy only what's needed for runtime
 COPY package.json yarn.lock ./
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-# Install only production dependencies with same Railway cache mount
+# Install only production dependencies
 RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip \
     yarn install --frozen-lockfile --production=true && yarn cache clean
 
