@@ -1,71 +1,26 @@
-# Dependencies
+# Node modules & build cache
 node_modules
+.cache
+.pnpm-store
+.next/cache
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+*.log
 
-# Next.js build output (let Docker build create it fresh)
-.next
-out
-
-# Production build (if you have one)
-build
-dist
-
-# Environment variables (security)
+# Local environment files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Testing
-coverage
-.nyc_output
-.jest
-
-# IDE and editor files
-.vscode
-.idea
-*.swp
-*.swo
-*~
-
-# OS generated files
+# OS-specific files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Git
+# Git files
 .git
 .gitignore
-
-# Docker
-Dockerfile*
-docker-compose*
-.dockerignore
-
-# Documentation
-*.md
-README*
-CHANGELOG*
-LICENSE*
-
-# Logs
-logs
-*.log
-
-# Temporary files
-tmp
-temp
-.tmp
-
-# Cache directories
-.cache
-.parcel-cache
-.eslintcache

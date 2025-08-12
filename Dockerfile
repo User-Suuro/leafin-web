@@ -1,87 +1,43 @@
-# ---- Development Stage ----
+# Use build arguments for Node version
 ARG NODE_VERSION=22.17.1
-FROM node:${NODE_VERSION}-alpine AS development
 
-# Install required system packages
-RUN apk add --no-cache libc6-compat
-
-WORKDIR /app
-
-# Copy dependency manifests first for better caching
-COPY package.json yarn.lock* ./
-
-# Install ALL dependencies (including devDependencies for development)
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn,target=/root/.cache/yarn \
-    yarn install --frozen-lockfile
-
-# Copy all source files
-COPY . .
-
-EXPOSE 3000
-
-ENV NODE_ENV=development
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# Development command
-CMD ["yarn", "dev"]
-
-# ---- Build Stage ----
+# Use Alpine-based Node image
 FROM node:${NODE_VERSION}-alpine AS builder
 
-# Install required system packages
+# Install required system libraries
 RUN apk add --no-cache libc6-compat
 
+# Set working directory
 WORKDIR /app
 
-# Copy dependency manifests first for better caching
-COPY package.json yarn.lock* ./
+# Copy only dependency files first for better caching
+COPY package.json yarn.lock ./
 
-# Install ALL dependencies for build (including devDependencies)
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn,target=/root/.cache/yarn \
+RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip,target=/root/.cache/pip
+
+# Install dependencies using cache mount for speed
+RUN --mount=type=cache,target=/root/.cache/yarn \
     yarn install --frozen-lockfile
 
-# Copy all source files
+# Copy all project files
 COPY . .
 
-# Build Next.js app
+# Build the application
 RUN yarn build
 
-# ---- Production Stage ----
+# ---------------- Production Stage ----------------
 FROM node:${NODE_VERSION}-alpine AS production
-
-# Install required system packages and create app user for security
-RUN apk add --no-cache libc6-compat && \
-    addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-
-# Copy package files (needed for some runtime dependencies)
-COPY package.json yarn.lock* ./
-
-# Install only production dependencies (fallback for any runtime needs)
-RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/yarn,target=/root/.cache/yarn \
-    yarn install --frozen-lockfile --production && yarn cache clean
-
-# Copy built application from builder stage
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy only necessary files from build stage
+COPY --from=builder /app/package.json /app/yarn.lock ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-# Set proper ownership
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
+ENV NODE_ENV=production
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+CMD ["yarn", "start"]
 
-# Use the standalone server for better performance
-CMD ["node", "server.js"]
-
-# ---- Default to production ----
-FROM production AS runner
