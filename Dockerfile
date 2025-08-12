@@ -18,7 +18,7 @@ COPY package.json yarn.lock ./
 
 RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/root/cache/pip,target=/root/.cache/pip
 
-RUN yarn install --production --frozen-lockfile --prefer-offiline
+RUN yarn install --production --frozen-lockfile --prefer-offline
 
 RUN yarn cache clean
 
