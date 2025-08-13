@@ -28,27 +28,27 @@ interface SensorData {
 const DEFAULT_FISH_API = "/api/fish-batch/timeline";
 const DEFAULT_LETTUCE_API = "/api/plant-batch/timeline"; 
 
-interface FishBatch {
-  fishBatchId?: number;
-  date?: string;
-  dateAdded?: string | Date;
-  fishDays?: number;
-  fishQuantity?: number;
-  condition?: string;
-  event?: string;
-  status?: string;
-}
+// interface FishBatch {
+//   fishBatchId?: number;
+//   date?: string;
+//   dateAdded?: string | Date;
+//   fishDays?: number;
+//   fishQuantity?: number;
+//   condition?: string;
+//   event?: string;
+//   status?: string;
+// }
 
-interface PlantBatch {
-  plantBatchId?: number;
-  date?: string;
-  dateAdded?: string | Date;
-  plantDays?: number;
-  plantQuantity?: number;
-  condition?: string;
-  event?: string;
-  status?: string;
-}
+// interface PlantBatch {
+//   plantBatchId?: number;
+//   date?: string;
+//   dateAdded?: string | Date;
+//   plantDays?: number;
+//   plantQuantity?: number;
+//   condition?: string;
+//   event?: string;
+//   status?: string;
+// }
 
 
 /* -----------------------

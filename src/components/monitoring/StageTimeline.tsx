@@ -6,6 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Droplets, HeartPulse } from "lucide-react";
 
 
+interface NormalizedBatch {
+  id?: number | string;
+  dateISO?: string;
+  days?: number;
+  qty?: number;
+  condition?: string;
+  rawEvent?: string;
+}
+
 
 export interface TimelineEvent {
   date?: string; 
@@ -75,11 +84,12 @@ export interface TimelineEvent extends RawBatch {
 }
 
 
-function normalizeBatch(input: RawBatch) {
+function normalizeBatch(input: RawBatch): NormalizedBatch {
   if (!input) return {};
+
   const hasFishDays = input.fishDays !== undefined && input.fishDays !== null;
 
-  const getNumberProp = (obj: unknown, prop: string) => {
+  const getNumberProp = (obj: unknown, prop: string): number | undefined => {
     if (obj && typeof obj === "object" && prop in obj) {
       const val = (obj as Record<string, unknown>)[prop];
       if (typeof val === "number") return val;
@@ -88,7 +98,7 @@ function normalizeBatch(input: RawBatch) {
     return undefined;
   };
 
-  const getStringProp = (obj: unknown, prop: string) => {
+  const getStringProp = (obj: unknown, prop: string): string | undefined => {
     if (obj && typeof obj === "object" && prop in obj) {
       const val = (obj as Record<string, unknown>)[prop];
       if (typeof val === "string") return val;
@@ -97,17 +107,6 @@ function normalizeBatch(input: RawBatch) {
     return undefined;
   };
 
-  if (input.date && hasFishDays) {
-    return {
-      id: input.fishBatchId ?? getNumberProp(input, "id"),
-      dateISO: input.date ?? getStringProp(input, "dateAdded"),
-      days: input.fishDays ?? getNumberProp(input, "days"),
-      qty: input.fishQuantity ?? getNumberProp(input, "qty"),
-      condition: input.condition ?? undefined,
-      rawEvent: input.event ?? undefined,
-    };
-  }
-
   const maybeDate = input.date
     ? input.date
     : typeof input.event === "string" && /\d{4}-\d{2}-\d{2}/.test(input.event)
@@ -115,14 +114,16 @@ function normalizeBatch(input: RawBatch) {
     : undefined;
 
   return {
-    id: input.fishBatchId ?? undefined,
-    dateISO: maybeDate,
+    id: input.fishBatchId ?? getNumberProp(input, "id"),
+    dateISO: input.date ?? getStringProp(input, "dateAdded") ?? maybeDate,
     days: input.fishDays ?? getNumberProp(input, "days"),
-    qty: undefined,
-    condition: input.condition ?? undefined,
-    rawEvent: input.event ?? undefined,
+    qty: input.fishQuantity ?? getNumberProp(input, "qty"),
+    condition: input.condition,
+    rawEvent: input.event,
   };
 }
+
+
 
 // Determine stage index given age in days and stage definition
 function determineStageIndex(days: number | undefined, stageDef: { name: string; maxDays: number }[]) {
@@ -188,59 +189,45 @@ export function StageTimeline({
       const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
       const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), daysInMonth);
 
-      const mappedBars: TimelineBar[] = (Array.isArray(rawBatches) ? rawBatches : []).flatMap((b, idx) => {
-        const normalized = normalizeBatch(b);
+      const mappedBars: TimelineBar[] = rawBatches.flatMap((b, idx) => {
+      const normalized = normalizeBatch(b);
 
-        // rawDate: try normalized.dateISO, then normalized.rawEvent, then common props
-        const rawDate = normalized.dateISO ?? normalized.rawEvent ?? (b as any).date ?? (b as any).dateAdded;
-        const startDate = rawDate ? new Date(rawDate as any) : null;
-        if (!startDate || isNaN(startDate.getTime())) {
-          // if there's no valid start date we skip the batch (you can change to show at start if you prefer)
-          return [];
-        }
+      const rawDate = normalized.dateISO ?? normalized.rawEvent ?? b.date ?? b.dateAdded;
+      const startDate = rawDate ? new Date(rawDate) : null;
+      if (!startDate || isNaN(startDate.getTime())) return [];
 
-        // duration: prefer normalized.days or common fields (fishDays/days/plantDays)
-        const duration = Number(
-          (normalized as any).days ??
-            (b as any).fishDays ??
-            (b as any).plantDays ??
-            (b as any).days ??
-            20
-        );
-        const dur = Math.max(1, Math.floor(isNaN(duration) ? 20 : duration));
+      const duration = normalized.days ?? (b as { fishDays?: number; plantDays?: number }).fishDays ?? 20;
+      const dur = Math.max(1, Math.floor(duration));
 
-        // compute batch interval [batchStart, batchEnd]
-        const batchStart = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-        const batchEnd = new Date(batchStart);
-        batchEnd.setDate(batchStart.getDate() + dur - 1);
+      const batchStart = new Date(startDate);
+      const batchEnd = new Date(batchStart);
+      batchEnd.setDate(batchStart.getDate() + dur - 1);
 
-        // if no intersection with current month, skip
-        if (batchEnd < monthStart || batchStart > monthEnd) return [];
+      if (batchEnd < monthStart || batchStart > monthEnd) return [];
 
-        // intersection start/end days within the month
-        const intersectionStart = batchStart < monthStart ? monthStart : batchStart;
-        const intersectionEnd = batchEnd > monthEnd ? monthEnd : batchEnd;
+      const intersectionStart = batchStart < monthStart ? monthStart : batchStart;
+      const intersectionEnd = batchEnd > monthEnd ? monthEnd : batchEnd;
 
-        const startDay = intersectionStart.getDate();
-        const endDay = intersectionEnd.getDate();
+      const startDay = intersectionStart.getDate();
+      const endDay = intersectionEnd.getDate();
 
-        const stageIndex = determineStageIndex(Number(dur ?? 0), stageDef);
+      const stageIndex = determineStageIndex(dur, stageDef);
 
-        // label: prefer event/rawEvent, else id or fallback B<n>
-        const label = normalized.id ? `#${normalized.id}` : normalized.rawEvent ?? (b as any).event ?? `B${idx + 1}`;
+      const label = normalized.id ? `#${normalized.id}` : normalized.rawEvent ?? b.event ?? `B${idx + 1}`;
 
-        return [
-          {
-            id: normalized.id ?? label,
-            label,
-            startDay,
-            endDay,
-            type: typeKey,
-            stageIndex,
-            raw: b,
-          } as TimelineBar,
-        ];
-      });
+      return [
+        {
+          id: normalized.id ?? label,
+          label,
+          startDay,
+          endDay,
+          type: typeKey,
+          stageIndex,
+          raw: b,
+        } as TimelineBar,
+      ];
+    });
+
 
       setBars(mappedBars);
     } catch (err: unknown) {
