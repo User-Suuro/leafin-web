@@ -23,9 +23,6 @@ RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/usr/local/shar
 # Copy the rest of the application code
 COPY . .
 
-# Set NODE_ENV for production build
-ENV NODE_ENV=production
-
 # Build the application
 RUN yarn build
 
