@@ -1,4 +1,4 @@
-// app/api/lplant-batch/timeline/route.ts
+// app/api/plant-batch/timeline/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db"; // your Drizzle DB instance
 import { plantBatch } from "@/db/schema/plantBatch";
