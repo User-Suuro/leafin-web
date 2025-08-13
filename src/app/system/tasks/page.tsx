@@ -1,4 +1,4 @@
-"use client";
+    "use client";
 
 import { Sidebar } from "@/components/navigation/sidebar";
 import { CalendarCheck } from "lucide-react";
