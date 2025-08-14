@@ -2,11 +2,14 @@
 import { NextResponse } from "next/server";
 
 let lastSensorData = {
+  connected: false,
   time: "N/A",
   date: "N/A",
   ph: "N/A",
   turbid: "N/A",
-  timestamp: 0,
+  water_temp: "N/A",
+  is_water_lvl_normal: "N/A",
+  web_time: 0
 };
 
 export async function POST(req: Request) {
@@ -14,11 +17,14 @@ export async function POST(req: Request) {
 
   // Update the stored data
   lastSensorData = {
+    connected: body.connected,
     time: body.time,
     date: body.date,
     ph: body.ph,
     turbid: body.turbid,
-    timestamp: Date.now(),
+    water_temp: body.water_temp,
+    is_water_lvl_normal: body.is_water_lvl_normal,
+    web_time: Date.now(),
   };
 
   return NextResponse.json({ success: true });

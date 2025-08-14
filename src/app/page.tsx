@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 
 interface SensorData {
+  connected: boolean,
   time: string;
   date: string;
   ph: string;
   turbid: string;
-  timestamp: number;
+  water_temp: string;
+  is_water_lvl_normal: boolean;
+  web_time: number;
 }
 
 export default function Home() {
@@ -44,12 +47,18 @@ export default function Home() {
     <main>
       <h1>
         Device Status:{" "}
-        {status === "Connected" ? "✅ Connected" : "❌ Disconnected"}
+        {status ? "✅ Connected" : "❌ Disconnected"}
       </h1>
       <h2>🕒 Time: {data?.time ?? "Loading..."}</h2>
       <h2>📅 Date: {data?.date ?? "Loading..."}</h2>
       <h2>💧 Turbidity: {data?.turbid ?? "Loading..."} NTU</h2>
       <h2>🧪 pH Level: {data?.ph ?? "Loading..."}</h2>
+      <h2>🌡️ Water Temperature: {data?.water_temp ?? "Loading..."} °C</h2>
+      <h2>
+        Water Level Normal:{" "}
+        {data?.is_water_lvl_normal ? "✅ Yes" : "❌ No"}
+      </h2>
+      <h2>Web Time: {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "Loading..."}</h2>
     </main>
   );
 }
