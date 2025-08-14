@@ -21,21 +21,33 @@ type Task = {
   description: string | null;
   taskType: string;
   scheduledDate: string | null;
+  scheduledTime: string | null;
   status: string;
+  relatedFishBatchId: number | null;
+  relatedPlantBatchId: number | null;
+};
+
+type Batch = {
+  id: number;
+  name: string;
 };
 
 export default function TaskManagement() {
+  const [harvestType, setHarvestType] = useState(""); // "fish" or "plant"
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     taskType: "",
     scheduledDate: "",
+    scheduledTime: "",
+    relatedBatchId: "",
   });
 
-  // Fetch tasks from API
+  // Fetch tasks
   const fetchTasks = async () => {
-    try {
+    try { 
       const res = await fetch("/api/task-management");
       if (!res.ok) throw new Error("Failed to fetch tasks");
       const data = await res.json();
@@ -45,16 +57,51 @@ export default function TaskManagement() {
     }
   };
 
+  // Fetch available batches for feeding or harvest
+  const fetchBatches = async (type: string) => {
+    try {
+      const res = await fetch(`/api/batches?type=${type}`);
+      if (!res.ok) throw new Error("Failed to fetch batches");
+      const data = await res.json();
+      setBatches(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  // Handle form field changes
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Submit new task
+  const handleCategoryChange = (value: string) => {
+  handleChange("taskType", value);
+
+  if (value === "feeding") {
+    // Feeding always uses fish
+    setHarvestType("");
+    fetchBatches("fish");
+  } else if (value === "harvest") {
+    // Reset for new harvest type selection
+    setHarvestType("");
+    setBatches([]);
+    handleChange("relatedBatchId", "");
+  } else {
+    setHarvestType("");
+    setBatches([]);
+    handleChange("relatedBatchId", "");
+  }
+};
+
+const handleHarvestTypeChange = (type: string) => {
+  setHarvestType(type);
+  fetchBatches(type); // Will load batches based on selection
+};
+
+
   const handleAddTask = async () => {
     if (!formData.title || !formData.taskType) {
       alert("Title & category are required!");
@@ -63,27 +110,35 @@ export default function TaskManagement() {
 
     try {
       await fetch("/api/task-management", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          taskType: formData.taskType,
-          scheduledDate: formData.scheduledDate || null,
-          scheduledTime: null,
-          status: "pending",
-          relatedFishBatchId: null,
-          relatedPlantBatchId: null,
-        }),
-      });
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: formData.title,
+        description: formData.description || null,
+        taskType: formData.taskType,
+        scheduledDate: formData.scheduledDate || null,
+        scheduledTime: formData.scheduledTime || null,
+        status: "pending",
+        relatedFishBatchId:
+          formData.taskType === "feeding" || (formData.taskType === "harvest" && harvestType === "fish")
+            ? Number(formData.relatedBatchId) || null
+            : null,
+        relatedPlantBatchId:
+          formData.taskType === "harvest" && harvestType === "plant"
+            ? Number(formData.relatedBatchId) || null
+            : null,
+      }),
+    });
 
-      await fetchTasks(); // Refresh list after adding
 
+      await fetchTasks();
       setFormData({
         title: "",
         description: "",
         taskType: "",
         scheduledDate: "",
+        scheduledTime: "",
+        relatedBatchId: "",
       });
     } catch (error) {
       console.error(error);
@@ -108,9 +163,7 @@ export default function TaskManagement() {
 
             <div className="border rounded-lg p-6 shadow-sm space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Task Title:
-                </label>
+                <label className="block text-sm font-medium mb-1">Task Title:</label>
                 <Input
                   value={formData.title}
                   onChange={(e) => handleChange("title", e.target.value)}
@@ -119,9 +172,7 @@ export default function TaskManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description:
-                </label>
+                <label className="block text-sm font-medium mb-1">Description:</label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
@@ -130,13 +181,8 @@ export default function TaskManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Category:
-                </label>
-                <Select
-                  value={formData.taskType}
-                  onValueChange={(value) => handleChange("taskType", value)}
-                >
+                <label className="block text-sm font-medium mb-1">Category:</label>
+                <Select value={formData.taskType} onValueChange={handleCategoryChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
@@ -145,22 +191,67 @@ export default function TaskManagement() {
                     <SelectItem value="maintenance">Maintenance</SelectItem>
                     <SelectItem value="feeding">Feeding</SelectItem>
                     <SelectItem value="harvest">Harvest</SelectItem>
-                    <SelectItem value="planting">Planting</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
+
+
+              {/* Harvest Type - appears only when harvest is selected */}
+              {formData.taskType === "harvest" && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Harvest Type:</label>
+                  <Select value={harvestType} onValueChange={handleHarvestTypeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Harvest Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fish">Fish</SelectItem>
+                      <SelectItem value="plant">Plant</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Batch Selector */}
+              {batches.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Select Batch:</label>
+                  <Select
+                    value={formData.relatedBatchId}
+                    onValueChange={(value) => handleChange("relatedBatchId", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose Batch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {batches.map((b) => (
+                        <SelectItem key={b.id} value={String(b.id)}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+            
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Schedule Date:
-                </label>
+                <label className="block text-sm font-medium mb-1">Schedule Date:</label>
                 <Input
                   type="date"
                   value={formData.scheduledDate}
-                  onChange={(e) =>
-                    handleChange("scheduledDate", e.target.value)
-                  }
+                  onChange={(e) => handleChange("scheduledDate", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Schedule Time:</label>
+                <Input
+                  type="time"
+                  value={formData.scheduledTime}
+                  onChange={(e) => handleChange("scheduledTime", e.target.value)}
                 />
               </div>
 
@@ -173,6 +264,8 @@ export default function TaskManagement() {
                       description: "",
                       taskType: "",
                       scheduledDate: "",
+                      scheduledTime: "",
+                      relatedBatchId: "",
                     })
                   }
                 >
@@ -187,33 +280,40 @@ export default function TaskManagement() {
           <div className="flex-1">
             <div className="bg-blue-400 rounded-xl p-4 text-white">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">On going</h2>
+                <h2 className="text-lg font-semibold">Ongoing</h2>
                 <span className="text-sm">▼</span>
               </div>
 
               <div className="space-y-3">
                 {tasks.length > 0 ? (
                   tasks.map((task) => (
-                    <div
-                      key={task.taskId}
-                      className="bg-white rounded-lg p-4 shadow text-black"
-                    >
+                    <div key={`task-${task.taskId}`} className="bg-white rounded-lg p-4 shadow text-black">
                       <h3 className="font-semibold">{task.title}</h3>
                       <p className="text-sm">{task.description}</p>
-                      <p className="text-blue-600 font-medium text-sm mt-1">
-                        {task.taskType}
-                      </p>
+                      <p className="text-blue-600 font-medium text-sm mt-1">{task.taskType}</p>
                       <p className="text-xs text-gray-500">
-                        {task.scheduledDate || "No date"}
+                        {task.scheduledDate || "No date"} {task.scheduledTime || ""}
                       </p>
+                      {task.relatedFishBatchId && (
+                        <p key={`fish-${task.relatedFishBatchId}`} className="text-xs">
+                          Fish Batch: {task.relatedFishBatchId}
+                        </p>
+                      )}
+                      {task.relatedPlantBatchId && (
+                        <p key={`plant-${task.relatedPlantBatchId}`} className="text-xs">
+                          Plant Batch: {task.relatedPlantBatchId}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500">Status: {task.status}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-white/80">
-                    No tasks available. Add one above.
-                  </p>
+                  <p className="text-sm text-white/80">No tasks available. Add one above.</p>
                 )}
               </div>
+
+              
+
             </div>
           </div>
         </div>
