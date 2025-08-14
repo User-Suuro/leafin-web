@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 interface SensorData {
-  connected: boolean,
+  connected: boolean;
   time: string;
   date: string;
   ph: string;
@@ -17,7 +17,6 @@ export default function Home() {
   const [data, setData] = useState<SensorData | null>(null);
   const [status, setStatus] = useState<"Connected" | "Disconnected">("Disconnected");
 
-  // Fetch sensor data every 6 seconds
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
@@ -29,14 +28,15 @@ export default function Home() {
 
         if (elapsed < 20000) {
           setStatus("Connected");
+          setData(json); // keep values
         } else {
           setStatus("Disconnected");
+          setData(null); // reset to defaults
         }
-
-        setData(json);
       } catch (error) {
         console.error("Error fetching:", error);
         setStatus("Disconnected");
+        setData(null); // reset to defaults
       }
     }, 6000);
 
@@ -47,18 +47,21 @@ export default function Home() {
     <main>
       <h1>
         Device Status:{" "}
-        {status ? "✅ Connected" : "❌ Disconnected"}
+        {status === "Connected" ? "✅ Connected" : "❌ Disconnected"}
       </h1>
-      <h2>🕒 Time: {data?.time ?? "Loading..."}</h2>
-      <h2>📅 Date: {data?.date ?? "Loading..."}</h2>
-      <h2>💧 Turbidity: {data?.turbid ?? "Loading..."} NTU</h2>
-      <h2>🧪 pH Level: {data?.ph ?? "Loading..."}</h2>
-      <h2>🌡️ Water Temperature: {data?.water_temp ?? "Loading..."} °C</h2>
+      <h2>🕒 Time: {data?.time ?? "N/A"}</h2>
+      <h2>📅 Date: {data?.date ?? "N/A"}</h2>
+      <h2>💧 Turbidity: {data?.turbid ?? "N/A"} NTU</h2>
+      <h2>🧪 pH Level: {data?.ph ?? "N/A"}</h2>
+      <h2>🌡️ Water Temperature: {data?.water_temp ?? "N/A"} °C</h2>
       <h2>
         Water Level Normal:{" "}
-        {data?.is_water_lvl_normal ? "✅ Yes" : "❌ No"}
+        {data ? (data.is_water_lvl_normal ? "✅ Yes" : "❌ No") : "N/A"}
       </h2>
-      <h2>Web Time: {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "Loading..."}</h2>
+      <h2>
+        Web Time:{" "}
+        {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
+      </h2>
     </main>
   );
 }
