@@ -8,6 +8,20 @@
       "when": 1754928337890,
       "tag": "0000_odd_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1755115872331,
+      "tag": "0001_low_queen_noir",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1755116221362,
+      "tag": "0002_opposite_mister_sinister",
+      "breakpoints": true
     }
   ]
 }
