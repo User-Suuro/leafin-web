@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/navigation/sidebar";
 import { Card, CardContent } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
-import AddBatchModal from "@/components/Modal/AddBatchModal";
-import { OverviewCard } from "@/components/Dashboard/OverviewCard";
+import AddBatchModal from "@/components/modal/AddBatchModal";
+import { OverviewCard } from "@/components/dashboard/OverviewCard";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
