@@ -6,10 +6,21 @@ import { Card, CardContent } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 import AddBatchModal from "@/components/Modal/AddBatchModal";
 import { OverviewCard } from "@/components/Dashboard/OverviewCard";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import LettuceStageChart from "@/components/Dashboard/Charts/LettuceStageChart";
+import TilapiaAgeChart from "@/components/Dashboard/Charts/TilapiaAgeChart";
+import { Leaf, Fish } from "lucide-react";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+type OverviewCardProps = {
+  title: React.ReactNode;
+  borderColor: string;
+  totalBatches: number;
+  avgAge: number;
+  totalCount: number;
+  condition: string;
+  textColor: string;
+  leftLabel: string;
+  onClick?: () => void;
+};
 
 type FishBatch = {
   fishQuantity?: number;
@@ -46,7 +57,7 @@ export default function RootLayout() {
     "Larval Stage",
     "Juvenile Stage",
     "Grow-Out Stage",
-    "Harvest",
+    "Harvest Ready",
   ];
 
   const LETTUCE_STAGE_ORDER = [
@@ -167,7 +178,12 @@ export default function RootLayout() {
         {/* Overview Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <OverviewCard
-            title="Lettuce"
+            title={
+              <span className="flex items-center gap-2">
+                <Leaf className="w-5 h-5 text-green-500" />
+                Lettuce
+              </span>
+            }
             borderColor="border-green-500"
             totalBatches={lettuceData.length}
             avgAge={lettuceMaxDays}
@@ -182,7 +198,12 @@ export default function RootLayout() {
           />
 
           <OverviewCard
-            title="Tilapia"
+            title={
+              <span className="flex items-center gap-2">
+                <Fish className="w-5 h-5 text-blue-500" />
+                Tilapia
+              </span>
+            }
             borderColor="border-blue-500"
             totalBatches={tilapiaData.length}
             avgAge={maxDays}
@@ -218,49 +239,8 @@ export default function RootLayout() {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <Card className="h-80">
-            <CardContent className="p-5 h-full">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Lettuce Stage Distribution
-              </h2>
-              <div className="h-full">
-                <Pie
-                  data={{
-                    labels: plantChartLabels,
-                    datasets: [
-                      {
-                        data: plantChartData,
-                        backgroundColor: ["#FACC15", "#16A34A", "#4ADE80", "#A7F3D0"],
-                      },
-                    ],
-                  }}
-                  options={{ responsive: true, maintainAspectRatio: false }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="h-80">
-            <CardContent className="p-5 h-full">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Tilapia Age Distribution
-              </h2>
-              <div className="h-full">
-                <Pie
-                  data={{
-                    labels: fishChartLabels,
-                    datasets: [
-                      {
-                        data: fishChartData,
-                        backgroundColor: ["#93C5FD", "#60A5FA", "#1D4ED8", "#1E40AF"],
-                      },
-                    ],
-                  }}
-                  options={{ responsive: true, maintainAspectRatio: false }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <LettuceStageChart labels={plantChartLabels} data={plantChartData} />
+          <TilapiaAgeChart labels={fishChartLabels} data={fishChartData} />
         </div>
 
         {/* Modal */}

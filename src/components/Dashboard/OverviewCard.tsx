@@ -4,7 +4,7 @@ import React from "react";
 import { Card, CardContent } from "@/shadcn/ui/card";
 
 interface OverviewCardProps {
-  title: string;
+  title: React.ReactNode;
   borderColor: string;
   totalBatches: number;
   avgAge: number;
