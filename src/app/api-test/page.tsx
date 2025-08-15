@@ -9,6 +9,7 @@ interface SensorData {
   ph: string;
   turbid: string;
   water_temp: string;
+  tds: string;
   is_water_lvl_normal: boolean;
   web_time: number;
 }
@@ -58,6 +59,7 @@ export default function ApiTest() {
         Water Level Normal:{" "}
         {data ? (data.is_water_lvl_normal ? "✅ Yes" : "❌ No") : "N/A"}
       </h2>
+      <h2>TDS: {data?.tds ?? "N/A"} ppm</h2>
       <h2>
         Web Time:{" "}
         {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
