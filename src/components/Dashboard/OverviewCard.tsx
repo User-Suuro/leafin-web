@@ -10,7 +10,6 @@ interface OverviewCardProps {
   avgAge: number;
   totalCount: number;
   condition: string;
-  textColor: string;
   onClick: () => void;
   leftLabel: string; // e.g. "Total Plants" or "Total Fish"
 }
@@ -22,7 +21,6 @@ export function OverviewCard({
   avgAge,
   totalCount,
   condition,
-  textColor,
   onClick,
   leftLabel
 }: OverviewCardProps) {
@@ -34,16 +32,16 @@ export function OverviewCard({
       <CardContent className="p-5">
         <div className="flex items-center mb-4 relative">
           <div className="w-12 h-12 flex justify-center items-center mr-4" />
-          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+          <h2 className="text-xl font-semibold">{title}</h2>
         </div>
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm">
           <div className="flex flex-col gap-1">
             <span>
               Total Batches: <strong>{totalBatches}</strong>
             </span>
             <span>
               Avg Age:{" "}
-              <strong className={textColor}>
+              <strong>
                 {avgAge} days
               </strong>
             </span>
@@ -54,7 +52,7 @@ export function OverviewCard({
             </span>
             <span>
               Condition:{" "}
-              <strong className={textColor}>
+              <strong>
                 {condition || "N/A"}
               </strong>
             </span>

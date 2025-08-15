@@ -38,7 +38,7 @@ export default function Navbar() {
                     pathname === item.href ||
                     (item.href !== "/" && pathname.startsWith(item.href))
                       ? "text-green-700"
-                      : "text-gray-700 hover:text-green-600"
+                      : "hover:text-green-600"
                   }`}
                 >
                   {item.icon}

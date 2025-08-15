@@ -152,7 +152,7 @@ export default function TaskManagement() {
     return (
       <div className="flex min-h-screen">
         <Sidebar />
-        <div className="flex-1 p-6 bg-white">Loading...</div>
+        <div className="flex-1 p-6">Loading...</div>
       </div>
     );
   }
@@ -161,7 +161,7 @@ export default function TaskManagement() {
     <div className="flex min-h-screen">
       <Sidebar />
 
-      <div className="flex-1 p-6 bg-white">
+      <div className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-2">Task Management</h1>
         <Separator className="mb-6" />
 
@@ -286,17 +286,17 @@ export default function TaskManagement() {
           </div>
 
           {/* Ongoing Tasks */}
-          <div className="flex-1">
-            <div className="bg-blue-400 rounded-xl p-4 text-white">
+          <div className="flex-1 border rounded-lg p-6 shadow-sm">
+            <div className="rounded-xl p-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">Ongoing</h2>
                 <span className="text-sm">▼</span>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                 {tasks.length > 0 ? (
                   tasks.map((task) => (
-                    <div key={`task-${task.taskId}`} className="bg-white rounded-lg p-4 shadow text-black">
+                    <div key={`task-${task.taskId}`} className="rounded-lg p-4 shadow">
                       <h3 className="font-semibold">{task.title}</h3>
                       <p className="text-sm">{task.description}</p>
                       <p className="text-blue-600 font-medium text-sm mt-1">{task.taskType}</p>

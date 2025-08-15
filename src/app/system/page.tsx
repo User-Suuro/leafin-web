@@ -68,7 +68,6 @@ export default function RootLayout() {
   ];
 
   useEffect(() => {
-    // Fetch stage data for charts
     fetch("/api/fish-batch/fish-batch-stages")
       .then((res) => res.json())
       .then((data) => setFishStageData(data))
@@ -79,7 +78,6 @@ export default function RootLayout() {
       .then((data) => setPlantStageData(data))
       .catch(() => setPlantStageData({}));
 
-    // Fetch lettuce data
     fetch("/api/plant-batch")
       .then((res) => res.json())
       .then((data) => {
@@ -88,7 +86,6 @@ export default function RootLayout() {
       })
       .catch(() => setLettuceData([]));
 
-    // Fetch tilapia data
     fetch("/api/fish-batch")
       .then((res) => res.json() as Promise<ApiResponse>)
       .then((data) => {
@@ -125,7 +122,6 @@ export default function RootLayout() {
         setTilapiaCondition("N/A");
       });
 
-    // Fetch max days
     fetch("/api/fish-batch-maxdays")
       .then((res) => res.json())
       .then((data) => {
@@ -157,7 +153,6 @@ export default function RootLayout() {
         ).sort((a, b) => b[1] - a[1])[0][0]
       : "N/A";
 
-  // Prepare chart data in correct stage order
   const fishChartLabels = TILAPIA_STAGE_ORDER;
   const fishChartData = TILAPIA_STAGE_ORDER.map(stage => fishStageData[stage] || 0);
 
@@ -169,13 +164,11 @@ export default function RootLayout() {
       <Sidebar />
 
       <div className="flex-1 p-5 overflow-y-auto space-y-6">
-        {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Growth Overview</h1>
-          <Separator className="mt-1 bg-gray-300" />
+          <h1 className="text-2xl font-bold">Growth Overview</h1>
+          <Separator className="mt-1" />
         </div>
 
-        {/* Overview Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <OverviewCard
             title={
@@ -189,7 +182,6 @@ export default function RootLayout() {
             avgAge={lettuceMaxDays}
             totalCount={totalPlants}
             condition={lettuceCondition}
-            textColor="text-green-500"
             leftLabel="Total Plants"
             onClick={() => {
               setSelectedType("plant");
@@ -209,7 +201,6 @@ export default function RootLayout() {
             avgAge={maxDays}
             totalCount={tilapiaTotal}
             condition={tilapiaCondition}
-            textColor="text-blue-500"
             leftLabel="Total Fish"
             onClick={() => {
               setSelectedType("fish");
@@ -219,7 +210,7 @@ export default function RootLayout() {
 
           <Card className="border-t-4 border-red-500 flex flex-col">
             <CardContent className="p-5 flex flex-col flex-1">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Alerts</h2>
+              <h2 className="text-xl font-semibold mb-4">Alerts</h2>
               <ul className="space-y-3 text-sm overflow-y-auto max-h-60 pr-1">
                 {[
                   "Tilapia: Ammonia = 1.2 ppm",
@@ -229,7 +220,7 @@ export default function RootLayout() {
                 ].map((msg, i) => (
                   <li key={i} className="flex items-start border-b border-gray-100 pb-2">
                     <span className="mr-2">⚠️</span>
-                    <span className="text-red-500 font-medium">{msg}</span>
+                    <span className="font-medium">{msg}</span>
                   </li>
                 ))}
               </ul>
@@ -237,13 +228,11 @@ export default function RootLayout() {
           </Card>
         </div>
 
-        {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <LettuceStageChart labels={plantChartLabels} data={plantChartData} />
           <TilapiaAgeChart labels={fishChartLabels} data={fishChartData} />
         </div>
 
-        {/* Modal */}
         <AddBatchModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
