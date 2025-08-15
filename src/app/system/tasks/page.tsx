@@ -33,7 +33,8 @@ type Batch = {
 };
 
 export default function TaskManagement() {
-  const [harvestType, setHarvestType] = useState(""); // "fish" or "plant"
+  const [mounted, setMounted] = useState(false); // ✅ Prevent hydration mismatch
+  const [harvestType, setHarvestType] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [batches, setBatches] = useState<Batch[]>([]);
   const [formData, setFormData] = useState({
@@ -45,62 +46,63 @@ export default function TaskManagement() {
     relatedBatchId: "",
   });
 
-  // Fetch tasks
+  useEffect(() => {
+    setMounted(true);
+    fetchTasks();
+  }, []);
+
   const fetchTasks = async () => {
-    try { 
+    try {
       const res = await fetch("/api/task-management");
       if (!res.ok) throw new Error("Failed to fetch tasks");
       const data = await res.json();
-      setTasks(data);
+      setTasks(data || []);
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Fetch available batches for feeding or harvest
   const fetchBatches = async (type: string) => {
     try {
-      const res = await fetch(`/api/batches?type=${type}`);
+      const url =
+        type === "fish"
+          ? "/api/fish-batch/batches-fish"
+          : "/api/plant-batch/batches-plant";
+
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch batches");
       const data = await res.json();
-      setBatches(data);
+      setBatches(data || []);
     } catch (error) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCategoryChange = (value: string) => {
-  handleChange("taskType", value);
+    handleChange("taskType", value);
 
-  if (value === "feeding") {
-    // Feeding always uses fish
-    setHarvestType("");
-    fetchBatches("fish");
-  } else if (value === "harvest") {
-    // Reset for new harvest type selection
-    setHarvestType("");
-    setBatches([]);
-    handleChange("relatedBatchId", "");
-  } else {
-    setHarvestType("");
-    setBatches([]);
-    handleChange("relatedBatchId", "");
-  }
-};
+    if (value === "feeding") {
+      setHarvestType("");
+      fetchBatches("fish");
+    } else if (value === "harvest") {
+      setHarvestType("");
+      setBatches([]);
+      handleChange("relatedBatchId", "");
+    } else {
+      setHarvestType("");
+      setBatches([]);
+      handleChange("relatedBatchId", "");
+    }
+  };
 
-const handleHarvestTypeChange = (type: string) => {
-  setHarvestType(type);
-  fetchBatches(type); // Will load batches based on selection
-};
-
+  const handleHarvestTypeChange = (type: string) => {
+    setHarvestType(type);
+    fetchBatches(type);
+  };
 
   const handleAddTask = async () => {
     if (!formData.title || !formData.taskType) {
@@ -110,26 +112,26 @@ const handleHarvestTypeChange = (type: string) => {
 
     try {
       await fetch("/api/task-management", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: formData.title,
-        description: formData.description || null,
-        taskType: formData.taskType,
-        scheduledDate: formData.scheduledDate || null,
-        scheduledTime: formData.scheduledTime || null,
-        status: "pending",
-        relatedFishBatchId:
-          formData.taskType === "feeding" || (formData.taskType === "harvest" && harvestType === "fish")
-            ? Number(formData.relatedBatchId) || null
-            : null,
-        relatedPlantBatchId:
-          formData.taskType === "harvest" && harvestType === "plant"
-            ? Number(formData.relatedBatchId) || null
-            : null,
-      }),
-    });
-
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description || null,
+          taskType: formData.taskType,
+          scheduledDate: formData.scheduledDate || null,
+          scheduledTime: formData.scheduledTime || null,
+          status: "pending",
+          relatedFishBatchId:
+            formData.taskType === "feeding" ||
+            (formData.taskType === "harvest" && harvestType === "fish")
+              ? Number(formData.relatedBatchId) || null
+              : null,
+          relatedPlantBatchId:
+            formData.taskType === "harvest" && harvestType === "plant"
+              ? Number(formData.relatedBatchId) || null
+              : null,
+        }),
+      });
 
       await fetchTasks();
       setFormData({
@@ -144,6 +146,16 @@ const handleHarvestTypeChange = (type: string) => {
       console.error(error);
     }
   };
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <div className="flex-1 p-6 bg-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -196,9 +208,7 @@ const handleHarvestTypeChange = (type: string) => {
                 </Select>
               </div>
 
-
-
-              {/* Harvest Type - appears only when harvest is selected */}
+              {/* Harvest Type - shown after mount */}
               {formData.taskType === "harvest" && (
                 <div>
                   <label className="block text-sm font-medium mb-1">Harvest Type:</label>
@@ -236,7 +246,6 @@ const handleHarvestTypeChange = (type: string) => {
                 </div>
               )}
 
-            
               <div>
                 <label className="block text-sm font-medium mb-1">Schedule Date:</label>
                 <Input
@@ -295,14 +304,10 @@ const handleHarvestTypeChange = (type: string) => {
                         {task.scheduledDate || "No date"} {task.scheduledTime || ""}
                       </p>
                       {task.relatedFishBatchId && (
-                        <p key={`fish-${task.relatedFishBatchId}`} className="text-xs">
-                          Fish Batch: {task.relatedFishBatchId}
-                        </p>
+                        <p className="text-xs">Fish Batch: {task.relatedFishBatchId}</p>
                       )}
                       {task.relatedPlantBatchId && (
-                        <p key={`plant-${task.relatedPlantBatchId}`} className="text-xs">
-                          Plant Batch: {task.relatedPlantBatchId}
-                        </p>
+                        <p className="text-xs">Plant Batch: {task.relatedPlantBatchId}</p>
                       )}
                       <p className="text-xs text-gray-500">Status: {task.status}</p>
                     </div>
@@ -311,9 +316,6 @@ const handleHarvestTypeChange = (type: string) => {
                   <p className="text-sm text-white/80">No tasks available. Add one above.</p>
                 )}
               </div>
-
-              
-
             </div>
           </div>
         </div>
