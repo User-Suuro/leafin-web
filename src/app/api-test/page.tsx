@@ -11,6 +11,9 @@ interface SensorData {
   water_temp: string;
   tds: string;
   is_water_lvl_normal: boolean;
+  nh3_gas: string;
+  fraction_nh3: string;
+  total_ammonia: string;
   web_time: number;
 }
 
@@ -61,10 +64,14 @@ export default function ApiTest() {
         {data ? (data.is_water_lvl_normal ? "✅ Yes" : "❌ No") : "N/A"}
       </h2>
       <h2>TDS: {data?.tds ?? "N/A"} ppm</h2>
+      <h2>NH3 Gas: {data?.nh3_gas ?? "N/A"} ppm</h2>
+      <h2>Fraction NH3: {data?.fraction_nh3 ?? "N/A"} ppm</h2>
+      <h2>Total Ammonia: {data?.total_ammonia ?? "N/A"} ppm</h2>
       <h2>
         Web Time:{" "}
         {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
       </h2>
+      <h2></h2>
     </main>
   );
 }

@@ -10,6 +10,9 @@ let lastSensorData = {
   water_temp: "N/A",
   tds: "N/A",
   is_water_lvl_normal: "N/A",
+  nh3_gas: "N/A",
+  fraction_nh3: "N/A",
+  total_ammonia: "N/A",
   web_time: 0,
 };
 
@@ -25,6 +28,9 @@ export async function POST(req: Request) {
     water_temp: body.water_temp,
     tds: body.tds,
     is_water_lvl_normal: body.is_water_lvl_normal,
+    nh3_gas: body.nh3_gas,
+    fraction_nh3: body.fraction_nh3,
+    total_ammonia: body.total_ammonia,
     web_time: Date.now(),
   };
 
@@ -45,6 +51,9 @@ export async function GET() {
       water_temp: "N/A",
       tds: "N/A",
       is_water_lvl_normal: "N/A",
+      nh3_gas: "N/A",
+      fraction_nh3: "N/A",
+      total_ammonia: "N/A",
       web_time: 0,
     });
   }
