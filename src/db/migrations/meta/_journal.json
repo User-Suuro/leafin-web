@@ -43,6 +43,13 @@
       "when": 1755427383077,
       "tag": "0005_simple_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1755428088310,
+      "tag": "0006_chunky_jack_flag",
+      "breakpoints": true
     }
   ]
 }
