@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 export async function GET() {
   try {

@@ -33,13 +33,13 @@ type ApiResponse = {
 export default function RootLayout() {
   const [lettuceData, setLettuceData] = useState<PlantBatch[]>([]);
   const [tilapiaData, setTilapiaData] = useState<FishBatch[]>([]);
-  const [tilapiaTotal, setTilapiaTotal] = useState<number>(0);
+  const [_tilapiaTotal, setTilapiaTotal] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<"plant" | "fish" | "">("");
-  const [tilapiaCondition, setTilapiaCondition] = useState<string>("");
+  const [selectedType] = useState<"plant" | "fish" | "">("");
+  const [_tilapiaCondition, setTilapiaCondition] = useState<string>("");
   const [fishStageData, setFishStageData] = useState<Record<string, number>>({});
   const [plantStageData, setPlantStageData] = useState<Record<string, number>>({});
-  const [selectedId, setSelectedId] = useState<string>("");
+  //const [selectedId, setSelectedId] = useState<string>("");
 
   const TILAPIA_STAGE_ORDER = [
     "Larval Stage",

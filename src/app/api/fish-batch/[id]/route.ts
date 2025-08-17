@@ -21,6 +21,7 @@ export async function GET(
 
     return NextResponse.json({ ...batch[0], ageDays });
   } catch (error) {
+    console.error("Error fetching batch:", error);
     return NextResponse.json({ error: "Failed to fetch batch" }, { status: 500 });
   }
 }

@@ -1,8 +1,8 @@
-// app/api/fish-batch-maxdays/route.ts
+// app/api/fish-batcaxdayh-ms/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
-import { sql, eq } from "drizzle-orm"; // <-- import eq here
+import { sql } from "drizzle-orm"; // <-- import eq here
 
 export async function GET() {
   try {
