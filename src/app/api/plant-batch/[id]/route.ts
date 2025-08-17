@@ -1,15 +1,18 @@
-// app/api/plant-batch/[id]/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq } from "drizzle-orm";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   try {
-    const batchId = Number(params.id);
+    // Extract batchId from URL
+    const url = new URL(req.url);
+    const idParam = url.pathname.split("/").pop(); // get last segment
+    const batchId = Number(idParam);
+
+    if (isNaN(batchId)) {
+      return NextResponse.json({ error: "Invalid batch id" }, { status: 400 });
+    }
 
     const batch = await db
       .select()
@@ -26,10 +29,7 @@ export async function GET(
       (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    return NextResponse.json({
-      ...batch[0],
-      ageDays,
-    });
+    return NextResponse.json({ ...batch[0], ageDays });
   } catch (error) {
     console.error("Error fetching plant batch:", error);
     return NextResponse.json(
