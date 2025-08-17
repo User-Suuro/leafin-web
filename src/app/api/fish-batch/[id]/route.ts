@@ -1,15 +1,15 @@
-// app/api/fish-batch/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { eq } from "drizzle-orm";
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   try {
-    const batchId = Number(params.id);
+    // Extract batchId from URL
+    const url = new URL(req.url);
+    const idParam = url.pathname.split("/").pop(); // gets last part of URL
+    const batchId = Number(idParam);
+
     if (isNaN(batchId)) {
       return NextResponse.json({ error: "Invalid batch id" }, { status: 400 });
     }
@@ -32,9 +32,6 @@ export async function GET(
     return NextResponse.json({ ...batch[0], ageDays });
   } catch (error) {
     console.error("Error fetching batch:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch batch" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch batch" }, { status: 500 });
   }
 }
