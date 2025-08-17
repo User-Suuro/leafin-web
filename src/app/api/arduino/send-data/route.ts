@@ -1,3 +1,4 @@
+// File: src/app/api/send-sensor-data/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { sensorData } from "@/db/schema/sensorData";
@@ -7,6 +8,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    // Insert without touching created_at (MySQL will auto-fill it)
     await db.insert(sensorData).values({
       connected: body.connected,
       time: body.time,
@@ -80,7 +82,7 @@ export async function GET() {
 
     return NextResponse.json({
       ...lastSensorData,
-      web_time, // dynamically added from created_at
+      web_time, // attach dynamically
     });
   } catch (err) {
     console.error("GET /api/send-sensor-data failed:", err);

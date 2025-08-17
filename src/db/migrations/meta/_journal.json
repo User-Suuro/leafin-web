@@ -36,6 +36,13 @@
       "when": 1755426063875,
       "tag": "0004_late_captain_flint",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1755427383077,
+      "tag": "0005_simple_vengeance",
+      "breakpoints": true
     }
   ]
 }
