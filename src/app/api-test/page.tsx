@@ -22,28 +22,37 @@ export default function ApiTest() {
   const [status, setStatus] = useState<"Connected" | "Disconnected">("Disconnected");
 
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/arduino/send-data", { cache: "no-store" });
+        const res = await fetch("/api/send-sensor-data", { cache: "no-store" });
         const json = await res.json();
+
+        if (!json.web_time) {
+          setStatus("Disconnected");
+          setData(null);
+          return;
+        }
 
         const now = Date.now();
         const elapsed = now - json.web_time;
 
-
         if (elapsed < 20000) {
           setStatus("Connected");
-          setData(json); // keep values
+          setData(json);
         } else {
           setStatus("Disconnected");
-          setData(null); // reset to defaults
+          setData(null);
         }
       } catch (error) {
         console.error("Error fetching:", error);
         setStatus("Disconnected");
-        setData(null); // reset to defaults
+        setData(null);
       }
-    }, 6000);
+    };
+
+    // Fetch immediately, then every 6s
+    fetchData();
+    const interval = setInterval(fetchData, 6000);
 
     return () => clearInterval(interval);
   }, []);
@@ -51,8 +60,7 @@ export default function ApiTest() {
   return (
     <main>
       <h1>
-        Device Status:{" "}
-        {status === "Connected" ? "✅ Connected" : "❌ Disconnected"}
+        Device Status: {status === "Connected" ? "✅ Connected" : "❌ Disconnected"}
       </h1>
       <h2>🕒 Time: {data?.time ?? "N/A"}</h2>
       <h2>📅 Date: {data?.date ?? "N/A"}</h2>
@@ -71,7 +79,6 @@ export default function ApiTest() {
         Web Time:{" "}
         {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
       </h2>
-      <h2></h2>
     </main>
   );
 }

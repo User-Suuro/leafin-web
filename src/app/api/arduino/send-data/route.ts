@@ -1,4 +1,3 @@
-// File: src/app/api/send-sensor-data/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { sensorData } from "@/db/schema/sensorData";
@@ -20,7 +19,6 @@ export async function POST(req: Request) {
       nh3_gas: body.nh3_gas,
       fraction_nh3: body.fraction_nh3,
       total_ammonia: body.total_ammonia,
-      web_time: Date.now(),
     });
 
     return NextResponse.json({ success: true });
@@ -60,8 +58,10 @@ export async function GET() {
 
     const lastSensorData = rows[0];
     const now = Date.now();
+    const web_time = new Date(lastSensorData.created_at).getTime();
 
-    if (now - lastSensorData.web_time > 20000) {
+    // If last update was >20s ago, treat as disconnected
+    if (now - web_time > 20000) {
       return NextResponse.json({
         connected: false,
         time: "N/A",
@@ -78,7 +78,10 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json(lastSensorData);
+    return NextResponse.json({
+      ...lastSensorData,
+      web_time, // dynamically added from created_at
+    });
   } catch (err) {
     console.error("GET /api/send-sensor-data failed:", err);
     return NextResponse.json(
