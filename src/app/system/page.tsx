@@ -10,19 +10,8 @@ import LettuceStageChart from "@/components/Dashboard/Charts/LettuceStageChart";
 import TilapiaAgeChart from "@/components/Dashboard/Charts/TilapiaAgeChart";
 import { Leaf, Fish } from "lucide-react";
 
-type OverviewCardProps = {
-  title: React.ReactNode;
-  borderColor: string;
-  totalBatches: number;
-  avgAge: number;
-  totalCount: number;
-  condition: string;
-  textColor: string;
-  leftLabel: string;
-  onClick?: () => void;
-};
-
 type FishBatch = {
+  fishBatchId?: number;
   fishQuantity?: number;
   fish_quantity?: number;
   fishDays?: number;
@@ -48,10 +37,9 @@ export default function RootLayout() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<"plant" | "fish" | "">("");
   const [tilapiaCondition, setTilapiaCondition] = useState<string>("");
-  const [maxDays, setMaxDays] = useState<number>(0);
-  const [lettuceMaxDays, setLettuceMaxDays] = useState<number>(0);
   const [fishStageData, setFishStageData] = useState<Record<string, number>>({});
   const [plantStageData, setPlantStageData] = useState<Record<string, number>>({});
+  const [selectedId, setSelectedId] = useState<string>("");
 
   const TILAPIA_STAGE_ORDER = [
     "Larval Stage",
@@ -121,20 +109,6 @@ export default function RootLayout() {
         setTilapiaTotal(0);
         setTilapiaCondition("N/A");
       });
-
-    fetch("/api/fish-batch-maxdays")
-      .then((res) => res.json())
-      .then((data) => {
-        if (typeof data.maxDays === "number") setMaxDays(data.maxDays);
-      })
-      .catch(() => setMaxDays(0));
-
-    fetch("/api/plant-batch-maxdays")
-      .then((res) => res.json())
-      .then((data) => {
-        if (typeof data.maxDays === "number") setLettuceMaxDays(data.maxDays);
-      })
-      .catch(() => setLettuceMaxDays(0));
   }, []);
 
   const totalPlants = lettuceData.reduce(
@@ -171,6 +145,7 @@ export default function RootLayout() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <OverviewCard
+            type="plant"
             title={
               <span className="flex items-center gap-2">
                 <Leaf className="w-5 h-5 text-green-500" />
@@ -178,35 +153,32 @@ export default function RootLayout() {
               </span>
             }
             borderColor="border-green-500"
-            totalBatches={lettuceData.length}
-            avgAge={lettuceMaxDays}
-            totalCount={totalPlants}
-            condition={lettuceCondition}
-            leftLabel="Total Plants"
-            onClick={() => {
-              setSelectedType("plant");
-              setModalOpen(true);
-            }}
+            batches={lettuceData.map((b, idx) => ({
+              id: (b as any).plantBatchId ?? idx + 1, // use real id if returned
+              quantity: b.plantQuantity ?? b.plant_quantity ?? 0,
+              days: (b as any).plantDays ?? 0,
+              condition: b.condition ?? "Unknown"
+            }))}
           />
 
+
           <OverviewCard
-            title={
-              <span className="flex items-center gap-2">
-                <Fish className="w-5 h-5 text-blue-500" />
-                Tilapia
-              </span>
-            }
-            borderColor="border-blue-500"
-            totalBatches={tilapiaData.length}
-            avgAge={maxDays}
-            totalCount={tilapiaTotal}
-            condition={tilapiaCondition}
-            leftLabel="Total Fish"
-            onClick={() => {
-              setSelectedType("fish");
-              setModalOpen(true);
-            }}
-          />
+          type="fish"
+          title={
+            <span className="flex items-center gap-2">
+              <Fish className="w-5 h-5 text-blue-500" />
+              Tilapia
+            </span>
+          }
+          borderColor="border-blue-500"
+          batches={tilapiaData.map(b => ({
+            id: b.fishBatchId ?? 0, // convert fishBatchId → id
+            quantity: b.fishQuantity ?? b.fish_quantity ?? 0,
+            days: b.fishDays ?? b.ageDays ?? 0,
+            condition: b.condition ?? "Unknown"
+          }))}
+        />
+
 
           <Card className="border-t-4 border-red-500 flex flex-col">
             <CardContent className="p-5 flex flex-col flex-1">

@@ -156,6 +156,7 @@ export default function Monitoring() {
 
   // initial load
   useEffect(() => {
+
     fetchTimelines();
     fetchSensorData();
     const interval = setInterval(fetchSensorData, 6000);

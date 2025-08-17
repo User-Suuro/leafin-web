@@ -12,7 +12,6 @@ export async function GET() {
         maxDays: sql`MAX(${fishBatch.fishDays})`,
       })
       .from(fishBatch)
-      .where(eq(fishBatch.condition, "Grow-out Stage")); // <-- use eq here
 
     const maxDays = result[0]?.maxDays ?? 0;
 

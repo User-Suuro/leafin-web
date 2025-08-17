@@ -12,8 +12,6 @@ export async function GET() {
         name: sql<string>`CONCAT('Batch #', ${fishBatch.fishBatchId})`,
       })
       .from(fishBatch)
-      .where(eq(fishBatch.condition, "Grow-out Stage"));
-
     return NextResponse.json(batches);
   } catch (error) {
     console.error("Error fetching fish batches:", error);

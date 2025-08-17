@@ -10,7 +10,6 @@ export async function GET() {
         maxDays: sql`MAX(${plantBatch.plantDays})`,
       })
       .from(plantBatch)
-      .where(eq(plantBatch.condition, "Vegetative Growth"));
 
     const maxDays = result[0]?.maxDays ?? 0;
 
