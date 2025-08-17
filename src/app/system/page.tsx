@@ -20,51 +20,57 @@ type FishBatch = {
 };
 
 type PlantBatch = {
+  plantBatchId?: number;
   plantQuantity?: number;
   plant_quantity?: number;
+  plantDays?: number;
   condition?: string;
 };
 
-type ApiResponse = {
-  batches?: FishBatch[];
+type ApiResponse<T> = {
+  batches?: T[];
   totalFish?: number;
 };
+
+const TILAPIA_STAGE_ORDER = [
+  "Larval Stage",
+  "Juvenile Stage",
+  "Grow-Out Stage",
+  "Harvest Ready",
+];
+
+const LETTUCE_STAGE_ORDER = [
+  "Seedling Stage",
+  "Vegetative Growth",
+  "Harvest Ready",
+  "Bolting & Seeding",
+];
 
 export default function RootLayout() {
   const [lettuceData, setLettuceData] = useState<PlantBatch[]>([]);
   const [tilapiaData, setTilapiaData] = useState<FishBatch[]>([]);
-  const [_tilapiaTotal, setTilapiaTotal] = useState<number>(0);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedType] = useState<"plant" | "fish" | "">("");
-  const [_tilapiaCondition, setTilapiaCondition] = useState<string>("");
   const [fishStageData, setFishStageData] = useState<Record<string, number>>({});
   const [plantStageData, setPlantStageData] = useState<Record<string, number>>({});
-  //const [selectedId, setSelectedId] = useState<string>("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedType] = useState<"plant" | "fish" | "">("");
 
-  const TILAPIA_STAGE_ORDER = [
-    "Larval Stage",
-    "Juvenile Stage",
-    "Grow-Out Stage",
-    "Harvest Ready",
-  ];
-
-  const LETTUCE_STAGE_ORDER = [
-    "Seedling Stage",
-    "Vegetative Growth",
-    "Harvest Ready",
-    "Bolting & Seeding",
-  ];
+  /** Fetch helper */
+  const fetchData = async <T,>(
+    url: string,
+    setter: React.Dispatch<React.SetStateAction<T>>
+  ) => {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      setter(data);
+    } catch {
+      setter({} as T);
+    }
+  };
 
   useEffect(() => {
-    fetch("/api/fish-batch/fish-batch-stages")
-      .then((res) => res.json())
-      .then((data) => setFishStageData(data))
-      .catch(() => setFishStageData({}));
-
-    fetch("/api/plant-batch/plant-batch-stages")
-      .then((res) => res.json())
-      .then((data) => setPlantStageData(data))
-      .catch(() => setPlantStageData({}));
+    fetchData("/api/fish-batch/fish-batch-stages", setFishStageData);
+    fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData);
 
     fetch("/api/plant-batch")
       .then((res) => res.json())
@@ -75,75 +81,31 @@ export default function RootLayout() {
       .catch(() => setLettuceData([]));
 
     fetch("/api/fish-batch")
-      .then((res) => res.json() as Promise<ApiResponse>)
-      .then((data) => {
-        const batches: FishBatch[] = data?.batches ?? [];
-        setTilapiaData(batches);
-
-        if (typeof data?.totalFish === "number") {
-          setTilapiaTotal(data.totalFish);
-        } else {
-          const total = batches.reduce(
-            (sum, b) => sum + (b.fishQuantity ?? b.fish_quantity ?? 0),
-            0
-          );
-          setTilapiaTotal(total);
-        }
-
-        if (batches.length > 0) {
-          const conditionCounts = batches.reduce((acc: Record<string, number>, b) => {
-            const condition = b.condition || "Unknown";
-            acc[condition] = (acc[condition] || 0) + 1;
-            return acc;
-          }, {});
-          const majorityCondition = Object.entries(conditionCounts).sort(
-            (a, b) => b[1] - a[1]
-          )[0][0];
-          setTilapiaCondition(majorityCondition);
-        } else {
-          setTilapiaCondition("N/A");
-        }
-      })
-      .catch(() => {
-        setTilapiaData([]);
-        setTilapiaTotal(0);
-        setTilapiaCondition("N/A");
-      });
+      .then((res) => res.json() as Promise<ApiResponse<FishBatch>>)
+      .then((data) => setTilapiaData(data?.batches ?? []))
+      .catch(() => setTilapiaData([]));
   }, []);
 
-  const totalPlants = lettuceData.reduce(
-    (sum, b) => sum + (b.plantQuantity ?? b.plant_quantity ?? 0),
-    0
+  /** Chart data */
+  const fishChartData = TILAPIA_STAGE_ORDER.map(
+    (stage) => fishStageData[stage] || 0
   );
-
-  const lettuceCondition =
-    lettuceData.length > 0
-      ? Object.entries(
-          lettuceData.reduce((acc: Record<string, number>, b) => {
-            const cond = b.condition || "Unknown";
-            acc[cond] = (acc[cond] || 0) + 1;
-            return acc;
-          }, {})
-        ).sort((a, b) => b[1] - a[1])[0][0]
-      : "N/A";
-
-  const fishChartLabels = TILAPIA_STAGE_ORDER;
-  const fishChartData = TILAPIA_STAGE_ORDER.map(stage => fishStageData[stage] || 0);
-
-  const plantChartLabels = LETTUCE_STAGE_ORDER;
-  const plantChartData = LETTUCE_STAGE_ORDER.map(stage => plantStageData[stage] || 0);
+  const plantChartData = LETTUCE_STAGE_ORDER.map(
+    (stage) => plantStageData[stage] || 0
+  );
 
   return (
     <div className="flex min-h-screen">
       <Sidebar />
 
       <div className="flex-1 p-5 overflow-y-auto space-y-6">
-        <div>
+        <header>
           <h1 className="text-2xl font-bold">Growth Overview</h1>
           <Separator className="mt-1" />
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Lettuce Overview */}
           <OverviewCard
             type="plant"
             title={
@@ -154,32 +116,32 @@ export default function RootLayout() {
             }
             borderColor="border-green-500"
             batches={lettuceData.map((b, idx) => ({
-              id: (b as any).plantBatchId ?? idx + 1, // use real id if returned
+              id: b.plantBatchId ?? idx + 1,
               quantity: b.plantQuantity ?? b.plant_quantity ?? 0,
-              days: (b as any).plantDays ?? 0,
-              condition: b.condition ?? "Unknown"
+              days: b.plantDays ?? 0,
+              condition: b.condition ?? "Unknown",
             }))}
           />
 
-
+          {/* Tilapia Overview */}
           <OverviewCard
-          type="fish"
-          title={
-            <span className="flex items-center gap-2">
-              <Fish className="w-5 h-5 text-blue-500" />
-              Tilapia
-            </span>
-          }
-          borderColor="border-blue-500"
-          batches={tilapiaData.map(b => ({
-            id: b.fishBatchId ?? 0, // convert fishBatchId → id
-            quantity: b.fishQuantity ?? b.fish_quantity ?? 0,
-            days: b.fishDays ?? b.ageDays ?? 0,
-            condition: b.condition ?? "Unknown"
-          }))}
-        />
+            type="fish"
+            title={
+              <span className="flex items-center gap-2">
+                <Fish className="w-5 h-5 text-blue-500" />
+                Tilapia
+              </span>
+            }
+            borderColor="border-blue-500"
+            batches={tilapiaData.map((b, idx) => ({
+              id: b.fishBatchId ?? idx + 1,
+              quantity: b.fishQuantity ?? b.fish_quantity ?? 0,
+              days: b.fishDays ?? b.ageDays ?? 0,
+              condition: b.condition ?? "Unknown",
+            }))}
+          />
 
-
+          {/* Alerts */}
           <Card className="border-t-4 border-red-500 flex flex-col">
             <CardContent className="p-5 flex flex-col flex-1">
               <h2 className="text-xl font-semibold mb-4">Alerts</h2>
@@ -190,7 +152,10 @@ export default function RootLayout() {
                   "Tilapia Tank 2: Low Oxygen",
                   "Lettuce Batch 5: Bolting detected",
                 ].map((msg, i) => (
-                  <li key={i} className="flex items-start border-b border-gray-100 pb-2">
+                  <li
+                    key={i}
+                    className="flex items-start border-b border-gray-100 pb-2"
+                  >
                     <span className="mr-2">⚠️</span>
                     <span className="font-medium">{msg}</span>
                   </li>
@@ -198,12 +163,13 @@ export default function RootLayout() {
               </ul>
             </CardContent>
           </Card>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <LettuceStageChart labels={plantChartLabels} data={plantChartData} />
-          <TilapiaAgeChart labels={fishChartLabels} data={fishChartData} />
-        </div>
+        {/* Charts */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <LettuceStageChart labels={LETTUCE_STAGE_ORDER} data={plantChartData} />
+          <TilapiaAgeChart labels={TILAPIA_STAGE_ORDER} data={fishChartData} />
+        </section>
 
         <AddBatchModal
           open={modalOpen}
