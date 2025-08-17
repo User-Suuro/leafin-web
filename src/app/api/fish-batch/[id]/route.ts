@@ -1,16 +1,16 @@
 // app/api/fish-batch/[id]/route.ts
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { eq } from "drizzle-orm";
 
-export async function GET(
-  _req: NextRequest,
-  context: { params: { id: string } }
-) {
-  try {
-    const batchId = Number(context.params.id);
+interface Params {
+  params: { id: string };
+}
 
+export async function GET(req: Request, { params }: Params) {
+  try {
+    const batchId = Number(params.id);
     if (isNaN(batchId)) {
       return NextResponse.json({ error: "Invalid batch id" }, { status: 400 });
     }
