@@ -25,7 +25,8 @@ export default function ApiTest() {
         const json = await res.json();
 
         const now = Date.now();
-        const elapsed = now - json.timestamp;
+        const elapsed = now - json.web_time;
+
 
         if (elapsed < 20000) {
           setStatus("Connected");
