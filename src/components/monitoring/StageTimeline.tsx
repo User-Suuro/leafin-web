@@ -87,7 +87,7 @@ export interface TimelineEvent extends RawBatch {
 function normalizeBatch(input: RawBatch): NormalizedBatch {
   if (!input) return {};
 
-  const hasFishDays = input.fishDays !== undefined && input.fishDays !== null;
+  //const hasFishDays = input.fishDays !== undefined && input.fishDays !== null;
 
   const getNumberProp = (obj: unknown, prop: string): number | undefined => {
     if (obj && typeof obj === "object" && prop in obj) {

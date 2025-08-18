@@ -60,7 +60,6 @@ export async function POST(req: Request) {
     await db.insert(plantBatch).values({
       plantQuantity,
       dateAdded: new Date(),
-      plantDays: 35,
       condition: "Vegetative Growth",
     });
 

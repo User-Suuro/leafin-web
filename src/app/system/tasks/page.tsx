@@ -149,7 +149,7 @@ export default function TaskManagement() {
 
   // Prevent hydration mismatch
   if (!mounted) {
-    return (
+    return (  
       <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 p-6">Loading...</div>

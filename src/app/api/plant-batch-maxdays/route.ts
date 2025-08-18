@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { plantBatch } from "@/db/schema/plantBatch";
-import { sql, eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -10,7 +10,6 @@ export async function GET() {
         maxDays: sql`MAX(${plantBatch.plantDays})`,
       })
       .from(plantBatch)
-      .where(eq(plantBatch.condition, "Vegetative Growth"));
 
     const maxDays = result[0]?.maxDays ?? 0;
 
