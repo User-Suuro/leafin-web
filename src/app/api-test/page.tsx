@@ -20,52 +20,58 @@ interface SensorData {
 export default function ApiTest() {
   const [data, setData] = useState<SensorData | null>(null);
   const [status, setStatus] = useState<"Connected" | "Disconnected">("Disconnected");
-  const [response, setResponse] = useState<string>(""); // ✅ missing state added
+  const [reply, setReply] = useState<string>(""); // latest reply from server for Arduino
+  const [messageStatus, setMessageStatus] = useState<string>(""); // confirm UI->server send
 
   const sendHello = async () => {
     try {
-      const res = await fetch("/api/arduino/receive-data", {
+      const res = await fetch("/api/arduino/reply", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: "hello" }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reply: "hello" }), // server stores this
       });
 
-      if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
-      const data = await res.json();
-      setResponse(data.reply || "No reply");
-      console.log("Arduino Reply:", data);
+      const json = await res.json();
+      setMessageStatus(`✅ Sent: ${json.received}`);
     } catch (err) {
       console.error("Error sending message:", err);
-      setResponse("Error sending message");
+      setMessageStatus("❌ Error sending message");
     }
   };
 
+  // 🔹 Poll sensor data + Arduino reply
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/send-sensor-data", { cache: "no-store" });
-        const json = await res.json();
+        const [sensorRes, replyRes] = await Promise.all([
+          fetch("/api/send-sensor-data", { cache: "no-store" }),
+          fetch("/api/arduino/reply", { cache: "no-store" }),
+        ]);
 
-        if (!json.web_time) {
+        const sensorJson = await sensorRes.json();
+        const replyJson = await replyRes.json();
+
+        // Handle sensor data
+        if (!sensorJson.web_time) {
           setStatus("Disconnected");
           setData(null);
-          return;
+        } else {
+          const now = Date.now();
+          const elapsed = now - sensorJson.web_time;
+          if (elapsed < 20000) {
+            setStatus("Connected");
+            setData(sensorJson);
+          } else {
+            setStatus("Disconnected");
+            setData(null);
+          }
         }
 
-        const now = Date.now();
-        const elapsed = now - json.web_time;
-
-        if (elapsed < 20000) {
-          setStatus("Connected");
-          setData(json);
-        } else {
-          setStatus("Disconnected");
-          setData(null);
+        // Handle reply from server (what Arduino will fetch)
+        if (replyJson.reply) {
+          setReply(replyJson.reply);
         }
       } catch (error) {
         console.error("Error fetching:", error);
@@ -74,10 +80,8 @@ export default function ApiTest() {
       }
     };
 
-    // Fetch immediately, then every 6s
     fetchData();
     const interval = setInterval(fetchData, 6000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -104,16 +108,23 @@ export default function ApiTest() {
         {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
       </h2>
 
+      {/* Button to set reply */}
       <button
         onClick={sendHello}
         className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 mt-4"
       >
-        Send "Hello"
+        Send Hello
       </button>
 
-      {response && (
+      {messageStatus && (
+        <p className="text-gray-600 mt-2">{messageStatus}</p>
+      )}
+
+      {/* Shows the reply value Arduino will fetch */}
+      {reply && (
         <p className="text-lg text-gray-700 mt-2">
-          Arduino says: <span className="font-bold">{response}</span>
+          📡 Current server reply for Arduino:{" "}
+          <span className="font-bold">{reply}</span>
         </p>
       )}
     </main>
