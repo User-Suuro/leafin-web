@@ -20,6 +20,30 @@ interface SensorData {
 export default function ApiTest() {
   const [data, setData] = useState<SensorData | null>(null);
   const [status, setStatus] = useState<"Connected" | "Disconnected">("Disconnected");
+  const [response, setResponse] = useState<string>(""); // ✅ missing state added
+
+  const sendHello = async () => {
+    try {
+      const res = await fetch("/api/arduino/receive-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: "hello" }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setResponse(data.reply || "No reply");
+      console.log("Arduino Reply:", data);
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setResponse("Error sending message");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,6 +103,19 @@ export default function ApiTest() {
         Web Time:{" "}
         {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
       </h2>
+
+      <button
+        onClick={sendHello}
+        className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 mt-4"
+      >
+        Send "Hello"
+      </button>
+
+      {response && (
+        <p className="text-lg text-gray-700 mt-2">
+          Arduino says: <span className="font-bold">{response}</span>
+        </p>
+      )}
     </main>
   );
 }
