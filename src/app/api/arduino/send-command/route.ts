@@ -16,8 +16,10 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  // Arduino polls command
   const cmd = lastCommand;
   lastCommand = null; // clear after sending
-  return new Response(JSON.stringify({ command: cmd }), { status: 200 });
+  return new Response(JSON.stringify({ command: cmd }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
