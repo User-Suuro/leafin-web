@@ -6,14 +6,14 @@ interface SensorData {
   connected: boolean;
   time: string;
   date: string;
-  ph: string;
-  turbid: string;
-  water_temp: string;
-  tds: string;
+  ph: number;
+  turbid: number;
+  water_temp: number;
+  tds: number;
   is_water_lvl_normal: boolean;
-  nh3_gas: string;
-  fraction_nh3: string;
-  total_ammonia: string;
+  nh3_gas: number;
+  fraction_nh3: number;
+  total_ammonia: number;
   web_time: number;
 }
 
