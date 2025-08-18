@@ -1,25 +1,27 @@
-import { NextApiRequest, NextApiResponse } from "next";
+// ./src/app/api/arduino/reply/route.ts
+import { NextRequest, NextResponse } from "next/server";
 
-let lastReply: string | null = null; // store the last Arduino reply (for debugging)
+let lastReply: string | null = null; // store the last Arduino reply
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    try {
-      const { reply } = req.body; // Expecting { reply: "hi" }
-      lastReply = reply;
+// Handle POST requests (Arduino sends reply here)
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { reply } = body; // Expecting { reply: "hi" }
+    lastReply = reply;
 
-      console.log("Arduino replied:", reply);
+    console.log("Arduino replied:", reply);
 
-      return res.status(200).json({ success: true, received: reply });
-    } catch (err) {
-      return res.status(400).json({ success: false, error: "Invalid request" });
-    }
+    return NextResponse.json({ success: true, received: reply });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Invalid request" },
+      { status: 400 }
+    );
   }
+}
 
-  if (req.method === "GET") {
-    // (Optional) allow browser or dev to check last reply
-    return res.status(200).json({ lastReply });
-  }
-
-  return res.status(405).json({ error: "Method not allowed" });
+// Handle GET requests (browser/dev check last reply)
+export async function GET() {
+  return NextResponse.json({ lastReply });
 }
