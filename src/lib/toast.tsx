@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 type Toast = {

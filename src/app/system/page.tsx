@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/navigation/sidebar";
-import { Card, CardContent } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 import AddBatchModal from "@/components/Modal/AddBatchModal";
 import { OverviewCard } from "@/components/Dashboard/OverviewCard";
