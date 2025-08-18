@@ -42,21 +42,16 @@ export default function ApiTest() {
     const fetchData = async () => {
       try {
         const res = await fetch("/api/arduino/send-data", { cache: "no-store" });
-        const json = await res.json();
+        const json: SensorData & { lastReply?: string } = await res.json();
 
-        if (!json.web_time) {
+        const now = Date.now();
+        if (!json.web_time || now - json.web_time > 20000) {
+          // older than 20s → disconnected
           setStatus("Disconnected");
           setData(null);
         } else {
-          const now = Date.now();
-          const elapsed = now - json.web_time;
-          if (elapsed < 20000) {
-            setStatus("Connected");
-            setData(json.sensorData);
-          } else {
-            setStatus("Disconnected");
-            setData(null);
-          }
+          setStatus("Connected");
+          setData(json);
         }
 
         if (json.lastReply) setLastReply(json.lastReply);
