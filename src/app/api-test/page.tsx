@@ -20,24 +20,26 @@ interface SensorData {
 export default function ApiTest() {
   const [data, setData] = useState<SensorData | null>(null);
   const [status, setStatus] = useState<"Connected" | "Disconnected">("Disconnected");
-  const [reply, setReply] = useState<string>(""); // latest reply from server for Arduino
-  const [messageStatus, setMessageStatus] = useState<string>(""); // confirm UI->server send
 
+  const [lastReply, setLastReply] = useState<string>(""); // what Arduino replied
+  const [messageStatus, setMessageStatus] = useState<string>(""); // confirmation for sending commands
+
+  // 🔹 Send command "hello" to Arduino (stored in server, Arduino fetches later)
   const sendHello = async () => {
     try {
-      const res = await fetch("/api/arduino/reply", {
+      const res = await fetch("/api/send-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reply: "hello" }), // server stores this
+        body: JSON.stringify({ command: "hello" }),
       });
 
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
       const json = await res.json();
-      setMessageStatus(`✅ Sent: ${json.received}`);
+      setMessageStatus(`✅ Sent command: "hello"`);
     } catch (err) {
       console.error("Error sending message:", err);
-      setMessageStatus("❌ Error sending message");
+      setMessageStatus("❌ Error sending command");
     }
   };
 
@@ -45,13 +47,13 @@ export default function ApiTest() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sensorRes, replyRes] = await Promise.all([
+        const [sensorRes, cmdRes] = await Promise.all([
           fetch("/api/send-sensor-data", { cache: "no-store" }),
-          fetch("/api/arduino/reply", { cache: "no-store" }),
+          fetch("/api/send-data", { cache: "no-store" }),
         ]);
 
         const sensorJson = await sensorRes.json();
-        const replyJson = await replyRes.json();
+        const cmdJson = await cmdRes.json();
 
         // Handle sensor data
         if (!sensorJson.web_time) {
@@ -69,9 +71,9 @@ export default function ApiTest() {
           }
         }
 
-        // Handle reply from server (what Arduino will fetch)
-        if (replyJson.reply) {
-          setReply(replyJson.reply);
+        // Handle last reply from Arduino
+        if (cmdJson.lastReply) {
+          setLastReply(cmdJson.lastReply);
         }
       } catch (error) {
         console.error("Error fetching:", error);
@@ -101,14 +103,14 @@ export default function ApiTest() {
       </h2>
       <h2>TDS: {data?.tds ?? "N/A"} ppm</h2>
       <h2>NH3 Gas: {data?.nh3_gas ?? "N/A"} ppm</h2>
-      <h2>Fraction NH3: {data?.fraction_nh3 ?? "N/A"} ppm</h2>
+      <h2>Fraction NH3: {data?.fraction_nh3 ?? "N/A"} %</h2>
       <h2>Total Ammonia: {data?.total_ammonia ?? "N/A"} ppm</h2>
       <h2>
         Web Time:{" "}
         {data?.web_time ? new Date(data.web_time).toLocaleTimeString() : "N/A"}
       </h2>
 
-      {/* Button to set reply */}
+      {/* Button to send a command */}
       <button
         onClick={sendHello}
         className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 mt-4"
@@ -120,11 +122,11 @@ export default function ApiTest() {
         <p className="text-gray-600 mt-2">{messageStatus}</p>
       )}
 
-      {/* Shows the reply value Arduino will fetch */}
-      {reply && (
+      {/* Show the last reply Arduino sent back */}
+      {lastReply && (
         <p className="text-lg text-gray-700 mt-2">
-          📡 Current server reply for Arduino:{" "}
-          <span className="font-bold">{reply}</span>
+          🤖 Arduino last replied:{" "}
+          <span className="font-bold">{lastReply}</span>
         </p>
       )}
     </main>
