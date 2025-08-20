@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/personalization/theme-provider";
 import { ToastProvider } from "@/shadcn/ui/toast-provider";
+import logo from "@/assets/favicon.ico"
 
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
@@ -18,6 +19,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Leafin Things",
+  icons:{
+    icon:logo.src
+  }
 };
 
 export default function RootLayout({

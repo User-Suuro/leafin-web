@@ -8,7 +8,7 @@ export default function Auth() {
 
   useEffect(() => {
     // Redirect for now, wala pang login
-    router.push("/dashboard"); // replace with your target route
+    router.push("/system/dashboard"); // replace with your target route
   }, [router]);
 
   return (
