@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/navigation/sidebar";
 import { Separator } from "@/shadcn/ui/separator";
-import AddBatchModal from "@/components/modal/AddBatchModal";
-import { OverviewCard } from "@/components/system/dashboard/OverviewCard";
-import LettuceStageChart from "@/components/system/dashboard/Charts/LettuceStageChart";
-import TilapiaAgeChart from "@/components/system/dashboard/Charts/TilapiaAgeChart";
+import AddBatchModal from "@/components/modal/add-batch-modal";
+import { OverviewCard } from "@/components/system/dashboard/overview-card";
+import LettuceStageChart from "@/components/system/dashboard/charts/lettuce-stage-chart";
+import TilapiaAgeChart from "@/components/system/dashboard/charts/tilapia-age-chart";
 import { Leaf, Fish } from "lucide-react";
-import { Alerts } from "@/components/system/dashboard/Alert";
+import { Alerts } from "@/components/system/dashboard/alerts";
 
 type FishBatch = {
   fishBatchId?: number;

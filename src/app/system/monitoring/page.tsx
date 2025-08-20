@@ -10,9 +10,9 @@ import {
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/ui/tabs";
 import { Separator } from "@/shadcn/ui/separator";
-import { StageTimeline, TILAPIA_STAGES, LETTUCE_STAGES, TimelineEvent } from "@/components/system/monitoring/StageTimeline";
-import { SensorCard } from "@/components/system/monitoring/SensorCard";
-import FeederStatus from "@/components/system/monitoring/FeederStatus";
+import { StageTimeline, TILAPIA_STAGES, LETTUCE_STAGES, TimelineEvent } from "@/components/system/monitoring/stage-timeline";
+import { SensorCard } from "@/components/system/monitoring/sensor-card";
+import FeederStatus from "@/components/system/monitoring/feeder-status";
 import { SensorData } from "@/types/sensor-values";
 
 
