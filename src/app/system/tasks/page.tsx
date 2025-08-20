@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sidebar } from "@/components/navigation/sidebar";
 import { CalendarCheck } from "lucide-react";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
@@ -149,9 +148,8 @@ export default function TaskManagement() {
 
   // Prevent hydration mismatch
   if (!mounted) {
-    return (
+    return (  
       <div className="flex min-h-screen">
-        <Sidebar />
         <div className="flex-1 p-6">Loading...</div>
       </div>
     );
@@ -159,8 +157,7 @@ export default function TaskManagement() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
-
+ 
       <div className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-2">Task Management</h1>
         <Separator className="mb-6" />

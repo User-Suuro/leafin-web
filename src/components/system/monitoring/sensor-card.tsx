@@ -5,7 +5,7 @@ import { Badge } from "@/shadcn/ui/badge";
 
 interface SensorCardProps {
   name: string;
-  value: string;
+  value: string | number;
   icon?: React.ReactNode;
 }
 

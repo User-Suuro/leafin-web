@@ -2,51 +2,38 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
-import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // Get all "Growing" batches
-    const growingBatches = await db
-      .select()
-      .from(fishBatch)
-      .where(eq(fishBatch.condition, "Grow-out Stage"));
+    // ✅ Get ALL batches, no filtering
+    const allBatches = await db.select().from(fishBatch);
 
-    const batchesWithDays = await Promise.all(
-      growingBatches.map(async (b) => {
-        const created = new Date(b.dateAdded);
-        const ageDays = Math.floor(
-          (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
-        );
+    const batchesWithDays = allBatches.map((b) => {
+      const created = new Date(b.dateAdded);
+      const ageDays = Math.floor(
+        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
-        // If >= 120 days, update to "Ready"
-        if (ageDays >= 120 && b.condition === "Grow-out Stage") {
-          await db
-            .update(fishBatch)
-            .set({ condition: "Harvest Stage" })
-            .where(eq(fishBatch.fishBatchId, b.fishBatchId));
-        }
+      return {
+        ...b,
+        fishDays: ageDays,
+      };
+    });
 
-        return {
-          ...b,
-          fishDays: ageDays,
-        };
-      })
+    // ✅ Sum all fish quantities across all batches
+    const totalFish = batchesWithDays.reduce(
+      (sum, b) => sum + (b.fishQuantity ?? 0),
+      0
     );
-
-    // ✅ Explicitly sum only "Grow-out Stage" batches
-    const totalFish = batchesWithDays
-      .filter((b) => b.condition === "Grow-out Stage")
-      .reduce((sum, b) => sum + (b.fishQuantity ?? 0), 0);
 
     return NextResponse.json({
       batches: batchesWithDays,
       totalFish,
     });
   } catch (error) {
-    console.error("Error fetching growing fish batches:", error);
+    console.error("Error fetching fish batches:", error);
     return NextResponse.json(
-      { error: "Failed to fetch growing batches" },
+      { error: "Failed to fetch fish batches" },
       { status: 500 }
     );
   }
@@ -60,8 +47,7 @@ export async function POST(req: Request) {
     await db.insert(fishBatch).values({
       fishQuantity,
       dateAdded: new Date(),
-      fishDays: 60,
-      condition: "Juvenile Stage",
+      condition: "Juvenile Stage", // default condition
     });
 
     return NextResponse.json({ success: true });

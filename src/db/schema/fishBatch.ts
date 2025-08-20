@@ -16,3 +16,4 @@ export const fishBatch = mysqlTable("fish_batch", {
 
 export type FishBatch = typeof fishBatch.$inferSelect;
 export type NewFishBatch = typeof fishBatch.$inferInsert;
+  
