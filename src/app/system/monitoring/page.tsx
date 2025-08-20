@@ -10,19 +10,10 @@ import {
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/ui/tabs";
 import { Separator } from "@/shadcn/ui/separator";
-import { StageTimeline, TILAPIA_STAGES, LETTUCE_STAGES, TimelineEvent } from "@/components/monitoring/StageTimeline";
-import { WaterQuality } from "@/components/monitoring/WaterQuality";
-import { SensorCard } from "@/components/monitoring/SensorCard";
-import FeederStatus from "@/components/monitoring/FeederStatus";
-
-
-interface SensorData {
-  time?: string;
-  date?: string;
-  ph?: string;
-  turbid?: string;
-  timestamp: number;
-}
+import { StageTimeline, TILAPIA_STAGES, LETTUCE_STAGES, TimelineEvent } from "@/components/system/monitoring/StageTimeline";
+import { SensorCard } from "@/components/system/monitoring/SensorCard";
+import FeederStatus from "@/components/system/monitoring/FeederStatus";
+import { SensorData } from "@/types/sensor-values";
 
 
 const DEFAULT_FISH_API = "/api/fish-batch/timeline";
@@ -143,7 +134,7 @@ export default function Monitoring() {
       const json: SensorData = await res.json();
 
       const now = Date.now();
-      const elapsed = now - (json.timestamp ?? 0);
+      const elapsed = now - (json.web_time ?? 0);
 
       setConnectionStatus(elapsed < 20000 ? "Connected" : "Disconnected");
       setSensorData(json);
@@ -217,10 +208,7 @@ export default function Monitoring() {
             </div>
           </TabsContent>
 
-          {/* Water Quality Tab */}
-         <TabsContent value="water-quality" className="space-y-6">
-          <WaterQuality sensorData={sensorData} />
-        </TabsContent>
+
 
           {/* Feeder Tab */}
           <TabsContent value="feeder" className="space-y-6">

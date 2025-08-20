@@ -1,21 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface SensorData {
-  connected: boolean;
-  time: string;
-  date: string;
-  ph: number;
-  turbid: number;
-  water_temp: number;
-  tds: number;
-  is_water_lvl_normal: boolean;
-  nh3_gas: number;
-  fraction_nh3: number;
-  total_ammonia: number;
-  web_time: number;
-}
+import { SensorData } from "@/types/sensor-values";
 
 export default function ApiTest() {
   const [data, setData] = useState<SensorData | null>(null);
