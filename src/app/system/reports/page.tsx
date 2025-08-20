@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Sidebar } from "@/components/navigation/sidebar";
 import {
   BarChart,
@@ -18,8 +19,18 @@ import {
 } from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 import { Button } from "@/shadcn/ui/button";
+import AddReportModal from "@/components/Modal/AddReportModal";
 
 export default function AnalyticsReports() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [reportType, setReportType] = useState<
+    "revenue" | "sales" | "expenses" | null
+  >(null);
+
+  const openReportModal = (type: "revenue" | "sales" | "expenses") => {
+    setReportType(type);
+    setModalOpen(true);
+  };
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -88,21 +99,32 @@ export default function AnalyticsReports() {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Sales and Financial</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ReportCard
+          <ReportCard
               icon={<BarChart className="w-12 h-12 text-blue-500" />}
               title="Revenue Report"
+              onGenerate={() => openReportModal("revenue")}
             />
             <ReportCard
               icon={<Package className="w-12 h-12 text-blue-500" />}
               title="Product Sales Summary"
+              onGenerate={() => openReportModal("sales")}
             />
             <ReportCard
               icon={<DollarSign className="w-12 h-12 text-blue-500" />}
               title="Expenses Report"
+              onGenerate={() => openReportModal("expenses")}
             />
           </div>
         </div>
       </div>
+      {/* ✅ Attach Modal */}
+      {reportType && (
+        <AddReportModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          type={reportType}
+        />
+      )}
     </div>
   );
 }
@@ -110,9 +132,11 @@ export default function AnalyticsReports() {
 function ReportCard({
   title,
   icon,
+  onGenerate,
 }: {
   title: string;
   icon: React.ReactNode;
+  onGenerate: () => void;
 }) {
   return (
     <Card className="text-center">
@@ -123,7 +147,7 @@ function ReportCard({
         <h3 className="text-lg font-semibold">{title}</h3>
         <div className="flex justify-center gap-2">
           <Button variant="secondary">View Details</Button>
-          <Button>Generate Report</Button>
+          <Button onClick={onGenerate}>Generate Report</Button>
         </div>
       </CardContent>
     </Card>
