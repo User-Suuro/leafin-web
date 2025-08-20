@@ -6,6 +6,7 @@ import logo from "@/assets/favicon.ico"
 
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
+import LayoutWrapper from "@/components/navigation/layout-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ToastProvider>
             <Navbar />
-            {children}
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
           </ToastProvider>
         </ThemeProvider>
       </body>

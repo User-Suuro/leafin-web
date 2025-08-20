@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Sidebar } from "@/components/navigation/sidebar";
 import {
   Thermometer,
   FlaskConical,
@@ -156,8 +155,7 @@ export default function Monitoring() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
-
+     
       {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="mb-6">

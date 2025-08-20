@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Sidebar } from "@/components/navigation/sidebar";
 import { Separator } from "@/shadcn/ui/separator";
 import AddBatchModal from "@/components/modal/add-batch-modal";
 import { OverviewCard } from "@/components/system/dashboard/overview-card";
@@ -96,8 +95,6 @@ export default function RootLayout() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
-
       <div className="flex-1 p-5 overflow-y-auto space-y-6">
         <header>
           <h1 className="text-2xl font-bold">Growth Overview</h1>

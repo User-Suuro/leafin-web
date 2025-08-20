@@ -23,7 +23,7 @@ const sidebarItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-    href: "/system",
+    href: "/system/dashboard",
   },
   {
     title: "Monitoring",

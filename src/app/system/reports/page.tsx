@@ -1,6 +1,5 @@
 "use client";
 
-import { Sidebar } from "@/components/navigation/sidebar";
 import {
   BarChart,
   Leaf,
@@ -22,8 +21,6 @@ import { Button } from "@/shadcn/ui/button";
 export default function AnalyticsReports() {
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
-
       <div className="flex-1 p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">Analytics & Reports</h1>
