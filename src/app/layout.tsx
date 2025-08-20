@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond } from "next/font/google";
 import { ThemeProvider } from "@/components/personalization/theme-provider";
 import { ToastProvider } from "@/shadcn/ui/toast-provider";
 import logo from "@/assets/favicon.ico";
@@ -8,6 +9,11 @@ import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
 import LayoutWrapper from "@/components/navigation/nav-layout-wrapper";
 
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["600"], // semibold
+  variable: "--font-cormorant",
+});
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,6 +31,8 @@ export const metadata: Metadata = {
   },
 };
 
+
+
 export default function RootLayout({
   children,
 }: {
@@ -33,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased overflow-hidden">
