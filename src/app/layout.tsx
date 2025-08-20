@@ -36,16 +36,17 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ToastProvider>
-            <Navbar />
-              <LayoutWrapper>
-                {children}
-              </LayoutWrapper>
-          </ToastProvider>
-        </ThemeProvider>
-      </body>
+     <body className="antialiased overflow-hidden">
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ToastProvider>
+          <Navbar />
+          <LayoutWrapper>
+              {children}
+          </LayoutWrapper>
+        </ToastProvider>
+      </ThemeProvider>
+    </body>
+
     </html>
   );
 }

@@ -137,7 +137,6 @@ export default function RootLayout() {
               condition: b.condition ?? "Unknown",
             }))}
           />
-
           {/* Alerts */}
             <Alerts />
           </section>
