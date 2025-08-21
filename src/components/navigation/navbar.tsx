@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -9,7 +10,7 @@ import {
 } from "@/shadcn/ui/navigation-menu"
 import { Home, LayoutDashboard, FileText } from "lucide-react"
 import { ModeToggle } from "@/components/personalization/mode-toggle"
-
+import icon from "@/assets/logo.png";
 export default function Navbar() {
   const pathname = usePathname()
 
@@ -23,9 +24,18 @@ export default function Navbar() {
     <nav className="border-b px-8 py-4">
       <div className="flex items-center justify-between">
         {/* Left - Logo */}
-        <div className="text-xl font-bold text-green-700">
-          🌿 Leafin Things
-        </div>
+        <Link href="/" className="flex items-center gap-2">
+        <Image
+          src={icon}
+          alt="Leafin Things Logo"
+          height={40}
+          className="h-10 w-auto object-contain"
+          priority
+        />
+          <span className="text-xl font-bold text-green-700">
+            Leafin Things
+          </span>
+        </Link>
 
         {/* Center - Navigation Links */}
         <NavigationMenu>
@@ -44,7 +54,6 @@ export default function Navbar() {
                   {item.icon}
                   {item.label}
                 </Link>
-
               </NavigationMenuItem>
             ))}
           </NavigationMenuList>
