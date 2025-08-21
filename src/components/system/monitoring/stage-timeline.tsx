@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shadcn/ui/card";
-import { Droplets, HeartPulse } from "lucide-react";
+import { Droplets, HeartPulse , ArrowLeft, ArrowRight} from "lucide-react";
 
 
 interface NormalizedBatch {
@@ -256,22 +256,35 @@ export function StageTimeline({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {typeKey === "tilapia" ? (
-              <HeartPulse className="w-5 h-5 text-blue-500" />
-            ) : (
-              <Droplets className="w-5 h-5 text-green-500" />
-            )}
-            <span>{title}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => changeMonth(-1)} className="px-2 py-1 border rounded hover:bg-gray-100">
-              ◀
-            </button>
-            <div className="font-medium">{monthLabel}</div>
-            <button onClick={() => changeMonth(1)} className="px-2 py-1 border rounded hover:bg-gray-100">
-              ▶
-            </button>
+          <div className="grid grid-cols-2 items-center gap-4">
+            {/* Left: Icon + Title */}
+            <div className="flex items-center gap-2">
+              {typeKey === "tilapia" ? (
+                <HeartPulse className="w-6 h- text-blue-500" />
+              ) : (
+                <Droplets className="w-6 h-6 text-green-500" />
+              )}
+              <span>{title}</span>
+            </div>
+
+            {/* Right: Month Controls */}
+            <div className="grid grid-cols-3 items-center gap-2 justify-items-center">
+              <button
+                onClick={() => changeMonth(-1)}
+                className="px-2 py-1 border rounded hover:bg-gray-100"
+              >
+                <ArrowLeft className="w-4 cursor-pointer" />
+              </button>
+
+              <div className="font-medium text-sm whitespace-nowrap min-w-[80px] text-center">{monthLabel}</div>
+
+              <button
+                onClick={() => changeMonth(1)}
+                className="px-2 py-1 border rounded hover:bg-gray-100"
+              >
+                <ArrowRight className="w-4 cursor-pointer" />
+              </button>
+            </div>
           </div>
         </CardTitle>
         <CardDescription>Click arrows to navigate months.</CardDescription>
