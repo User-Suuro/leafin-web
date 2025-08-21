@@ -33,7 +33,7 @@ export default function Navbar() {
           priority
         />
           <span className="text-xl font-bold text-green-700">
-            Leafin Things
+            LeaFin Things
           </span>
         </Link>
 
