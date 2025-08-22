@@ -8,7 +8,7 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from "@/shadcn/ui/navigation-menu"
-import { Home, LayoutDashboard, FileText } from "lucide-react"
+import { Home, LayoutDashboard, FileText, Contact } from "lucide-react"
 import { ModeToggle } from "@/components/personalization/mode-toggle"
 import icon from "@/assets/logo.png";
 export default function Navbar() {
@@ -18,6 +18,7 @@ export default function Navbar() {
     { href: "/", label: "Home", icon: <Home size={18} /> },
     { href: "/system", label: "System", icon: <LayoutDashboard size={18} /> },
     { href: "/about", label: "About", icon: <FileText size={18} /> },
+    { href: "/contact", label: "Contact", icon: <Contact size={18} /> },
   ]
 
   return (
