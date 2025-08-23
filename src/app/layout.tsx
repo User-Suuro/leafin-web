@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/personalization/theme-provider";
 import { ToastProvider } from "@/shadcn/ui/toast-provider";
 import logo from "@/assets/favicon.ico";
 
+
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
 import LayoutWrapper from "@/components/navigation/nav-layout-wrapper";
