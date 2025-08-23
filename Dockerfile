@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Accept a build-time secret for cache ID (instead of hardcoding)
-ARG CACHE_KEY=my-default-cache
+ARG CACHE_KEY=${RAILWAY_SERVICE_ID}
 
 # Enable corepack and set up yarn (using cache key)
 RUN --mount=type=cache,id=${CACHE_KEY}-yarn,target=/usr/local/share/.cache/yarn/v6 \
