@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        CACHE_KEY: ${CACHE_KEY} # Comes from .env
+        CACHE_KEY: ${RAILWAY_SERVICE_ID} # Comes from .env
     ports:
       - "3000:3000"
     env_file:
