@@ -37,7 +37,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               "rounded-md p-4 shadow-md text-sm transition-all animate-in slide-in-from-top-2",
               t.variant === "destructive"
                 ? "bg-red-500 text-white"
-                : "bg-gray-800 text-white"
+                : "bg-primary text-white"
             )}
           >
             {t.title && <div className="font-semibold">{t.title}</div>}
