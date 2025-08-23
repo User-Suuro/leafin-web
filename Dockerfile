@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Just hardcode a safe default cache key (not sensitive)
-ARG CACHE_KEY=yarn-cache
+ARG CACHE_KEY=s/d7fd1032-c073-4380-9115-7a1f24e5fdee
 
 # Enable corepack and set up yarn (using cache key)
 RUN --mount=type=cache,id=${CACHE_KEY}-yarn,target=/usr/local/share/.cache/yarn/v6 \
