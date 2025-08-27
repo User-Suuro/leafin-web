@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import homeImage from "@/assets/home.jpg";
 
 export default function Home() {
@@ -21,11 +22,16 @@ export default function Home() {
         An Innovative Sustainable Aquaponics
       </p>
 
-      <button
-        className="px-8 py-3 rounded-lg text-lg font-medium text-white shadow-md hover:opacity-90 transition cursor-pointer"
-        style={{ backgroundColor: "#199C63" }}>
-        Explore
-      </button>
+      <Link href="/about">
+        <button
+          className="px-8 py-3 rounded-lg text-lg font-medium text-white shadow-md 
+          hover:opacity-90 hover:scale-105 transition-transform duration-300 
+          cursor-pointer"
+          style={{ backgroundColor: "#199C63" }}>
+          Explore
+        </button>
+      </Link>
+
       </div>
       <div className="flex items-start justify-center min-h-screen pl-15 pt-8">
         <Image 

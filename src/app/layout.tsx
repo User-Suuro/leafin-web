@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Cormorant_Garamond } from "next/font/google";
+import { Luckiest_Guy } from "next/font/google";
+import { Poppins } from 'next/font/google';
 import { ThemeProvider } from "@/components/personalization/theme-provider";
 import { ToastProvider } from "@/shadcn/ui/toast-provider";
 import logo from "@/assets/favicon.ico";
@@ -9,6 +11,19 @@ import logo from "@/assets/favicon.ico";
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
 import LayoutWrapper from "@/components/navigation/nav-layout-wrapper";
+import PageTransition from "@/components/navigation/page-transition";
+
+const bodyFont = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: "--font-body",
+})
+
+const luckiestGuy = Luckiest_Guy({
+  subsets: ["latin"],
+  weight: "400", // only available weight
+  variable: "--font-luckiest",
+});
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -39,18 +54,21 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable}`}
+      className={`${luckiestGuy.variable} ${bodyFont.variable} ${cormorant.variable} ${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased overflow-hidden">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ToastProvider>
             <Navbar />
-            {/* LayoutWrapper decides if it should wrap or not */}
-            <LayoutWrapper>{children}</LayoutWrapper>
+              {/* For smooth transition */}
+              <PageTransition>
+                <LayoutWrapper>{children}</LayoutWrapper>
+              </PageTransition>
           </ToastProvider>
         </ThemeProvider>
       </body>
