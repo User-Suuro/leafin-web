@@ -8,6 +8,8 @@ import LettuceStageChart from "@/components/system/dashboard/charts/lettuce-stag
 import TilapiaAgeChart from "@/components/system/dashboard/charts/tilapia-age-chart";
 import { Leaf, Fish } from "lucide-react";
 import { Alerts } from "@/components/system/dashboard/alerts";
+import { fetchData } from "@/lib/api";
+
 
 type FishBatch = {
   fishBatchId?: number;
@@ -53,23 +55,13 @@ export default function RootLayout() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType] = useState<"plant" | "fish" | "">("");
 
-  /** Fetch helper */
-  const fetchData = async <T,>(
-    url: string,
-    setter: React.Dispatch<React.SetStateAction<T>>
-  ) => {
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      setter(data);
-    } catch {
-      setter({} as T);
-    }
-  };
+
 
   useEffect(() => {
-    fetchData("/api/fish-batch/fish-batch-stages", setFishStageData);
-    fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData);
+    const apiKey = process.env.API_TCP_KEY;
+   
+    fetchData("/api/fish-batch/fish-batch-stages", setFishStageData, apiKey);
+    fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData, apiKey);
 
     fetch("/api/plant-batch")
       .then((res) => res.json())
