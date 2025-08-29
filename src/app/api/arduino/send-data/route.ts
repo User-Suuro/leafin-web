@@ -10,17 +10,14 @@ export async function POST(req: Request) {
 
     // Insert without touching created_at (MySQL will auto-fill it)
     await db.insert(sensorData).values({
-      connected: body.connected,
       time: body.time,
       date: body.date,
       ph: body.ph,
       turbid: body.turbid,
       water_temp: body.water_temp,
       tds: body.tds,
-      is_water_lvl_normal: body.is_water_lvl_normal,
-      nh3_gas: body.nh3_gas,
-      fraction_nh3: body.fraction_nh3,
-      total_ammonia: body.total_ammonia,
+      float_switch: body.float_switch,
+      nh3_gas: body.nh3_gas, 
     });
 
     return NextResponse.json({ success: true });
@@ -44,45 +41,41 @@ export async function GET() {
     if (rows.length === 0) {
       return NextResponse.json({
         connected: false,
-        time: "N/A",
-        date: "N/A",
-        ph: "N/A",
-        turbid: "N/A",
-        water_temp: "N/A",
-        tds: "N/A",
-        is_water_lvl_normal: false,
-        nh3_gas: "N/A",
-        fraction_nh3: "N/A",
-        total_ammonia: "N/A",
-        web_time: 0,
+        time: "",
+        date: "",
+        ph: "",
+        turbid: "",
+        water_temp: "",
+        tds: "",
+        float_switch: false,
+        nh3_gas: "",
+        created_at: null,
       });
     }
 
     const lastSensorData = rows[0];
     const now = Date.now();
-    const web_time = new Date(lastSensorData.created_at).getTime();
+    const lastUpdate = new Date(lastSensorData.created_at).getTime();
 
     // If last update was >20s ago, treat as disconnected
-    if (now - web_time > 20000) {
+    if (now - lastUpdate > 20000) {
       return NextResponse.json({
         connected: false,
-        time: "N/A",
-        date: "N/A",
-        ph: "N/A",
-        turbid: "N/A",
-        water_temp: "N/A",
-        tds: "N/A",
-        is_water_lvl_normal: false,
-        nh3_gas: "N/A",
-        fraction_nh3: "N/A",
-        total_ammonia: "N/A",
-        web_time: 0,
+        time: "",
+        date: "",
+        ph: "",
+        turbid: "",
+        water_temp: "",
+        tds: "",
+        float_switch: false,
+        nh3_gas: "",
+        created_at: lastSensorData.created_at,
       });
     }
 
     return NextResponse.json({
-      ...lastSensorData,
-      web_time, // attach dynamically
+      connected: true,
+      ...lastSensorData, // includes created_at directly
     });
   } catch (err) {
     console.error("GET /api/send-sensor-data failed:", err);
@@ -92,3 +85,4 @@ export async function GET() {
     );
   }
 }
+

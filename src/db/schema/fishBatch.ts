@@ -2,7 +2,7 @@
 import { mysqlTable, serial, int, datetime, varchar, mysqlEnum, date } from "drizzle-orm/mysql-core";
 
 export const fishBatch = mysqlTable("fish_batch", {
-  fishBatchId: serial("fish_batch_id").primaryKey(),
+  fishBatchId: int("fish_batch_id").primaryKey().autoincrement(),
   fishQuantity: int("fish_quantity").notNull(),
   fishDays: int("fish_days").default(0),
   dateAdded: datetime("date_added").notNull(),

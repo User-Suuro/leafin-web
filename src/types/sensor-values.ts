@@ -6,9 +6,7 @@ export interface SensorData {
   turbid: number;
   water_temp: number;
   tds: number;
-  is_water_lvl_normal: boolean;
+  float_switch: boolean;
   nh3_gas: number;
-  fraction_nh3: number;
-  total_ammonia: number;
-  web_time: number;
+  created_at: number; 
 }

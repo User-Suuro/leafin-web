@@ -10,7 +10,8 @@ import {
 } from "@/shadcn/ui/navigation-menu"
 import { Home, LayoutDashboard, FileText, Contact } from "lucide-react"
 import { ModeToggle } from "@/components/personalization/mode-toggle"
-import icon from "@/assets/logo.png";
+import icon from "@/assets/logo.png"
+
 export default function Navbar() {
   const pathname = usePathname()
 
@@ -22,17 +23,17 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="border-b px-8 py-4">
+    <nav className="sticky top-0 z-50 border-b bg-background px-8 py-4">
       <div className="flex items-center justify-between">
         {/* Left - Logo */}
         <Link href="/" className="flex items-center gap-2">
-        <Image
-          src={icon}
-          alt="Leafin Things Logo"
-          height={40}
-          className="h-10 w-auto object-contain"
-          priority
-        />
+          <Image
+            src={icon}
+            alt="Leafin Things Logo"
+            height={40}
+            className="h-10 w-auto object-contain"
+            priority
+          />
           <span className="text-xl font-bold text-green-700">
             LeaFin Things
           </span>

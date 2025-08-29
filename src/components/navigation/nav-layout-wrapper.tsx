@@ -12,11 +12,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="grid grid-cols-[64px_1fr] h-[calc(100vh-64px)]">
-      <aside className="sticky top-0 h-[calc(100vh-64px)] border-r border-border">
+    <div className="flex">
+      <aside className="fixed top-[64px] h-[calc(100vh-64px)] overflow-hidden">
         <Sidebar />
       </aside>
-      <main className="overflow-y-auto">{children}</main>
+      <main className="ml-16 w-[calc(100vw-16px)]">{children}</main>
     </div>
   );
 }

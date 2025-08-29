@@ -5,50 +5,15 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1754928337890,
-      "tag": "0000_odd_tattoo",
+      "when": 1756475389795,
+      "tag": "0000_mysterious_shinko_yamashiro",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "5",
-      "when": 1755115872331,
-      "tag": "0001_low_queen_noir",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1755116221362,
-      "tag": "0002_opposite_mister_sinister",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1755240925981,
-      "tag": "0003_melted_junta",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1755426063875,
-      "tag": "0004_late_captain_flint",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1755427383077,
-      "tag": "0005_simple_vengeance",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1755428088310,
-      "tag": "0006_chunky_jack_flag",
+      "when": 1756476265137,
+      "tag": "0001_fearless_maverick",
       "breakpoints": true
     }
   ]
