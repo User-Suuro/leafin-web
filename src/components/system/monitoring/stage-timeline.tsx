@@ -73,7 +73,9 @@ export interface RawBatch extends Record<string, unknown> {
   date?: string;
   dateAdded?: string | Date;
   fishDays?: number;
+  plantDays?: number;
   fishQuantity?: number;
+  plantQuantity?: number; 
   condition?: string;
   event?: string;
   status?: string;
@@ -86,8 +88,6 @@ export interface TimelineEvent extends RawBatch {
 
 function normalizeBatch(input: RawBatch): NormalizedBatch {
   if (!input) return {};
-
-  //const hasFishDays = input.fishDays !== undefined && input.fishDays !== null;
 
   const getNumberProp = (obj: unknown, prop: string): number | undefined => {
     if (obj && typeof obj === "object" && prop in obj) {
@@ -113,15 +113,18 @@ function normalizeBatch(input: RawBatch): NormalizedBatch {
     ? input.event.match(/\d{4}-\d{2}-\d{2}/)?.[0]
     : undefined;
 
+  const days = input.fishDays ?? input.plantDays ?? getNumberProp(input, "days");
+
   return {
     id: input.fishBatchId ?? getNumberProp(input, "id"),
     dateISO: input.date ?? getStringProp(input, "dateAdded") ?? maybeDate,
-    days: input.fishDays ?? getNumberProp(input, "days"),
-    qty: input.fishQuantity ?? getNumberProp(input, "qty"),
+    days: input.fishDays ?? input.plantDays ?? getNumberProp(input, "days"),
+    qty: input.fishQuantity ?? input.plantQuantity ?? getNumberProp(input, "qty"),
     condition: input.condition,
     rawEvent: input.event,
   };
 }
+
 
 
 
@@ -196,7 +199,7 @@ export function StageTimeline({
       const startDate = rawDate ? new Date(rawDate) : null;
       if (!startDate || isNaN(startDate.getTime())) return [];
 
-      const duration = normalized.days ?? (b as { fishDays?: number; plantDays?: number }).fishDays ?? 20;
+      const duration = normalized.days ?? 1; // default to 1 if missing
       const dur = Math.max(1, Math.floor(duration));
 
       const batchStart = new Date(startDate);

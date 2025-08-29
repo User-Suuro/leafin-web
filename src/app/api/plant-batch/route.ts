@@ -2,51 +2,39 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { plantBatch } from "@/db/schema/plantBatch";
-import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // Get all "Growing" plant batches
-    const growingBatches = await db
-      .select()
-      .from(plantBatch)
-      .where(eq(plantBatch.condition, "Vegetative Growth"));
+    // ✅ Get ALL plant batches, no filtering
+    const allBatches = await db.select().from(plantBatch);
 
-    const batchesWithDays = await Promise.all(
-      growingBatches.map(async (b) => {
-        const created = new Date(b.dateAdded);
-        const ageDays = Math.floor(
-          (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
-        );
+    // Calculate plantDays for each batch
+    const batchesWithDays = allBatches.map((b) => {
+      const created = new Date(b.dateAdded);
+      const ageDays = Math.floor(
+        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
-        // If >= 50 days, update to "Ready"
-        if (ageDays >= 50 && b.condition === "Vegetative Growth") {
-          await db
-            .update(plantBatch)
-            .set({ condition: "Harvest Ready" })
-            .where(eq(plantBatch.plantBatchId, b.plantBatchId));
-        }
+      return {
+        ...b,
+        plantDays: ageDays,
+      };
+    });
 
-        return {
-          ...b,
-          plantDays: ageDays,
-        };
-      })
+    // Sum total plant quantities
+    const totalPlants = batchesWithDays.reduce(
+      (sum, b) => sum + (b.plantQuantity ?? 0),
+      0
     );
-
-    // ✅ Sum only "Growing" plants
-    const totalPlants = batchesWithDays
-      .filter((b) => b.condition === "Growing")
-      .reduce((sum, b) => sum + (b.plantQuantity ?? 0), 0);
 
     return NextResponse.json({
       batches: batchesWithDays,
       totalPlants,
     });
   } catch (error) {
-    console.error("Error fetching growing plant batches:", error);
+    console.error("Error fetching plant batches:", error);
     return NextResponse.json(
-      { error: "Failed to fetch growing plant batches" },
+      { error: "Failed to fetch plant batches" },
       { status: 500 }
     );
   }
@@ -60,7 +48,6 @@ export async function POST(req: Request) {
     await db.insert(plantBatch).values({
       plantQuantity,
       dateAdded: new Date(),
-      condition: "Vegetative Growth",
     });
 
     return NextResponse.json({ success: true });
