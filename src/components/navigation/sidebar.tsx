@@ -9,6 +9,7 @@ import {
   DollarSign,
   BarChart3,
   Settings,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shadcn/ui/button";
@@ -35,6 +36,13 @@ const sidebarItems = [
     icon: ClipboardList,
     href: "/system/tasks",
   },
+
+  {
+    title: "Expenses",
+    icon: CreditCard,
+    href: "/system/expenses",
+  },
+
   {
     title: "Sales",
     icon: DollarSign,
@@ -45,6 +53,9 @@ const sidebarItems = [
     icon: BarChart3,
     href: "/system/reports",
   },
+
+  
+
 ];
 
 export function Sidebar() {
