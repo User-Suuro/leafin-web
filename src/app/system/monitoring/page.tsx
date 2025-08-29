@@ -59,8 +59,6 @@ export default function Monitoring() {
   // Sensor data state
   const [tilapiaBatches, setTilapiaBatches] = useState<TimelineEvent[]>([]);
   const [lettuceBatches, setLettuceBatches] = useState<TimelineEvent[]>([]);
-  const [sensorData, setSensorData] = useState<SensorData | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<"Connected" | "Disconnected">("Disconnected");
 
   const [loadingTilapia, setLoadingTilapia] = useState(false);
   const [loadingLettuce, setLoadingLettuce] = useState(false);
@@ -125,33 +123,12 @@ export default function Monitoring() {
     }
   }, []);
 
-  // Sensor fetcher (every 6 seconds)
-  const fetchSensorData = useCallback(async () => {
-    try {
-      const res = await fetch("/api/arduino/send-data", { cache: "no-store" });
-      if (!res.ok) throw new Error("Sensor endpoint error");
-      const json: SensorData = await res.json();
-
-      const now = Date.now();
-      const elapsed = now - (json.web_time ?? 0);
-
-      setConnectionStatus(elapsed < 20000 ? "Connected" : "Disconnected");
-      setSensorData(json);
-    } catch (err) {
-      console.error("Error fetching sensor data:", err);
-      setConnectionStatus("Disconnected");
-      setSensorData(null);
-    }
-  }, []);
 
   // initial load
   useEffect(() => {
 
     fetchTimelines();
-    fetchSensorData();
-    const interval = setInterval(fetchSensorData, 6000);
-    return () => clearInterval(interval);
-  }, [fetchTimelines, fetchSensorData]);
+  }, [fetchTimelines]);
 
   return (
     <div className="flex min-h-screen">
@@ -220,29 +197,10 @@ export default function Monitoring() {
               <h2 className="text-2xl font-semibold mb-4">System Sensors</h2>
               <div className="mb-4 font-medium">
                 Device Status:{" "}
-                {connectionStatus === "Connected" ? (
-                  <span className="text-green-600">✅ Connected</span>
-                ) : (
-                  <span className="text-red-600">❌ Disconnected</span>
-                )}
+              
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <SensorCard
-                  name="pH Level"
-                  value={sensorData?.ph ?? "Loading..."}
-                  icon={<Droplets />}
-                />
-                <SensorCard
-                  name="Turbidity"
-                  value={sensorData?.turbid ?? "Loading..."}
-                  icon={<FlaskConical />}
-                />
-                {/* Example: Temperature sensor (replace with real if available) */}
-                <SensorCard
-                  name="Temperature"
-                  value="24.5°C"
-                  icon={<Thermometer />}
-                />
+                
               </div>
             </div>
           </TabsContent>
