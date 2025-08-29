@@ -18,7 +18,7 @@ COPY package.json yarn.lock* ./
 
 # Install dependencies
 RUN --mount=type=cache,id=s/d7fd1032-c073-4380-9115-7a1f24e5fdee-/usr/local/share/cache/yarn/v6,target=/usr/local/share/.cache/yarn/v6 \
-    yarn install --frozen-lockfile
+    yarn install
 
 # Copy the rest of the application code
 COPY . .
