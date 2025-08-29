@@ -5,8 +5,8 @@ export function middleware(req: NextRequest) {
   const url = new URL(req.url);
 
   if (url.pathname.startsWith("/api")) {
-    const authHeader = req.headers.get("authorization");
-    const apiKey = process.env.API_TCP_KEY;
+  //  const authHeader = req.headers.get("authorization");
+  //  const apiKey = process.env.API_TCP_KEY;
 
   //  console.log("API route:", url.pathname);
   //  console.log("Auth header:", authHeader ? "Present" : "Missing");
