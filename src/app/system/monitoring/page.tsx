@@ -10,40 +10,6 @@ import FeederStatus from "@/components/system/monitoring/feeder-status";
 const DEFAULT_FISH_API = "/api/fish-batch/timeline";
 const DEFAULT_LETTUCE_API = "/api/plant-batch/timeline"; 
 
-// interface FishBatch {
-//   fishBatchId?: number;
-//   date?: string;
-//   dateAdded?: string | Date;
-//   fishDays?: number;
-//   fishQuantity?: number;
-//   condition?: string;
-//   event?: string;
-//   status?: string;
-// }
-
-// interface PlantBatch {
-//   plantBatchId?: number;
-//   date?: string;
-//   dateAdded?: string | Date;
-//   plantDays?: number;
-//   plantQuantity?: number;
-//   condition?: string;
-//   event?: string;
-//   status?: string;
-// }
-
-
-/* -----------------------
-   StageTimeline component
-   -----------------------
-   Renders a timeline card for a single species (tilapia/lettuce)
-   Props:
-     - title
-     - stageDef (array)
-     - apiUrl (to fetch batches for this species)
-     - typeKey (used for color mapping)
-*/
-
 /* ---------------------------
    Monitoring main component
    --------------------------- */

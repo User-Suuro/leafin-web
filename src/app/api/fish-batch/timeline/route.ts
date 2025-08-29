@@ -2,26 +2,36 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
-import { sql } from "drizzle-orm";
 
 export async function GET() {
   try {
     // Fetch batches sorted by dateAdded
     const batches = await db
-      .select({
-        id: fishBatch.fishBatchId, // only the ID like B1, B2
-        quantity: fishBatch.fishQuantity,
-        days: fishBatch.fishDays,
-        dateAdded: fishBatch.dateAdded,
-        condition: fishBatch.condition,
-        expectedHarvestDate: sql`
-          DATE_ADD(${fishBatch.dateAdded}, INTERVAL ${fishBatch.fishDays} DAY)
-        `,
-      })
+      .select()
       .from(fishBatch)
       .orderBy(fishBatch.dateAdded);
 
-    return NextResponse.json(batches);
+    const withTimeline = batches.map((b) => {
+      const created = new Date(b.dateAdded);
+      const fishDays = Math.floor(
+        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      // expected harvest date = dateAdded + fishDays (or + fixed cycle days if gusto mo)
+      const expectedHarvestDate = new Date(created);
+      expectedHarvestDate.setDate(created.getDate() + fishDays);
+
+      return {
+        id: b.fishBatchId,
+        quantity: b.fishQuantity,
+        fishDays,
+        dateAdded: created,
+        condition: b.condition,
+        expectedHarvestDate,
+      };
+    });
+
+    return NextResponse.json(withTimeline);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

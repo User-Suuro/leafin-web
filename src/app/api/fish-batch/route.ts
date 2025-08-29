@@ -47,7 +47,6 @@ export async function POST(req: Request) {
     await db.insert(fishBatch).values({
       fishQuantity,
       dateAdded: new Date(),
-      condition: "Juvenile Stage", // default condition
     });
 
     return NextResponse.json({ success: true });

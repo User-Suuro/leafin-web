@@ -21,14 +21,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fish_days": {
-          "name": "fish_days",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": 0
-        },
         "date_added": {
           "name": "date_added",
           "type": "datetime",
@@ -88,14 +80,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "plant_days": {
-          "name": "plant_days",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": 0
         },
         "date_added": {
           "name": "date_added",

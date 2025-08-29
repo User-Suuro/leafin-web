@@ -4,7 +4,7 @@ import { mysqlTable, int, datetime, varchar, mysqlEnum, date} from "drizzle-orm/
 export const plantBatch = mysqlTable("plant_batch", {
   plantBatchId: int("plant_batch_id").primaryKey().autoincrement(),
   plantQuantity: int("plant_quantity").notNull(),
-  plantDays: int("plant_days").default(0),
+
   dateAdded: datetime("date_added").notNull(),
   condition: varchar("conditions", { length: 50 }),
 

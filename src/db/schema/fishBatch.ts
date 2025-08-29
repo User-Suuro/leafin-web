@@ -4,7 +4,6 @@ import { mysqlTable, serial, int, datetime, varchar, mysqlEnum, date } from "dri
 export const fishBatch = mysqlTable("fish_batch", {
   fishBatchId: int("fish_batch_id").primaryKey().autoincrement(),
   fishQuantity: int("fish_quantity").notNull(),
-  fishDays: int("fish_days").default(0),
   dateAdded: datetime("date_added").notNull(),
   condition: varchar("conditions", { length: 50 }),
 

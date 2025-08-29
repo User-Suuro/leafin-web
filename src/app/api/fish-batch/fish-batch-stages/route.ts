@@ -2,32 +2,37 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
 
-const TILAPIA_STAGES = [
-  { name: "Larval Stage", maxDays: 14 },
-  { name: "Juvenile Stage", maxDays: 60 },
-  { name: "Grow-Out Stage", maxDays: 120 },
-  { name: "Harvest", maxDays: Infinity },
-];
-
 export async function GET() {
   try {
-    const batches = await db.select().from(fishBatch);
+    const allBatches = await db.select().from(fishBatch);
 
-    // Initialize stage counts
-    const stageCounts: Record<string, number> = {};
-    TILAPIA_STAGES.forEach((s) => (stageCounts[s.name] = 0));
+    const stageCounts: Record<string, number> = {
+      "Larval Stage": 0,
+      "Juvenile Stage": 0,
+      "Grow-Out Stage": 0,
+      "Harvest Ready": 0,
+    };
 
-    // Count batches per stage
-    batches.forEach((b) => {
-      const days = b.fishDays ?? 0;
-      const stage = TILAPIA_STAGES.find((s) => days <= s.maxDays)?.name ?? "Unknown";
-      stageCounts[stage] = (stageCounts[stage] || 0) + 1;
+    allBatches.forEach((b) => {
+      const created = new Date(b.dateAdded);
+      const ageDays = Math.floor(
+        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      let stage = "Larval Stage";
+      if (ageDays > 30 && ageDays <= 60) stage = "Juvenile Stage";
+      else if (ageDays > 60 && ageDays <= 120) stage = "Grow-Out Stage";
+      else if (ageDays > 120) stage = "Harvest Ready";
+
+      // Instead of adding fishQuantity, just count the batch
+      stageCounts[stage] += 1;
     });
 
     return NextResponse.json(stageCounts);
   } catch (error) {
+    console.error("Error fetching fish stage distribution:", error);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "Failed to fetch fish stages" },
       { status: 500 }
     );
   }

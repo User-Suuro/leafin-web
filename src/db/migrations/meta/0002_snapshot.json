@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "9e62366b-e5b0-435c-8d2e-3a5d5a9312ef",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f8b47170-1c1a-4d43-9820-ef05a4b0546e",
+  "prevId": "bc9d77cf-45f2-48e8-a7ae-0775d58412b7",
   "tables": {
     "fish_batch": {
       "name": "fish_batch",
@@ -176,8 +176,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "is_water_lvl_normal": {
-          "name": "is_water_lvl_normal",
+        "float_switch": {
+          "name": "float_switch",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -282,8 +282,8 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "tasks_fish_batch_fk": {
-          "name": "tasks_fish_batch_fk",
+        "tasks_related_fish_batch_id_fish_batch_fish_batch_id_fk": {
+          "name": "tasks_related_fish_batch_id_fish_batch_fish_batch_id_fk",
           "tableFrom": "tasks",
           "tableTo": "fish_batch",
           "columnsFrom": [
@@ -295,8 +295,8 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "tasks_plant_batch_fk": {
-          "name": "tasks_plant_batch_fk",
+        "tasks_related_plant_batch_id_plant_batch_plant_batch_id_fk": {
+          "name": "tasks_related_plant_batch_id_plant_batch_plant_batch_id_fk",
           "tableFrom": "tasks",
           "tableTo": "plant_batch",
           "columnsFrom": [

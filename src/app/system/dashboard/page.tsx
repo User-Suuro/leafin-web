@@ -16,7 +16,6 @@ type FishBatch = {
   fishQuantity?: number;
   fish_quantity?: number;
   fishDays?: number;
-  ageDays?: number;
   condition?: string;
 };
 
@@ -125,7 +124,7 @@ export default function RootLayout() {
             batches={tilapiaData.map((b, idx) => ({
               id: b.fishBatchId ?? idx + 1,
               quantity: b.fishQuantity ?? b.fish_quantity ?? 0,
-              days: b.fishDays ?? b.ageDays ?? 0,
+              days: b.fishDays ?? 0,
               condition: b.condition ?? "Unknown",
             }))}
           />
