@@ -2,32 +2,42 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
+import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // ✅ Get ALL batches, no filtering
     const allBatches = await db.select().from(fishBatch);
 
-    const batchesWithDays = allBatches.map((b) => {
-      const created = new Date(b.dateAdded);
-      const ageDays = Math.floor(
-        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
-      );
+    const updatedBatches = await Promise.all(
+      allBatches.map(async (b) => {
+        const ageDays = Math.floor(
+          (Date.now() - new Date(b.dateAdded).getTime()) / (1000 * 60 * 60 * 24)
+        );
 
-      return {
-        ...b,
-        fishDays: ageDays,
-      };
-    });
+        // Determine stage based on TILAPIA_STAGES
+        let stage = "Larval Stage";
+        if (ageDays > 14 && ageDays <= 60) stage = "Juvenile Stage";
+        else if (ageDays > 60 && ageDays <= 120) stage = "Grow-Out Stage";
+        else if (ageDays > 120) stage = "Harvest";
 
-    // ✅ Sum all fish quantities across all batches
-    const totalFish = batchesWithDays.reduce(
+        // Update condition if outdated
+        if (b.condition !== stage) {
+          await db.update(fishBatch)
+            .set({ condition: stage }) // <— use 'condition' not 'conditions'
+            .where(eq(fishBatch.fishBatchId, b.fishBatchId));
+        }
+
+        return { ...b, fishDays: ageDays, condition: stage };
+      })
+    );
+
+    const totalFish = updatedBatches.reduce(
       (sum, b) => sum + (b.fishQuantity ?? 0),
       0
     );
 
     return NextResponse.json({
-      batches: batchesWithDays,
+      batches: updatedBatches,
       totalFish,
     });
   } catch (error) {
@@ -38,7 +48,6 @@ export async function GET() {
     );
   }
 }
-
 export async function POST(req: Request) {
   try {
     const data = await req.json();

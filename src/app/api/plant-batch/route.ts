@@ -2,44 +2,41 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { plantBatch } from "@/db/schema/plantBatch";
+import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // ✅ Get ALL plant batches, no filtering
     const allBatches = await db.select().from(plantBatch);
 
-    // Calculate plantDays for each batch
-    const batchesWithDays = allBatches.map((b) => {
-      const created = new Date(b.dateAdded);
-      const ageDays = Math.floor(
-        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
-      );
+    const updatedBatches = await Promise.all(
+      allBatches.map(async (b) => {
+        const ageDays = Math.floor(
+          (Date.now() - new Date(b.dateAdded).getTime()) / (1000 * 60 * 60 * 24)
+        );
 
-      return {
-        ...b,
-        plantDays: ageDays,
-      };
-    });
+        // Determine stage
+        let stage = "Seedling Stage";
+        if (ageDays > 14 && ageDays <= 35) stage = "Vegetative Growth";
+        else if (ageDays > 35 && ageDays <= 50) stage = "Harvest Ready";
+        else if (ageDays > 50) stage = "Bolting & Seeding";
 
-    // Sum total plant quantities
-    const totalPlants = batchesWithDays.reduce(
-      (sum, b) => sum + (b.plantQuantity ?? 0),
-      0
+        // Update condition if outdated
+        if (b.condition !== stage) {
+          await db.update(plantBatch)
+            .set({ condition: stage })
+            .where(eq(plantBatch.plantBatchId, b.plantBatchId));
+        }
+
+        return { ...b, condition: stage }; // return updated stage
+      })
     );
 
-    return NextResponse.json({
-      batches: batchesWithDays,
-      totalPlants,
-    });
+    return NextResponse.json({ batches: updatedBatches });
   } catch (error) {
     console.error("Error fetching plant batches:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch plant batches" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch plant batches" }, { status: 500 });
   }
 }
-
 export async function POST(req: Request) {
   try {
     const data = await req.json();
