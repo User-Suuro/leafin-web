@@ -27,7 +27,7 @@ export async function GET() {
             .where(eq(plantBatch.plantBatchId, b.plantBatchId));
         }
 
-        return { ...b, condition: stage }; // return updated stage
+        return { ...b, condition: stage, plantDays: ageDays }; // return updated stage
       })
     );
 
