@@ -11,8 +11,12 @@ export async function POST(req: Request) {
     }
     return new Response(JSON.stringify({ success: false, error: "No command found" }), { status: 400 });
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, error: "Invalid request" }), { status: 400 });
-  }
+    return new Response(
+      JSON.stringify({ success: false, error: "Invalid request", details: err }),
+      { status: 400 }
+  );
+}
+
 }
 
 export async function GET() {
