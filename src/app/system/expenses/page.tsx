@@ -4,9 +4,22 @@ import React, { useState } from "react";
 import { Separator } from "@/shadcn/ui/separator";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
-import { Label } from "@/shadcn/ui/label"; 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
+import { Label } from "@/shadcn/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shadcn/ui/table";
 import { Trash, Plus } from "lucide-react";
 
 type Expense = {
@@ -14,7 +27,9 @@ type Expense = {
   category: "feed" | "maintenance" | "labor" | "utilities" | "other";
   description: string;
   amount: number;
-  date: string; // store current date when added
+  date: string;
+  relatedFishBatchId?: number | null;
+  relatedPlantBatchId?: number | null;
 };
 
 export default function MyExpensesPage() {
@@ -22,6 +37,18 @@ export default function MyExpensesPage() {
   const [category, setCategory] = useState<Expense["category"]>("feed");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number | "">("");
+  const [fishBatch, setFishBatch] = useState<number | "">("");
+  const [plantBatch, setPlantBatch] = useState<number | "">("");
+
+  // Fake data for dropdowns (in real app → from DB)
+  const fishBatches = [
+    { id: 1, name: "Tilapia Batch 1" },
+    { id: 2, name: "Catfish Batch 2" },
+  ];
+  const plantBatches = [
+    { id: 1, name: "Lettuce Batch A" },
+    { id: 2, name: "Kangkong Batch B" },
+  ];
 
   const handleAddExpense = () => {
     if (!category || !description || !amount) return;
@@ -31,13 +58,17 @@ export default function MyExpensesPage() {
       category,
       description,
       amount: Number(amount),
-      date: new Date().toISOString().split("T")[0], // current date YYYY-MM-DD
+      date: new Date().toISOString().split("T")[0],
+      relatedFishBatchId: fishBatch ? Number(fishBatch) : null,
+      relatedPlantBatchId: plantBatch ? Number(plantBatch) : null,
     };
 
     setExpenses([...expenses, newExpense]);
     setCategory("feed");
     setDescription("");
     setAmount("");
+    setFishBatch("");
+    setPlantBatch("");
   };
 
   const handleDelete = (id: number) => {
@@ -52,22 +83,68 @@ export default function MyExpensesPage() {
       </header>
 
       {/* Add Expense Form */}
-      <section className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+      <section className="grid grid-cols-1 sm:grid-cols-5 gap-4 items-end">
         <div className="flex flex-col">
           <Label>Category</Label>
-          <Select value={category} onValueChange={(val) => setCategory(val as Expense["category"])}>
+          <Select
+            value={category}
+            onValueChange={(val) => setCategory(val as Expense["category"])}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="feed">Feed</SelectItem>
               <SelectItem value="maintenance">Maintenance</SelectItem>
-              <SelectItem value="labor">Labor</SelectItem>
               <SelectItem value="utilities">Utilities</SelectItem>
               <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
+        {/* Show Fish Batch if expense applies to fish */}
+        {(category === "feed") && (
+          <div className="flex flex-col">
+            <Label>Fish Batch</Label>
+            <Select
+              value={fishBatch ? String(fishBatch) : ""}
+              onValueChange={(val) => setFishBatch(Number(val))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select fish batch" />
+              </SelectTrigger>
+              <SelectContent>
+                {fishBatches.map((batch) => (
+                  <SelectItem key={batch.id} value={String(batch.id)}>
+                    {batch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Show Plant Batch if expense applies to plants */}
+        {category === "other" && (
+          <div className="flex flex-col">
+            <Label>Plant Batch</Label>
+            <Select
+              value={plantBatch ? String(plantBatch) : ""}
+              onValueChange={(val) => setPlantBatch(Number(val))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select plant batch" />
+              </SelectTrigger>
+              <SelectContent>
+                {plantBatches.map((batch) => (
+                  <SelectItem key={batch.id} value={String(batch.id)}>
+                    {batch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="flex flex-col">
           <Label>Description</Label>
@@ -88,7 +165,10 @@ export default function MyExpensesPage() {
           />
         </div>
 
-        <Button className="h-10 w-full flex items-center justify-center gap-2" onClick={handleAddExpense}>
+        <Button
+          className="h-10 w-full flex items-center justify-center gap-2"
+          onClick={handleAddExpense}
+        >
           <Plus className="w-4 h-4" /> Add
         </Button>
       </section>
@@ -102,6 +182,8 @@ export default function MyExpensesPage() {
               <TableHead>Date</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead>Fish Batch</TableHead>
+              <TableHead>Plant Batch</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
@@ -113,9 +195,23 @@ export default function MyExpensesPage() {
                 <TableCell>{exp.date}</TableCell>
                 <TableCell>{exp.category}</TableCell>
                 <TableCell>{exp.description}</TableCell>
+                <TableCell>
+                  {exp.relatedFishBatchId
+                    ? `#${exp.relatedFishBatchId}`
+                    : "-"}
+                </TableCell>
+                <TableCell>
+                  {exp.relatedPlantBatchId
+                    ? `#${exp.relatedPlantBatchId}`
+                    : "-"}
+                </TableCell>
                 <TableCell>₱ {exp.amount.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Button variant="destructive" size="icon" onClick={() => handleDelete(exp.id)}>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => handleDelete(exp.id)}
+                  >
                     <Trash className="w-4 h-4" />
                   </Button>
                 </TableCell>
@@ -123,7 +219,7 @@ export default function MyExpensesPage() {
             ))}
             {expenses.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
+                <TableCell colSpan={8} className="text-center">
                   No expenses added yet.
                 </TableCell>
               </TableRow>

@@ -14,20 +14,28 @@ export async function GET() {
           (Date.now() - new Date(b.dateAdded).getTime()) / (1000 * 60 * 60 * 24)
         );
 
-        // Determine stage based on TILAPIA_STAGES
+        // 🐟 Determine stage
         let stage = "Larval Stage";
         if (ageDays > 14 && ageDays <= 60) stage = "Juvenile Stage";
         else if (ageDays > 60 && ageDays <= 120) stage = "Grow-Out Stage";
-        else if (ageDays > 120) stage = "Harvest";
+        else if (ageDays > 120) stage = "Ready to Harvest";
 
-        // Update condition if outdated
-        if (b.condition !== stage) {
+        // 🐟 Build update object
+        const updateData: Partial<typeof fishBatch.$inferInsert> = { condition: stage };
+
+        // If "Ready to Harvest", also update batchStatus to "ready"
+        if (stage === "Ready to Harvest") {
+          updateData.batchStatus = "ready";
+        }
+
+        // Update DB only if something changed
+        if (b.condition !== stage || (stage === "Ready to Harvest" && b.batchStatus !== "ready")) {
           await db.update(fishBatch)
-            .set({ condition: stage }) // <— use 'condition' not 'conditions'
+            .set(updateData)
             .where(eq(fishBatch.fishBatchId, b.fishBatchId));
         }
 
-        return { ...b, fishDays: ageDays, condition: stage };
+        return { ...b, fishDays: ageDays, condition: stage, batchStatus: updateData.batchStatus ?? b.batchStatus };
       })
     );
 
@@ -48,6 +56,7 @@ export async function GET() {
     );
   }
 }
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -67,3 +76,6 @@ export async function POST(req: Request) {
     );
   }
 }
+
+
+

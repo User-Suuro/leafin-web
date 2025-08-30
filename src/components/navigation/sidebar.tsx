@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   CreditCard,
+  History, 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shadcn/ui/button";
@@ -19,6 +20,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shadcn/ui/tooltip";
+
+import icon from "@/assets/logo.png"
 
 const sidebarItems = [
   {
@@ -31,6 +34,20 @@ const sidebarItems = [
     icon: Activity,
     href: "/system/monitoring",
   },
+
+  {
+  title: "Batch",
+  href: "/system/batch",
+  icon: () => (
+    <img
+      src={icon.src}
+      alt="Batch"
+      className="w-4 h-4 object-contain filter brightness-0"
+    />
+    ),
+  },
+
+
   {
     title: "Tasks",
     icon: ClipboardList,
@@ -48,10 +65,19 @@ const sidebarItems = [
     icon: DollarSign,
     href: "/system/sales",
   },
+
+
+
   {
     title: "Reports",
     icon: BarChart3,
     href: "/system/reports",
+  },
+
+    {
+    title: "Logs",
+    icon: History,              // 👈 new Logs entry
+    href: "/system/logs",
   },
 
   

@@ -14,20 +14,29 @@ export async function GET() {
           (Date.now() - new Date(b.dateAdded).getTime()) / (1000 * 60 * 60 * 24)
         );
 
-        // Determine stage
+        // 🌱 Determine stage
         let stage = "Seedling Stage";
         if (ageDays > 14 && ageDays <= 35) stage = "Vegetative Growth";
         else if (ageDays > 35 && ageDays <= 50) stage = "Harvest Ready";
         else if (ageDays > 50) stage = "Bolting & Seeding";
 
-        // Update condition if outdated
-        if (b.condition !== stage) {
+        // 🔄 Determine new batchStatus
+        let newStatus = b.batchStatus;
+        if (stage === "Harvest Ready" || stage === "Bolting & Seeding") {
+          newStatus = "ready";
+        }
+
+        // ✅ Update only if condition or status changed
+        if (b.condition !== stage || b.batchStatus !== newStatus) {
           await db.update(plantBatch)
-            .set({ condition: stage })
+            .set({ 
+              condition: stage,
+              batchStatus: newStatus 
+            })
             .where(eq(plantBatch.plantBatchId, b.plantBatchId));
         }
 
-        return { ...b, condition: stage, plantDays: ageDays }; // return updated stage
+        return { ...b, condition: stage, batchStatus: newStatus, plantDays: ageDays };
       })
     );
 
@@ -37,6 +46,7 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to fetch plant batches" }, { status: 500 });
   }
 }
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -45,6 +55,7 @@ export async function POST(req: Request) {
     await db.insert(plantBatch).values({
       plantQuantity,
       dateAdded: new Date(),
+      condition: "Seedling Stage", // default
     });
 
     return NextResponse.json({ success: true });
