@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Progress } from "@/shadcn/ui/progress";
 
 export default function TopLoader() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
 
@@ -18,25 +17,19 @@ export default function TopLoader() {
       setVisible(true);
       setProgress(15);
 
-      // Trickle forward smoothly while waiting
+      // Trickle forward smoothly
       trickle = setInterval(() => {
-        setProgress((p) => {
-          if (p < 90) return p + Math.random() * 5; // random step for natural feel
-          return p;
-        });
+        setProgress((p) => (p < 90 ? p + Math.random() * 5 : p));
       }, 200);
 
       try {
-        // Build target URL
-        const url = `${window.location.origin}${pathname}?${searchParams.toString()}`;
-
-        // HEAD request passes through middleware
+        const url = `${window.location.origin}${pathname}`;
         const res = await fetch(url, { method: "HEAD" });
 
         if (res.headers.get("x-middleware-processed")) {
           setProgress(100);
         } else {
-          setProgress(95); // fallback if header missing
+          setProgress(95);
         }
       } catch {
         setProgress(95);
@@ -57,12 +50,12 @@ export default function TopLoader() {
       active = false;
       clearInterval(trickle);
     };
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   if (!visible) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full z-100">
+    <div className="fixed top-0 left-0 w-full z-100 transition-opacity duration-500">
       <Progress value={progress} className="h-1 rounded-none" />
     </div>
   );
