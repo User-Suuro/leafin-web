@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; // 👈 import Next.js Image
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -10,7 +11,7 @@ import {
   BarChart3,
   Settings,
   CreditCard,
-  History, 
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shadcn/ui/button";
@@ -21,7 +22,7 @@ import {
   TooltipTrigger,
 } from "@/shadcn/ui/tooltip";
 
-import icon from "@/assets/logo.png"
+import icon from "@/assets/logo.png";
 
 const sidebarItems = [
   {
@@ -34,54 +35,44 @@ const sidebarItems = [
     icon: Activity,
     href: "/system/monitoring",
   },
-
   {
-  title: "Batch",
-  href: "/system/batch",
-  icon: () => (
-    <img
-      src={icon.src}
-      alt="Batch"
-      className="w-4 h-4 object-contain filter brightness-0"
-    />
+    title: "Batch",
+    href: "/system/batch",
+    icon: () => (
+      <Image
+        src={icon}
+        alt="Batch"
+        width={16}
+        height={16}
+        className="object-contain filter brightness-0"
+      />
     ),
   },
-
-
   {
     title: "Tasks",
     icon: ClipboardList,
     href: "/system/tasks",
   },
-
   {
     title: "Expenses",
     icon: CreditCard,
     href: "/system/expenses",
   },
-
   {
     title: "Sales",
     icon: DollarSign,
     href: "/system/sales",
   },
-
-
-
   {
     title: "Reports",
     icon: BarChart3,
     href: "/system/reports",
   },
-
-    {
+  {
     title: "Logs",
-    icon: History,              // 👈 new Logs entry
+    icon: History,
     href: "/system/logs",
   },
-
-  
-
 ];
 
 export function Sidebar() {

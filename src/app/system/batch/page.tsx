@@ -7,16 +7,36 @@ import { Plus } from "lucide-react";
 import BatchTable from "@/components/batch/batchTable";
 import AddBatchModal from "@/components/modal/add-batch-modal";
 
+type BatchStatus = "growing" | "ready" | "harvested" | "discarded";
+
+type FishBatch = {
+  fishBatchId: number;
+  fishQuantity: number;
+  dateAdded: string;
+  expectedHarvestDate?: string;
+  condition?: string;
+  batchStatus: BatchStatus;
+};
+
+type PlantBatch = {
+  plantBatchId: number;
+  plantQuantity: number;
+  dateAdded: string;
+  expectedHarvestDate?: string;
+  condition?: string;
+  batchStatus: BatchStatus;
+};
+
 export default function BatchPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<"fish" | "plant" | "">("");
 
-  const fishBatches = [
+  const fishBatches: FishBatch[] = [
     { fishBatchId: 1, fishQuantity: 50, dateAdded: "2025-08-01", condition: "Larval Stage", batchStatus: "growing", expectedHarvestDate: "2025-09-01" },
     { fishBatchId: 2, fishQuantity: 30, dateAdded: "2025-08-05", condition: "Juvenile Stage", batchStatus: "ready", expectedHarvestDate: "2025-09-05" },
   ];
 
-  const plantBatches = [
+  const plantBatches: PlantBatch[] = [
     { plantBatchId: 1, plantQuantity: 100, dateAdded: "2025-08-01", condition: "Seedling Stage", batchStatus: "growing", expectedHarvestDate: "2025-09-01" },
     { plantBatchId: 2, plantQuantity: 80, dateAdded: "2025-08-05", condition: "Vegetative Growth", batchStatus: "ready", expectedHarvestDate: "2025-09-05" },
   ];

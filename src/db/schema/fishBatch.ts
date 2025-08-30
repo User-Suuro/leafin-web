@@ -1,5 +1,5 @@
 // db/fishBatch.ts
-import { mysqlTable, serial, int, datetime, varchar, mysqlEnum, date } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, datetime, varchar, mysqlEnum, date } from "drizzle-orm/mysql-core";
 
 export const fishBatch = mysqlTable("fish_batch", {
   fishBatchId: int("fish_batch_id").primaryKey().autoincrement(),

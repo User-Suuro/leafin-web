@@ -113,8 +113,6 @@ function normalizeBatch(input: RawBatch): NormalizedBatch {
     ? input.event.match(/\d{4}-\d{2}-\d{2}/)?.[0]
     : undefined;
 
-  const days = input.fishDays ?? input.plantDays ?? getNumberProp(input, "days");
-
   return {
     id: input.fishBatchId ?? getNumberProp(input, "id"),
     dateISO: input.date ?? getStringProp(input, "dateAdded") ?? maybeDate,
