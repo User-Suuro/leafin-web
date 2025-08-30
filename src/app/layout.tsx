@@ -10,7 +10,8 @@ import { Poppins } from 'next/font/google';
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
 import LayoutWrapper from "@/components/navigation/nav-layout-wrapper";
-import PageTransition from "@/components/navigation/page-transition";
+import PageTransition from "@/components/loading/page-transition";
+import TopLoader from "@/components/loading/TopLoader";
 
 const bodyFont = Poppins({
   subsets: ['latin'],
@@ -55,14 +56,16 @@ export default function RootLayout({
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ToastProvider>
+            <TopLoader />
             <Navbar />
-              {/* For smooth transition */}
               <PageTransition>
-                <LayoutWrapper>{children}</LayoutWrapper>
+                <LayoutWrapper>
+                  {children}
+                </LayoutWrapper>
               </PageTransition>
           </ToastProvider>
         </ThemeProvider>
-        
+
       </body>
     </html>
   );
