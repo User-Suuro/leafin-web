@@ -3,43 +3,32 @@ import { ThemeProvider } from "@/components/personalization/theme-provider";
 import { ToastProvider } from "@/shadcn/ui/toast-provider";
 import logo from "@/assets/favicon.ico";
 
-// import { Geist, Geist_Mono } from "next/font/google";
-// import { Cormorant_Garamond } from "next/font/google";
-// import { Luckiest_Guy } from "next/font/google";
-// import { Poppins } from 'next/font/google';
-
+import { Cormorant_Garamond } from "next/font/google";
+import { Luckiest_Guy } from "next/font/google";
+import { Poppins } from 'next/font/google';
 
 import "@/styles/globals.css";
 import Navbar from "@/components/navigation/navbar";
 import LayoutWrapper from "@/components/navigation/nav-layout-wrapper";
 import PageTransition from "@/components/navigation/page-transition";
 
-// const bodyFont = Poppins({
-//   subsets: ['latin'],
-//   weight: ['400', '500'],
-//   variable: "--font-body",
-// })
+const bodyFont = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: "--font-body",
+})
 
-// const luckiestGuy = Luckiest_Guy({
-//   subsets: ["latin"],
-//   weight: "400", // only available weight
-//   variable: "--font-luckiest",
-// });
+const luckiestGuy = Luckiest_Guy({
+  subsets: ["latin"],
+  weight: "400", // only available weight
+  variable: "--font-luckiest",
+});
 
-// const cormorant = Cormorant_Garamond({
-//   subsets: ["latin"],
-//   weight: ["600"], // semibold
-//   variable: "--font-cormorant",
-// });
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["600"], // semibold
+  variable: "--font-cormorant",
+});
 
 export const metadata: Metadata = {
   title: "Leafin Things",
@@ -47,8 +36,6 @@ export const metadata: Metadata = {
     icon: logo.src,
   },
 };
-
-
 
 export default function RootLayout({
   children,
@@ -61,7 +48,11 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className="antialiased">
+      <body className={`${bodyFont.variable} 
+                        ${luckiestGuy.variable} 
+                        ${cormorant.variable} 
+                        scrollbar-gutter-stable scroll-smooth`}>
+
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ToastProvider>
             <Navbar />
@@ -71,6 +62,7 @@ export default function RootLayout({
               </PageTransition>
           </ToastProvider>
         </ThemeProvider>
+        
       </body>
     </html>
   );
