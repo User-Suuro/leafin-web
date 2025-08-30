@@ -1,7 +1,6 @@
 CREATE TABLE `fish_batch` (
 	`fish_batch_id` int AUTO_INCREMENT NOT NULL,
 	`fish_quantity` int NOT NULL,
-	`fish_days` int DEFAULT 0,
 	`date_added` datetime NOT NULL,
 	`conditions` varchar(50),
 	`expected_harvest_date` date,
@@ -12,7 +11,6 @@ CREATE TABLE `fish_batch` (
 CREATE TABLE `plant_batch` (
 	`plant_batch_id` int AUTO_INCREMENT NOT NULL,
 	`plant_quantity` int NOT NULL,
-	`plant_days` int DEFAULT 0,
 	`date_added` datetime NOT NULL,
 	`conditions` varchar(50),
 	`expected_harvest_date` date,

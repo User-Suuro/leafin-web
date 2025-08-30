@@ -1,31 +1,37 @@
 // app/api/plant-batch/timeline/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db"; // your Drizzle DB instance
+import { db } from "@/db";
 import { plantBatch } from "@/db/schema/plantBatch";
-import { sql } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // Fetch batches sorted by dateAdded
+    // Fetch all plant batches sorted by dateAdded
     const batches = await db
-      .select({
-        id: plantBatch.plantBatchId,
-        quantity: plantBatch.plantQuantity,
-        days: plantBatch.plantDays,
-        dateAdded: plantBatch.dateAdded,
-        condition: plantBatch.condition,
-        // Example: expectedHarvestDate = dateAdded + plantDays
-        expectedHarvestDate: sql`
-          DATE_ADD(${plantBatch.dateAdded}, INTERVAL ${plantBatch.plantDays} DAY)
-        `,
-      })
+      .select()
       .from(plantBatch)
       .orderBy(plantBatch.dateAdded);
 
-    return NextResponse.json({
-      success: true,
-      data: batches,
+    const withTimeline = batches.map((b) => {
+      const created = new Date(b.dateAdded);
+      const plantDays = Math.floor(
+        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      // expected harvest date = dateAdded + plantDays
+      const expectedHarvestDate = new Date(created);
+      expectedHarvestDate.setDate(created.getDate() + plantDays);
+
+      return {
+        id: b.plantBatchId,
+        quantity: b.plantQuantity,
+        plantDays,
+        dateAdded: created,
+        condition: b.condition,
+        expectedHarvestDate,
+      };
     });
+
+    return NextResponse.json(withTimeline);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

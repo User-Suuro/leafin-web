@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    return NextResponse.json({ ...batch[0], ageDays });
+    return NextResponse.json({ ...batch[0], fishDays: ageDays });
   } catch (error) {
     console.error("Error fetching batch:", error);
     return NextResponse.json({ error: "Failed to fetch batch" }, { status: 500 });

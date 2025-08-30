@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; // 👈 import Next.js Image
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -9,6 +10,8 @@ import {
   DollarSign,
   BarChart3,
   Settings,
+  CreditCard,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shadcn/ui/button";
@@ -18,6 +21,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shadcn/ui/tooltip";
+
+import icon from "@/assets/logo.png";
 
 const sidebarItems = [
   {
@@ -31,9 +36,27 @@ const sidebarItems = [
     href: "/system/monitoring",
   },
   {
+    title: "Batch",
+    href: "/system/batch",
+    icon: () => (
+      <Image
+        src={icon}
+        alt="Batch"
+        width={16}
+        height={16}
+        className="object-contain filter brightness-0"
+      />
+    ),
+  },
+  {
     title: "Tasks",
     icon: ClipboardList,
     href: "/system/tasks",
+  },
+  {
+    title: "Expenses",
+    icon: CreditCard,
+    href: "/system/expenses",
   },
   {
     title: "Sales",
@@ -44,6 +67,11 @@ const sidebarItems = [
     title: "Reports",
     icon: BarChart3,
     href: "/system/reports",
+  },
+  {
+    title: "Logs",
+    icon: History,
+    href: "/system/logs",
   },
 ];
 

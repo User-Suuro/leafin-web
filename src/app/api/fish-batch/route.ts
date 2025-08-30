@@ -2,32 +2,50 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
+import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // ✅ Get ALL batches, no filtering
     const allBatches = await db.select().from(fishBatch);
 
-    const batchesWithDays = allBatches.map((b) => {
-      const created = new Date(b.dateAdded);
-      const ageDays = Math.floor(
-        (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
-      );
+    const updatedBatches = await Promise.all(
+      allBatches.map(async (b) => {
+        const ageDays = Math.floor(
+          (Date.now() - new Date(b.dateAdded).getTime()) / (1000 * 60 * 60 * 24)
+        );
 
-      return {
-        ...b,
-        fishDays: ageDays,
-      };
-    });
+        // 🐟 Determine stage
+        let stage = "Larval Stage";
+        if (ageDays > 14 && ageDays <= 60) stage = "Juvenile Stage";
+        else if (ageDays > 60 && ageDays <= 120) stage = "Grow-Out Stage";
+        else if (ageDays > 120) stage = "Ready to Harvest";
 
-    // ✅ Sum all fish quantities across all batches
-    const totalFish = batchesWithDays.reduce(
+        // 🐟 Build update object
+        const updateData: Partial<typeof fishBatch.$inferInsert> = { condition: stage };
+
+        // If "Ready to Harvest", also update batchStatus to "ready"
+        if (stage === "Ready to Harvest") {
+          updateData.batchStatus = "ready";
+        }
+
+        // Update DB only if something changed
+        if (b.condition !== stage || (stage === "Ready to Harvest" && b.batchStatus !== "ready")) {
+          await db.update(fishBatch)
+            .set(updateData)
+            .where(eq(fishBatch.fishBatchId, b.fishBatchId));
+        }
+
+        return { ...b, fishDays: ageDays, condition: stage, batchStatus: updateData.batchStatus ?? b.batchStatus };
+      })
+    );
+
+    const totalFish = updatedBatches.reduce(
       (sum, b) => sum + (b.fishQuantity ?? 0),
       0
     );
 
     return NextResponse.json({
-      batches: batchesWithDays,
+      batches: updatedBatches,
       totalFish,
     });
   } catch (error) {
@@ -47,7 +65,6 @@ export async function POST(req: Request) {
     await db.insert(fishBatch).values({
       fishQuantity,
       dateAdded: new Date(),
-      condition: "Juvenile Stage", // default condition
     });
 
     return NextResponse.json({ success: true });
@@ -59,3 +76,6 @@ export async function POST(req: Request) {
     );
   }
 }
+
+
+

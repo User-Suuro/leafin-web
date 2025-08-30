@@ -6,49 +6,44 @@ import { eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    // Get all "Growing" plant batches
-    const growingBatches = await db
-      .select()
-      .from(plantBatch)
-      .where(eq(plantBatch.condition, "Vegetative Growth"));
+    const allBatches = await db.select().from(plantBatch);
 
-    const batchesWithDays = await Promise.all(
-      growingBatches.map(async (b) => {
-        const created = new Date(b.dateAdded);
+    const updatedBatches = await Promise.all(
+      allBatches.map(async (b) => {
         const ageDays = Math.floor(
-          (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)
+          (Date.now() - new Date(b.dateAdded).getTime()) / (1000 * 60 * 60 * 24)
         );
 
-        // If >= 50 days, update to "Ready"
-        if (ageDays >= 50 && b.condition === "Vegetative Growth") {
-          await db
-            .update(plantBatch)
-            .set({ condition: "Harvest Ready" })
+        // 🌱 Determine stage
+        let stage = "Seedling Stage";
+        if (ageDays > 14 && ageDays <= 35) stage = "Vegetative Growth";
+        else if (ageDays > 35 && ageDays <= 50) stage = "Harvest Ready";
+        else if (ageDays > 50) stage = "Bolting & Seeding";
+
+        // 🔄 Determine new batchStatus
+        let newStatus = b.batchStatus;
+        if (stage === "Harvest Ready" || stage === "Bolting & Seeding") {
+          newStatus = "ready";
+        }
+
+        // ✅ Update only if condition or status changed
+        if (b.condition !== stage || b.batchStatus !== newStatus) {
+          await db.update(plantBatch)
+            .set({ 
+              condition: stage,
+              batchStatus: newStatus 
+            })
             .where(eq(plantBatch.plantBatchId, b.plantBatchId));
         }
 
-        return {
-          ...b,
-          plantDays: ageDays,
-        };
+        return { ...b, condition: stage, batchStatus: newStatus, plantDays: ageDays };
       })
     );
 
-    // ✅ Sum only "Growing" plants
-    const totalPlants = batchesWithDays
-      .filter((b) => b.condition === "Growing")
-      .reduce((sum, b) => sum + (b.plantQuantity ?? 0), 0);
-
-    return NextResponse.json({
-      batches: batchesWithDays,
-      totalPlants,
-    });
+    return NextResponse.json({ batches: updatedBatches });
   } catch (error) {
-    console.error("Error fetching growing plant batches:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch growing plant batches" },
-      { status: 500 }
-    );
+    console.error("Error fetching plant batches:", error);
+    return NextResponse.json({ error: "Failed to fetch plant batches" }, { status: 500 });
   }
 }
 
@@ -60,7 +55,7 @@ export async function POST(req: Request) {
     await db.insert(plantBatch).values({
       plantQuantity,
       dateAdded: new Date(),
-      condition: "Vegetative Growth",
+      condition: "Seedling Stage", // default
     });
 
     return NextResponse.json({ success: true });

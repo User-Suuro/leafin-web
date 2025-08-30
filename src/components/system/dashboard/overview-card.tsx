@@ -55,7 +55,7 @@ export function OverviewCard({
       setBatchDetails({
         id: data.plantBatchId ?? data.fishBatchId ?? id,
         quantity: data.plantQuantity ?? data.fishQuantity ?? 0,
-        days: data.ageDays ?? data.fishDays ?? data.plantDays ?? 0,
+        days: data.fishDays ?? data.plantDays ?? 0,
         condition: data.condition ?? "N/A",
       });
     } catch (err) {
