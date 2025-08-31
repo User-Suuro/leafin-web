@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     await db.delete(expenses).where(eq(expenses.expenseId, Number(params.id)));
     return NextResponse.json({ success: true });
