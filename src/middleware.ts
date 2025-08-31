@@ -3,6 +3,9 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const url = new URL(req.url);
+  const response = NextResponse.next();
+
+  response.headers.set("x-middleware-processed", "true");
 
   if (url.pathname.startsWith("/api")) {
   //  const authHeader = req.headers.get("authorization");

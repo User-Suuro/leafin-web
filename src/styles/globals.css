@@ -128,9 +128,3 @@
   }
 }
 
-html, body {
-  height: 100%;
-  overflow-x: hidden; /* Prevent horizontal scroll */
-  overflow-y: auto;   /* Allow vertical scroll */
-}
-

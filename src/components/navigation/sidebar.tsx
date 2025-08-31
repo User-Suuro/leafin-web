@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // 👈 import Next.js Image
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -12,6 +11,8 @@ import {
   Settings,
   CreditCard,
   History,
+  Fish
+  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shadcn/ui/button";
@@ -22,7 +23,6 @@ import {
   TooltipTrigger,
 } from "@/shadcn/ui/tooltip";
 
-import icon from "@/assets/logo.png";
 
 const sidebarItems = [
   {
@@ -38,15 +38,7 @@ const sidebarItems = [
   {
     title: "Batch",
     href: "/system/batch",
-    icon: () => (
-      <Image
-        src={icon}
-        alt="Batch"
-        width={16}
-        height={16}
-        className="object-contain filter brightness-0"
-      />
-    ),
+    icon: Fish
   },
   {
     title: "Tasks",
@@ -81,13 +73,7 @@ export function Sidebar() {
   return (
     <TooltipProvider>
       <div className="flex h-full w-16 flex-col border-r bg-background">
-        {/* Logo */}
-        <div className="flex h-16 items-center justify-center border-b">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <div className="h-4 w-4 rounded bg-primary-foreground" />
-          </div>
-        </div>
-
+  
         {/* Navigation */}
         <nav className="flex flex-1 flex-col items-center gap-4 px-2 py-4">
           {sidebarItems.map((item) => {

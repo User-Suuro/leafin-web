@@ -57,10 +57,9 @@ export default function RootLayout() {
 
 
   useEffect(() => {
-    const apiKey = process.env.API_TCP_KEY;
-   
-    fetchData("/api/fish-batch/fish-batch-stages", setFishStageData, apiKey);
-    fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData, apiKey);
+
+    fetchData("/api/fish-batch/fish-batch-stages", setFishStageData);
+    fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData);
 
     fetch("/api/plant-batch")
       .then((res) => res.json())

@@ -13,7 +13,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="flex">
-      <aside className="fixed top-[64px] h-[calc(100vh-64px)] overflow-hidden">
+      <aside className="fixed top-[72px] h-[calc(100vh-72px)] overflow-hidden">
         <Sidebar />
       </aside>
       <main className="ml-16 w-[calc(100vw-16px)]">{children}</main>
