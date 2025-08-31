@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 
 export async function DELETE(req: Request) {
   try {
-    // Extract expenseId from URL
     const url = new URL(req.url);
     const idParam = url.pathname.split("/").pop();
     const expenseId = Number(idParam);
@@ -14,8 +13,14 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Invalid expense id" }, { status: 400 });
     }
 
-    // Delete expense
-    await db.delete(expenses).where(eq(expenses.expenseId, expenseId));
+    const result = await db
+        .delete(expenses)
+        .where(eq(expenses.expenseId, expenseId)) as any;
+
+        if (result.affectedRows === 0) {
+            return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+    }
+
 
     return NextResponse.json({ message: "Expense deleted" }, { status: 200 });
   } catch (error) {
