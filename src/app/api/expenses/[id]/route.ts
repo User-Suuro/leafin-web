@@ -5,10 +5,10 @@ import { eq } from "drizzle-orm";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    await db.delete(expenses).where(eq(expenses.expenseId, Number(params.id)));
+    await db.delete(expenses).where(eq(expenses.expenseId, Number(context.params.id)));
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting expense:", error);
