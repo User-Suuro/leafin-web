@@ -3,13 +3,9 @@ import { db } from "@/db";
 import { expenses } from "@/db/schema/expenses";
 import { eq } from "drizzle-orm";
 
-interface DeleteContext {
-  params: { id: string };
-}
-
 export async function DELETE(
   req: Request,
-  { params }: DeleteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     await db.delete(expenses).where(eq(expenses.expenseId, Number(params.id)));

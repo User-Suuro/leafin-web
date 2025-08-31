@@ -31,7 +31,6 @@ export default function MyExpensesPage() {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number | "">("");
   const [fishBatch, setFishBatch] = useState<number | "">("");
-  const [_plantBatch, setPlantBatch] = useState<number | "">("");
   const [batches, setBatches] = useState<Batch[]>([]);
 
 
@@ -104,7 +103,6 @@ const handleAddExpense = async () => {
       setDescription("");
       setAmount("");
       setFishBatch("");
-      setPlantBatch("");
     }
   } catch (err) {
     console.error("Failed to add expense:", err);
