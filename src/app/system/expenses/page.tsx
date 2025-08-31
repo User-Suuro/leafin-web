@@ -31,7 +31,7 @@ export default function MyExpensesPage() {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number | "">("");
   const [fishBatch, setFishBatch] = useState<number | "">("");
-  const [plantBatch, setPlantBatch] = useState<number | "">("");
+  const [_plantBatch, setPlantBatch] = useState<number | "">("");
   const [batches, setBatches] = useState<Batch[]>([]);
 
 

@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { plantBatch } from "@/db/schema/plantBatch";
 
-function formatDate(value: any) {
+function formatDate(value: string | Date | null | undefined): string | null {
   if (!value) return null;
   const d = new Date(value);
   return d.toISOString().split("T")[0]; // YYYY-MM-DD only
