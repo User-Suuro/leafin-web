@@ -1,22 +1,21 @@
 import { db } from "@/db";
 import { expenses } from "@/db/schema/expenses";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  _: Request, // optional, or remove completely
+  context: { params: { id: string } }
 ) {
-  try {
-    const deleted = await db
-      .delete(expenses)
-      .where(eq(expenses.expenseId, Number(params.id))); // ✅ use expenseId here
+  const { id } = context.params;
 
-    return NextResponse.json({ success: true, deleted });
+  try {
+    await db.delete(expenses).where(eq(expenses.expenseId, Number(id)));
+    return new Response(JSON.stringify({ message: "Expense deleted" }), {
+      status: 200,
+    });
   } catch (error) {
-    console.error("Error deleting expense:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to delete expense" },
+    return new Response(
+      JSON.stringify({ error: "Failed to delete expense", details: String(error) }),
       { status: 500 }
     );
   }
