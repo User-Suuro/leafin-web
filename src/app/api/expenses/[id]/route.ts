@@ -1,13 +1,11 @@
 import { db } from "@/db";
 import { expenses } from "@/db/schema/expenses";
 import { eq } from "drizzle-orm";
-
 export async function DELETE(
-  _: Request, // optional, or remove completely
-  context: { params: { id: string } }
+  _: Request,
+  { params }: { params: { id: string } }
 ) {
-  const { id } = context.params;
-
+  const { id } = params;
   try {
     await db.delete(expenses).where(eq(expenses.expenseId, Number(id)));
     return new Response(JSON.stringify({ message: "Expense deleted" }), {
