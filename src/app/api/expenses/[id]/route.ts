@@ -3,21 +3,15 @@ import { db } from "@/db";
 import { expenses } from "@/db/schema/expenses";
 import { eq } from "drizzle-orm";
 
-// type definition for params
-interface Params {
-  params: {
-    id: string;
-  };
-}
-
 export async function DELETE(
-  req: Request,
-  context: Params // ✅ ito ang tamang type
+  request: Request,
+  context: { params: { id: string } }
 ) {
-  const { id } = context.params;
-
   try {
+    const { id } = context.params;
+
     await db.delete(expenses).where(eq(expenses.expenseId, Number(id)));
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting expense:", error);
