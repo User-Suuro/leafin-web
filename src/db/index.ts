@@ -15,3 +15,4 @@ const pool = mysql.createPool({
 });
 
 export const db = drizzle(pool);
+

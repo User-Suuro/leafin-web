@@ -13,14 +13,15 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Invalid expense id" }, { status: 400 });
     }
 
-    const result = await db
-        .delete(expenses)
-        .where(eq(expenses.expenseId, expenseId)) as any;
+    // Check if the expense exists
+    const expense = await db.select().from(expenses).where(eq(expenses.expenseId, expenseId)).limit(1);
 
-        if (result.affectedRows === 0) {
-            return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+    if (!expense.length) {
+      return NextResponse.json({ error: "Expense not found" }, { status: 404 });
     }
 
+    // Delete the expense
+    await db.delete(expenses).where(eq(expenses.expenseId, expenseId));
 
     return NextResponse.json({ message: "Expense deleted" }, { status: 200 });
   } catch (error) {
