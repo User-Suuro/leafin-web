@@ -1,3 +1,4 @@
+// components/batch/batchTable.tsx
 "use client";
 
 import React, { useState } from "react";

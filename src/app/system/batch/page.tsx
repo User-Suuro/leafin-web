@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Separator } from "@/shadcn/ui/separator";
 import { Button } from "@/shadcn/ui/button";
 import { Plus } from "lucide-react";
@@ -30,16 +30,28 @@ type PlantBatch = {
 export default function BatchPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<"fish" | "plant" | "">("");
+  const [fishBatches, setFishBatches] = useState<FishBatch[]>([]);
+  const [plantBatches, setPlantBatches] = useState<PlantBatch[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const fishBatches: FishBatch[] = [
-    { fishBatchId: 1, fishQuantity: 50, dateAdded: "2025-08-01", condition: "Larval Stage", batchStatus: "growing", expectedHarvestDate: "2025-09-01" },
-    { fishBatchId: 2, fishQuantity: 30, dateAdded: "2025-08-05", condition: "Juvenile Stage", batchStatus: "ready", expectedHarvestDate: "2025-09-05" },
-  ];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/batches"); // one call only
+        if (!res.ok) throw new Error("Failed to fetch batches");
 
-  const plantBatches: PlantBatch[] = [
-    { plantBatchId: 1, plantQuantity: 100, dateAdded: "2025-08-01", condition: "Seedling Stage", batchStatus: "growing", expectedHarvestDate: "2025-09-01" },
-    { plantBatchId: 2, plantQuantity: 80, dateAdded: "2025-08-05", condition: "Vegetative Growth", batchStatus: "ready", expectedHarvestDate: "2025-09-05" },
-  ];
+        const data = await res.json();
+        setFishBatches(data.fish || []);
+        setPlantBatches(data.plant || []);
+      } catch (err) {
+        console.error("Failed to fetch batches:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <div className="flex flex-col p-5 space-y-6 min-h-screen">
@@ -57,10 +69,14 @@ export default function BatchPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BatchTable data={fishBatches} type="fish" />
-        <BatchTable data={plantBatches} type="plant" />
-      </div>
+      {loading ? (
+        <p>Loading batches...</p>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BatchTable data={fishBatches} type="fish" />
+          <BatchTable data={plantBatches} type="plant" />
+        </div>
+      )}
 
       <AddBatchModal open={modalOpen} onClose={() => setModalOpen(false)} type={selectedType} />
     </div>

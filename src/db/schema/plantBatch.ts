@@ -1,4 +1,4 @@
-// db/plantBatch.ts
+// db/schema/plantBatch.ts
 import { mysqlTable, int, datetime, varchar, mysqlEnum, date} from "drizzle-orm/mysql-core";
 
 export const plantBatch = mysqlTable("plant_batch", {
