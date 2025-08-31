@@ -20,10 +20,10 @@ import PageTransition from "@/components/navigation/page-transition";
 //   variable: "--font-body",
 // })
 
-// const luckiestGuy = Luckiest_Guy({
+//const luckiestGuy = Luckiest_Guy({
 //   subsets: ["latin"],
 //   weight: "400", // only available weight
-//   variable: "--font-luckiest",
+//  variable: "--font-luckiest",
 // });
 
 // const cormorant = Cormorant_Garamond({
