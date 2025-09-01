@@ -5,11 +5,32 @@ import { Modal, ModalContent, ModalHeader, ModalFooter, ModalBody } from "@/shad
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 
+type BatchStatus = "growing" | "ready" | "harvested" | "discarded";
+
+type FishBatch = {
+  fishBatchId: number;
+  fishQuantity: number;
+  dateAdded: string;
+  expectedHarvestDate?: string;
+  condition?: string;
+  batchStatus: BatchStatus;
+};
+
+type PlantBatch = {
+  plantBatchId: number;
+  plantQuantity: number;
+  dateAdded: string;
+  expectedHarvestDate?: string;
+  condition?: string;
+  batchStatus: BatchStatus;
+};
+
+
 interface EditBatchModalProps {
   open: boolean;
   onClose: () => void;
   type: "fish" | "plant";
-  batch: any; // FishBatch | PlantBatch
+  batch: FishBatch | PlantBatch;
   onSave: (updates: { batchQuantity: number }) => void;
 }
 
@@ -18,12 +39,14 @@ export default function EditBatchModal({ open, onClose, type, batch, onSave }: E
   const [quantity, setQuantity] = useState<string>("");
 
   useEffect(() => {
-    if (batch && open) {
-      setQuantity(
-        String(batch[type === "fish" ? "fishQuantity" : "plantQuantity"] ?? "")
-      );
-    }
-  }, [batch, type, open]);
+    if (!batch || !open) return;
+
+  if (type === "fish" && "fishQuantity" in batch) {
+    setQuantity(String(batch.fishQuantity));
+  } else if (type === "plant" && "plantQuantity" in batch) {
+    setQuantity(String(batch.plantQuantity));
+  }
+}, [batch, type, open]);
 
   const handleSave = () => {
     if (quantity !== "") {
@@ -44,7 +67,13 @@ export default function EditBatchModal({ open, onClose, type, batch, onSave }: E
             <label>Batch ID</label>
             <Input
               type="number"
-              value={type === "fish" ? batch.fishBatchId : batch.plantBatchId}
+              value={
+                type === "fish" && "fishBatchId" in batch
+                  ? batch.fishBatchId
+                  : type === "plant" && "plantBatchId" in batch
+                  ? batch.plantBatchId
+                  : 0
+              }
               disabled
             />
           </div>

@@ -16,7 +16,6 @@ export default function HarvestBatchModal({
   open,
   onClose,
   type,
-  batchId,
   onSubmit,
 }: HarvestBatchModalProps) {
   const [customerName, setCustomerName] = useState("");

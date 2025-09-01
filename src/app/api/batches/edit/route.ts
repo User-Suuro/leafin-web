@@ -4,9 +4,26 @@ import { fishBatch } from "@/db/schema/fishBatch";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq } from "drizzle-orm";
 
+type FishBatchUpdate = Partial<{
+  fishQuantity: number;
+  batchStatus: "growing" | "ready" | "harvested" | "discarded";
+}>;
+
+type PlantBatchUpdate = Partial<{
+  plantQuantity: number;
+  batchStatus: "growing" | "ready" | "harvested" | "discarded";
+}>;
+
 export async function POST(req: Request) {
   try {
-    const { type, batchId, updates } = await req.json() as { type: "fish" | "plant"; batchId: number; updates: Record<string, any> };
+    const body = (await req.json()) as {
+      type: "fish" | "plant";
+      batchId: number;
+      updates: FishBatchUpdate | PlantBatchUpdate;
+    };
+
+    const { type, batchId, updates } = body;
+
     if (!batchId || !type || !updates || Object.keys(updates).length === 0) {
       return NextResponse.json({ error: "Invalid request or no updates" }, { status: 400 });
     }
@@ -22,6 +39,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Edit error:", error);
-    return NextResponse.json({ error: "Failed to edit batch", details: (error as Error).message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to edit batch", details: (error as Error).message },
+      { status: 500 }
+    );
   }
 }

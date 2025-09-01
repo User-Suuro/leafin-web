@@ -88,7 +88,7 @@ const handleDiscard = async (type: BatchType, batchId: number) => {
         prev.map((b) => (b.plantBatchId === batchId ? { ...b, batchStatus: "discarded" } : b))
       );
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err);
   }
 };
@@ -133,10 +133,15 @@ const handleHarvestSubmit = async (data: { customerName: string; totalAmount: nu
 
     setHarvestModalOpen(false);
     setHarvestBatchId(null);
-  } catch (err: any) {
-    console.error(err);
+  } catch (err: unknown) {
+  if (err instanceof Error) {
+    console.error(err.message);
     alert(err.message || "Failed to harvest batch");
+  } else {
+    console.error(err);
+    alert("An unknown error occurred while harvesting");
   }
+}
 };
 
 
@@ -164,7 +169,7 @@ const handleHarvestSubmit = async (data: { customerName: string; totalAmount: nu
           prev.map((b) => (b.plantBatchId === batchId ? { ...b, ...updates } : b))
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
     }
   };
@@ -188,7 +193,7 @@ const handleDelete = async (type: BatchType, batchId: number) => {
     } else {
       setPlantBatches((prev) => prev.filter((b) => b.plantBatchId !== batchId));
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err);
   }
 };
@@ -271,7 +276,7 @@ const handleDelete = async (type: BatchType, batchId: number) => {
               open={editModalOpen}
               onClose={() => setEditModalOpen(false)}
               type={selectedType}
-              batch={editingBatch}
+              batch={editingBatch }
               onSave={(updates) => {
                 if (!editingBatch) return;
 

@@ -8,7 +8,6 @@ import { Check, X, Trash, Edit } from "lucide-react";
 
 export default function TableActions({ 
   onAction, 
-  batchType, 
   batchId 
 }: { 
   onAction?: (action: "harvest" | "discard" | "delete" | "edit", batchId: number) => void,
