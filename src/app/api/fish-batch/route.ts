@@ -62,9 +62,21 @@ export async function POST(req: Request) {
     const data = await req.json();
     const { fishQuantity } = data;
 
+    const now = new Date();
+
+    // Set initial stage
+    const condition = "Larval Stage";
+
+    // Calculate expected harvest date (example: 120 days from now)
+    const expectedHarvestDate = new Date(now);
+    expectedHarvestDate.setDate(expectedHarvestDate.getDate() + 120);
+
     await db.insert(fishBatch).values({
       fishQuantity,
-      dateAdded: new Date(),
+      dateAdded: now,
+      condition,
+      expectedHarvestDate,
+      batchStatus: "growing", // initial batch status
     });
 
     return NextResponse.json({ success: true });

@@ -36,6 +36,20 @@
       "when": 1756481858857,
       "tag": "0004_omniscient_morlun",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1756661205650,
+      "tag": "0005_marvelous_eddie_brock",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1756666758235,
+      "tag": "0006_smiling_boom_boom",
+      "breakpoints": true
     }
   ]
 }

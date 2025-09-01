@@ -1,4 +1,4 @@
-// db/fishBatch.ts
+// db/schema/fishBatch.ts
 import { mysqlTable, int, datetime, varchar, mysqlEnum, date } from "drizzle-orm/mysql-core";
 
 export const fishBatch = mysqlTable("fish_batch", {

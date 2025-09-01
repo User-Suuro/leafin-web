@@ -1,36 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Separator } from "@/shadcn/ui/separator";
 import { Button } from "@/shadcn/ui/button";
 import { Input } from "@/shadcn/ui/input";
 import { Label } from "@/shadcn/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shadcn/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shadcn/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
 import { Trash, Plus } from "lucide-react";
 
 type Expense = {
-  id: number;
+  expenseId: number;
+  expenseDate: string;
   category: "feed" | "maintenance" | "labor" | "utilities" | "other";
-  description: string;
+  description: string | null;
   amount: number;
-  date: string;
   relatedFishBatchId?: number | null;
   relatedPlantBatchId?: number | null;
 };
+
+type Batch = {
+  id: number;
+  name: string;
+};
+
 
 export default function MyExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -38,41 +31,94 @@ export default function MyExpensesPage() {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number | "">("");
   const [fishBatch, setFishBatch] = useState<number | "">("");
-  const [plantBatch, setPlantBatch] = useState<number | "">("");
+  const [batches, setBatches] = useState<Batch[]>([]);
 
-  // Fake data for dropdowns (in real app → from DB)
-  const fishBatches = [
-    { id: 1, name: "Tilapia Batch 1" },
-    { id: 2, name: "Catfish Batch 2" },
-  ];
-  const plantBatches = [
-    { id: 1, name: "Lettuce Batch A" },
-    { id: 2, name: "Kangkong Batch B" },
-  ];
 
-  const handleAddExpense = () => {
-    if (!category || !description || !amount) return;
+  // ✅ load from API
+  useEffect(() => {
+    async function loadExpenses() {
+      try {
+        const res = await fetch("/api/expenses");
+        if (res.ok) {
+          const data = await res.json();
+          setExpenses(data);
+        }
+      } catch (err) {
+        console.error("Failed to load expenses:", err);
+      }
+    }
+    loadExpenses();
+  }, []);
 
-    const newExpense: Expense = {
-      id: expenses.length + 1,
-      category,
-      description,
-      amount: Number(amount),
-      date: new Date().toISOString().split("T")[0],
-      relatedFishBatchId: fishBatch ? Number(fishBatch) : null,
-      relatedPlantBatchId: plantBatch ? Number(plantBatch) : null,
-    };
+  useEffect(() => {
+  async function fetchBatches() {
+    if (category === "feed") {
+      try {
+        const res = await fetch("/api/fish-batch/batches-fish"); // ✅ same sa tasks
+        if (!res.ok) throw new Error("Failed to fetch fish batches");
+        const data = await res.json();
+        setBatches(data || []);
+      } catch (error) {
+        console.error("Error fetching fish batches:", error);
+      }
+    } else {
+      setBatches([]); // clear kapag di feed
+      setFishBatch("");
+    }
+  }
 
-    setExpenses([...expenses, newExpense]);
-    setCategory("feed");
-    setDescription("");
-    setAmount("");
-    setFishBatch("");
-    setPlantBatch("");
+  fetchBatches();
+}, [category]);
+
+
+const handleAddExpense = async () => {
+  if (!category || !description || !amount) return;
+
+  // ✅ Require fish batch if category is "feed"
+  if (category === "feed" && !fishBatch) {
+    alert("Please select a Fish Batch for Feed expenses.");
+    return;
+  }
+
+  const body = {
+  category,
+  description,
+  amount: Number(amount),
+  relatedFishBatchId: category === "feed" ? Number(fishBatch) : null,
+  relatedPlantBatchId: null,
   };
 
-  const handleDelete = (id: number) => {
-    setExpenses(expenses.filter((exp) => exp.id !== id));
+
+  try {
+    const res = await fetch("/api/expenses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      // reload list
+      const newList = await fetch("/api/expenses").then((r) => r.json());
+      setExpenses(newList);
+      setCategory("feed");
+      setDescription("");
+      setAmount("");
+      setFishBatch("");
+    }
+  } catch (err) {
+    console.error("Failed to add expense:", err);
+  }
+};
+
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setExpenses(expenses.filter((exp) => exp.expenseId !== id));
+      }
+    } catch (err) {
+      console.error("Failed to delete expense:", err);
+    }
   };
 
   return (
@@ -102,8 +148,7 @@ export default function MyExpensesPage() {
           </Select>
         </div>
 
-        {/* Show Fish Batch if expense applies to fish */}
-        {(category === "feed") && (
+        {category === "feed" && (
           <div className="flex flex-col">
             <Label>Fish Batch</Label>
             <Select
@@ -111,12 +156,12 @@ export default function MyExpensesPage() {
               onValueChange={(val) => setFishBatch(Number(val))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select fish batch" />
+                <SelectValue placeholder="Select Fish Batch" />
               </SelectTrigger>
               <SelectContent>
-                {fishBatches.map((batch) => (
-                  <SelectItem key={batch.id} value={String(batch.id)}>
-                    {batch.name}
+                {batches.map((b) => (
+                  <SelectItem key={b.id} value={String(b.id)}>
+                    {b.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -124,27 +169,9 @@ export default function MyExpensesPage() {
           </div>
         )}
 
-        {/* Show Plant Batch if expense applies to plants */}
-        {category === "other" && (
-          <div className="flex flex-col">
-            <Label>Plant Batch</Label>
-            <Select
-              value={plantBatch ? String(plantBatch) : ""}
-              onValueChange={(val) => setPlantBatch(Number(val))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select plant batch" />
-              </SelectTrigger>
-              <SelectContent>
-                {plantBatches.map((batch) => (
-                  <SelectItem key={batch.id} value={String(batch.id)}>
-                    {batch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+
+        {/* Example: add fish/plant dropdowns same as before */}
+        {/* ... keep your FishBatch + PlantBatch UI here ... */}
 
         <div className="flex flex-col">
           <Label>Description</Label>
@@ -165,10 +192,7 @@ export default function MyExpensesPage() {
           />
         </div>
 
-        <Button
-          className="h-10 w-full flex items-center justify-center gap-2"
-          onClick={handleAddExpense}
-        >
+        <Button className="h-10 w-full flex items-center justify-center gap-2" onClick={handleAddExpense}>
           <Plus className="w-4 h-4" /> Add
         </Button>
       </section>
@@ -190,28 +214,16 @@ export default function MyExpensesPage() {
           </TableHeader>
           <TableBody>
             {expenses.map((exp) => (
-              <TableRow key={exp.id}>
-                <TableCell>{exp.id}</TableCell>
-                <TableCell>{exp.date}</TableCell>
+              <TableRow key={exp.expenseId}>
+                <TableCell>{exp.expenseId}</TableCell>
+                <TableCell>{exp.expenseDate}</TableCell>
                 <TableCell>{exp.category}</TableCell>
                 <TableCell>{exp.description}</TableCell>
+                <TableCell>{exp.relatedFishBatchId ? `#${exp.relatedFishBatchId}` : "-"}</TableCell>
+                <TableCell>{exp.relatedPlantBatchId ? `#${exp.relatedPlantBatchId}` : "-"}</TableCell>
+                <TableCell>₱ {Number(exp.amount).toFixed(2)}</TableCell>
                 <TableCell>
-                  {exp.relatedFishBatchId
-                    ? `#${exp.relatedFishBatchId}`
-                    : "-"}
-                </TableCell>
-                <TableCell>
-                  {exp.relatedPlantBatchId
-                    ? `#${exp.relatedPlantBatchId}`
-                    : "-"}
-                </TableCell>
-                <TableCell>₱ {exp.amount.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDelete(exp.id)}
-                  >
+                  <Button variant="destructive" size="icon" onClick={() => handleDelete(exp.expenseId)}>
                     <Trash className="w-4 h-4" />
                   </Button>
                 </TableCell>

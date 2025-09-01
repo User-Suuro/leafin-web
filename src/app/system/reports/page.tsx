@@ -1,22 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
-import {
-  BarChart,
-  Leaf,
-  Fish,
-  Package,
-  DollarSign,
-} from "lucide-react";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shadcn/ui/card";
+import {  BarChart,  Leaf,  Fish,  Package,  DollarSign,} from "lucide-react";
+import {  Card,  CardContent,  CardDescription,  CardHeader,  CardTitle,} from "@/shadcn/ui/card";
 import { Separator } from "@/shadcn/ui/separator";
 import { Button } from "@/shadcn/ui/button";
 import AddReportModal from "@/components/modal/AddReportModal";
