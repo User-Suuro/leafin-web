@@ -52,10 +52,21 @@ export async function POST(req: Request) {
     const data = await req.json();
     const { plantQuantity } = data;
 
+    const now = new Date();
+
+    // 🌱 Initial stage
+    const condition = "Seedling Stage";
+
+    // Calculate expected harvest date (example: 50 days from now)
+    const expectedHarvestDate = new Date(now);
+    expectedHarvestDate.setDate(expectedHarvestDate.getDate() + 50);
+
     await db.insert(plantBatch).values({
       plantQuantity,
-      dateAdded: new Date(),
-      condition: "Seedling Stage", // default
+      dateAdded: now,
+      condition,
+      expectedHarvestDate,
+      batchStatus: "growing", // initial batch status
     });
 
     return NextResponse.json({ success: true });

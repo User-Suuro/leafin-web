@@ -29,15 +29,19 @@ type PlantBatch = {
   batchStatus: BatchStatus;
 };
 
-type BatchType = FishBatch | PlantBatch;
+type BatchAction = "harvest" | "discard" | "delete" | "edit";
 
-export default function BatchTable<T extends BatchType>({
-  data,
-  type,
-}: {
+type BatchTableProps<T> = {
   data: T[];
   type: "fish" | "plant";
-}) {
+  onAction?: (action: BatchAction, batchId: number) => void;
+};
+
+export default function BatchTable<T extends FishBatch | PlantBatch>({
+  data,
+  type,
+  onAction,
+}: BatchTableProps<T>) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<BatchStatus | "all">("all");
   const [sortKey, setSortKey] = useState<"id" | "quantity" | "dateAdded" | "expectedHarvestDate">("dateAdded");
@@ -46,8 +50,8 @@ export default function BatchTable<T extends BatchType>({
   const rowsPerPage = 5;
 
   // Type-safe getters
-  const getId = (b: BatchType) => (type === "fish" ? (b as FishBatch).fishBatchId : (b as PlantBatch).plantBatchId);
-  const getQuantity = (b: BatchType) => (type === "fish" ? (b as FishBatch).fishQuantity : (b as PlantBatch).plantQuantity);
+  const getId = (b: T) => (type === "fish" ? (b as FishBatch).fishBatchId : (b as PlantBatch).plantBatchId);
+  const getQuantity = (b: T) => (type === "fish" ? (b as FishBatch).fishQuantity : (b as PlantBatch).plantQuantity);
 
   // Filtered
   const filtered = data.filter((b) => {
@@ -160,7 +164,11 @@ export default function BatchTable<T extends BatchType>({
                   <StatusBadge status={b.batchStatus} />
                 </TableCell>
                 <TableCell>
-                  <TableActions onAction={(action) => console.log(action, b)} />
+                  <TableActions
+                    batchType={type}
+                    batchId={getId(b)}
+                    onAction={onAction ? (action: BatchAction) => onAction(action, getId(b)) : undefined}
+                  />
                 </TableCell>
               </TableRow>
             ))}

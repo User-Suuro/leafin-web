@@ -1,3 +1,4 @@
+// app/api/batches/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { fishBatch } from "@/db/schema/fishBatch";
