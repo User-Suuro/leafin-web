@@ -8,12 +8,21 @@ import System from "@/assets/system.png";
 import One from "@/assets/one.png";
 import Two from "@/assets/two.png";
 import Three from "@/assets/three.png";
+import Person1 from "@/assets/Gab.png";
+import Person2 from "@/assets/Master.png";
+import Person3 from "@/assets/JUB.png";
+import Person4 from "@/assets/LevnicolayevichAdlawan.png";
+import Person5 from "@/assets/Joshie.png";
+import Person6 from "@/assets/Ajan.png";
+import Person7 from "@/assets/Mikay.png";
+import Person8 from "@/assets/Divine.png";
+import Person9 from "@/assets/Doms.png";
+import Person10 from "@/assets/Johann.png";
 
 export default function About() {
   return (
     <main
       className="w-full px-8 py-12 space-y-32 min-h-screen overflow-y-auto"
-      style={{ backgroundColor: "#DCFFEA" }}
     >
       {/* LETTUCE */}
       <div className="flex flex-row items-start justify-between w-full max-w-6xl mx-auto gap-10 ">
@@ -90,7 +99,7 @@ export default function About() {
         </div>
       </div>
 
-      <div className="flex flex-col w-full max-w-6xl mx-auto gap-12">
+  <div className="flex flex-col w-full max-w-6xl mx-auto gap-12">
   {/* Row 1 */}
   <div className="flex flex-row items-start gap-6">
     {/* Icon */}
@@ -177,7 +186,77 @@ export default function About() {
       </p>
     </div>
   </div>
+  </div>
+
+  <div className="flex flex-col w-full max-w-6xl mx-auto mb-15 gap-3 text-center">
+  <h1 className="text-2xl mb-4">
+    Meet the <span className="text-green-700">TEAM</span>
+  </h1>
+  <h3>Hardware Support & System Programmer</h3>
+
+  {/* First row */}
+  <div
+    className="flex flex-row justify-center p-4 rounded-2xl gap-12 shadow-lg"
+    style={{ backgroundColor: "#DCFFEA" }}
+  >
+    <div className="flex flex-col items-center">
+      <Image src={Person1} alt="Person1" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">GABRIELLE DE LA CRUZ</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person2} alt="Person2" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">GODWIN GALVEZ</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person3} alt="Person3" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">JOHN MARK PARDO</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person4} alt="Person4" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">LEVNICOLAYEVICH ADLAWAN</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person5} alt="Person5" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">JOSHUA GUEVARRA</h1>
+    </div>
+  </div>
+
+  {/* Second row */}
+  <div
+    className="flex flex-row justify-center p-4 rounded-2xl gap-18 shadow-lg"
+    style={{ backgroundColor: "#DCFFEA" }}
+  >
+    <div className="flex flex-col items-center">
+      <Image src={Person6} alt="Person6" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">AJANIEL TEJARES</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person7} alt="Person7" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">MIKYLLA NANEZ</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person8} alt="Person8" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">DIVINE PONCIANO</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person9} alt="Person9" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">RENZ DOMINIC AZUL</h1>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <Image src={Person10} alt="Person10" className="object-contain" width={90} height={90} />
+      <h1 className="mt-2 text-sm font-semibold">JOHANN CHAVEZ</h1>
+    </div>
+  </div>
 </div>
+
     </main>
   );
 }
