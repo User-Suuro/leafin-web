@@ -15,7 +15,25 @@ import AddReportModal from "@/components/modal/AddReportModal";
 import ProductSalesSummaryModal from "@/components/modal/ProductSalesSummaryModal";
 import ExpensesReportModal from "@/components/modal/ExpensesReportModal";
 
+
+// types/summary.ts
+export type PlantSummary = {
+  totalBatches: number;
+  totalPlants: number;
+  avgAge: number;
+  majorityStage: string;
+};
+
+export type FishSummary = {
+  totalBatches: number;
+  totalFish: number;
+  avgAge: number;
+  majorityStage: string;
+};
+
+
 export default function AnalyticsReports() {
+  
   const [modalOpen, setModalOpen] = useState(false);
   const [reportType, setReportType] = useState<
     "revenue" | "sales" | "expenses" | null
@@ -23,14 +41,14 @@ export default function AnalyticsReports() {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
 
   // ✅ State for summaries
-  const [plantSummary, setPlantSummary] = useState<any>(null);
-  const [fishSummary, setFishSummary] = useState<any>(null);
+  const [plantSummary, setPlantSummary] = useState<PlantSummary | null>(null);
+  const [fishSummary, setFishSummary] = useState<FishSummary | null>(null);
 
   // ✅ Fetch Plant Summary
   useEffect(() => {
     fetch("/api/plant-batch/summary")
       .then((res) => res.json())
-      .then((data) => setPlantSummary(data))
+      .then((data: PlantSummary) => setPlantSummary(data))
       .catch((err) => console.error("Error fetching plant summary:", err));
   }, []);
 
@@ -38,9 +56,10 @@ export default function AnalyticsReports() {
   useEffect(() => {
     fetch("/api/fish-batch/summary")
       .then((res) => res.json())
-      .then((data) => setFishSummary(data))
+      .then((data: FishSummary) => setFishSummary(data))
       .catch((err) => console.error("Error fetching fish summary:", err));
   }, []);
+
 
   const openReportModal = (
     type: "revenue" | "sales" | "expenses",
