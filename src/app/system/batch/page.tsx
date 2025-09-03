@@ -8,6 +8,7 @@ import BatchTable from "@/components/batch/batchTable";
 import AddBatchModal from "@/components/modal/add-batch-modal";
 import EditBatchModal from "@/components/modal/EditBatchModal";
 import HarvestBatchModal from "@/components/modal/HarvestBatchModal";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 
 type BatchStatus = "growing" | "ready" | "harvested" | "discarded";
 
@@ -45,6 +46,20 @@ export default function BatchPage() {
   const [editingBatch, setEditingBatch] = useState<FishBatch | PlantBatch | null>(null);
   const [harvestModalOpen, setHarvestModalOpen] = useState(false);
   const [harvestBatchId, setHarvestBatchId] = useState<number | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<null | (() => void)>(null);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmDescription, setConfirmDescription] = useState("");
+  const [confirmVariant, setConfirmVariant] = useState<"default" | "destructive">("default");
+
+  // open confirmation modal
+const openConfirm = (title: string, description: string, onConfirm: () => void, variant: "default" | "destructive" = "default") => {
+  setConfirmTitle(title);
+  setConfirmDescription(description);
+  setConfirmAction(() => onConfirm);
+  setConfirmVariant(variant);
+  setConfirmOpen(true);
+};
 
   // Fetch batches
   const fetchBatches = async () => {
@@ -66,31 +81,36 @@ export default function BatchPage() {
     fetchBatches();
   }, []);
 
-// Discard a batch
+// Discard
 const handleDiscard = async (type: BatchType, batchId: number) => {
-  if (!window.confirm("Are you sure you want to discard this batch?")) return;
+  openConfirm(
+    "Discard Batch?",
+    "Are you sure you want to discard this batch? This action cannot be undone.",
+    async () => {
+      try {
+        const res = await fetch("/api/batches/discard", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, batchId }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to discard batch");
 
-  try {
-    const res = await fetch("/api/batches/discard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, batchId }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Failed to discard batch");
-
-    if (type === "fish") {
-      setFishBatches((prev) =>
-        prev.map((b) => (b.fishBatchId === batchId ? { ...b, batchStatus: "discarded" } : b))
-      );
-    } else {
-      setPlantBatches((prev) =>
-        prev.map((b) => (b.plantBatchId === batchId ? { ...b, batchStatus: "discarded" } : b))
-      );
-    }
-  } catch (err: unknown) {
-    console.error(err);
-  }
+        if (type === "fish") {
+          setFishBatches((prev) =>
+            prev.map((b) => (b.fishBatchId === batchId ? { ...b, batchStatus: "discarded" } : b))
+          );
+        } else {
+          setPlantBatches((prev) =>
+            prev.map((b) => (b.plantBatchId === batchId ? { ...b, batchStatus: "discarded" } : b))
+          );
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    "default"
+  );
 };
 
 
@@ -174,30 +194,34 @@ const handleHarvestSubmit = async (data: { customerName: string; totalAmount: nu
     }
   };
 
-// Delete a batch
+// Delete
 const handleDelete = async (type: BatchType, batchId: number) => {
-  if (!window.confirm("Are you sure you want to delete this batch? This action cannot be undone.")) return;
+  openConfirm(
+    "Delete Batch?",
+    "Are you sure you want to delete this batch? This action cannot be undone.",
+    async () => {
+      try {
+        const res = await fetch("/api/batches/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, batchId }),
+        });
 
-  try {
-    const res = await fetch("/api/batches/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, batchId }),
-    });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to delete batch");
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Failed to delete batch");
-
-    if (type === "fish") {
-      setFishBatches((prev) => prev.filter((b) => b.fishBatchId !== batchId));
-    } else {
-      setPlantBatches((prev) => prev.filter((b) => b.plantBatchId !== batchId));
-    }
-  } catch (err: unknown) {
-    console.error(err);
-  }
+        if (type === "fish") {
+          setFishBatches((prev) => prev.filter((b) => b.fishBatchId !== batchId));
+        } else {
+          setPlantBatches((prev) => prev.filter((b) => b.plantBatchId !== batchId));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    "destructive"
+  );
 };
-
 
   return (
     <div className="flex flex-col p-5 space-y-6 min-h-screen">
@@ -296,6 +320,8 @@ const handleDelete = async (type: BatchType, batchId: number) => {
             />
           )}
 
+          
+
           {harvestBatchId && selectedType && (
             <HarvestBatchModal
               open={harvestModalOpen}
@@ -310,6 +336,16 @@ const handleDelete = async (type: BatchType, batchId: number) => {
             onClose={() => setModalOpen(false)}
             type={selectedType}
           />
+
+          <ConfirmModal
+          open={confirmOpen}
+          onClose={() => setConfirmOpen(false)}
+          onConfirm={confirmAction || (() => {})}
+          title={confirmTitle}
+          description={confirmDescription}
+          variant={confirmVariant}
+        />
+
         </div>
       )}
     </div>
