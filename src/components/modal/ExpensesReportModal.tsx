@@ -1,48 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogFooter,
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/shadcn/ui/dialog";
 import { Button } from "@/shadcn/ui/button";
 import { useToast } from "@/shadcn/ui/toast-provider";
 
-// ✅ PDF libraries
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-type ReportType = "revenue" | "sales" | "expenses";
 type Period = "daily" | "weekly" | "monthly";
 
-export default function AddReportModal({
+export default function ExpensesReportModal({
   open,
   onClose,
-  type,
   period = "daily",
 }: {
   open: boolean;
   onClose: () => void;
-  type: ReportType;
   period?: Period;
 }) {
   const { toast } = useToast();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch API based on period
+  // ✅ Fetch expenses API
   useEffect(() => {
     if (!open) return;
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/sales/${period}`);
-        if (!res.ok) throw new Error("Failed to fetch report");
+        const res = await fetch(`/api/expenses/${period}`);
+        if (!res.ok) throw new Error("Failed to fetch expenses report");
         const result = await res.json();
         setData(result);
       } catch (err) {
         console.error(err);
         toast({
           title: "❌ Error",
-          description: "Unable to fetch report data.",
+          description: "Unable to fetch expenses data.",
           variant: "destructive",
         });
       } finally {
@@ -52,36 +53,29 @@ export default function AddReportModal({
     fetchData();
   }, [open, period, toast]);
 
-  const title =
-    type === "revenue" ? "Revenue" : type === "sales" ? "Product Sales" : "Expenses";
-
-  // ✅ Export PDF function
+  // ✅ Export PDF
   const exportPDF = () => {
-  const doc = new jsPDF();
-  doc.setFontSize(16);
-  doc.text(`${title} Report (${period})`, 14, 15);
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Expenses Report (${period})`, 14, 15);
 
-  autoTable(doc, {
-    startY: 25,
-    head: [["Period", "Fish Sales (₱)", "Plant Sales (₱)", "Expenses (₱)", "Total Revenue (₱)"]],
-    body: data.map((row) => [
-      row.day || row.week || row.month || row.period || "N/A",
-      row.fish_sales?.toLocaleString() || 0,
-      row.plant_sales?.toLocaleString() || 0,
-      row.expenses?.toLocaleString() || 0,
-      ((row.fish_sales || 0) + (row.plant_sales || 0) - (row.expenses || 0)).toLocaleString(),
-    ]),
-  });
+    autoTable(doc, {
+      startY: 25,
+      head: [["Period", "Expenses (₱)"]],
+      body: data.map((row) => [
+        row.day || row.week || row.month || row.period || "N/A",
+        row.total?.toLocaleString() || 0,
+      ]),
+    });
 
-  doc.save(`${title}_Report_${period}.pdf`);
-};
-
+    doc.save(`Expenses_Report_${period}.pdf`);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>📄 {title} Report ({period})</DialogTitle>
+          <DialogTitle>💸 Expenses Report ({period})</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -93,28 +87,22 @@ export default function AddReportModal({
                 <thead className="bg-gray-100 text-gray-700">
                   <tr>
                     <th className="p-2 border">Period</th>
-                    <th className="p-2 border">Fish Sales</th>
-                    <th className="p-2 border">Plant Sales</th>
                     <th className="p-2 border">Expenses</th>
-                    <th className="p-2 border">Total Revenue</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center p-3 text-gray-400">
+                      <td colSpan={2} className="text-center p-3 text-gray-400">
                         No data available
                       </td>
                     </tr>
                   ) : (
                     data.map((row, i) => (
                       <tr key={i} className="hover:bg-gray-50">
-                        <td className="p-2 border">{row.day || row.week || row.month || row.period || "N/A"}</td>
-                        <td className="p-2 border">{row.fish_sales?.toLocaleString() || 0}</td>
-                        <td className="p-2 border">{row.plant_sales?.toLocaleString() || 0}</td>
-                        <td className="p-2 border">{row.expenses?.toLocaleString() || 0}</td>
+                        <td className="p-2 border">{row.day || row.week || row.month || "N/A"}</td>
                         <td className="p-2 border font-semibold">
-                          {( (row.fish_sales || 0) + (row.plant_sales || 0) - (row.expenses || 0) ).toLocaleString()}
+                          {row.total?.toLocaleString() || 0}
                         </td>
                       </tr>
                     ))
