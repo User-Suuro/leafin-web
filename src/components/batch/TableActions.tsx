@@ -4,8 +4,6 @@ import { Button } from "@/shadcn/ui/button";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/shadcn/ui/tooltip";
 import { Check, X, Trash, Edit } from "lucide-react";
 
-
-
 export default function TableActions({ 
   onAction, 
   batchId,
@@ -16,50 +14,50 @@ export default function TableActions({
   batchId: number,
   status: "growing" | "ready" | "harvested" | "discarded"
 }) {
-return (
-  <TooltipProvider>
-    {status !== "harvested" && (
-      <>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={() => onAction?.("harvest", batchId)}>
-              <Check className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Harvest</TooltipContent>
-        </Tooltip>
+  return (
+    <TooltipProvider>
+      {/* Show harvest & discard only if NOT harvested/discarded */}
+      {status !== "harvested" && status !== "discarded" && (
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={() => onAction?.("harvest", batchId)}>
+                <Check className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Harvest</TooltipContent>
+          </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={() => onAction?.("discard", batchId)}>
-              <X className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Discard</TooltipContent>
-        </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={() => onAction?.("discard", batchId)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Discard</TooltipContent>
+          </Tooltip>
+        </>
+      )}
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={() => onAction?.("edit", batchId)}>
-              <Edit className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Edit</TooltipContent>
-        </Tooltip>
-      </>
-    )}
+      {/* Edit (allowed kahit discarded or harvested) */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" size="icon" onClick={() => onAction?.("edit", batchId)}>
+            <Edit className="w-4 h-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Edit</TooltipContent>
+      </Tooltip>
 
-    {/* Delete will always show */}
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="destructive" size="icon" onClick={() => onAction?.("delete", batchId)}>
-          <Trash className="w-4 h-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>Delete</TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
-
+      {/* Delete (always visible) */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="destructive" size="icon" onClick={() => onAction?.("delete", batchId)}>
+            <Trash className="w-4 h-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Delete</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
-
