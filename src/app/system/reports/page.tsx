@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BarChart, Leaf, Fish, Package, DollarSign } from "lucide-react";
 import {
   Card,
@@ -13,7 +13,7 @@ import { Separator } from "@/shadcn/ui/separator";
 import { Button } from "@/shadcn/ui/button";
 import AddReportModal from "@/components/modal/AddReportModal";
 import ProductSalesSummaryModal from "@/components/modal/ProductSalesSummaryModal";
-import ExpensesReportModal from "@/components/modal/ExpensesReportModal"; // ✅ new import
+import ExpensesReportModal from "@/components/modal/ExpensesReportModal";
 
 export default function AnalyticsReports() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -21,6 +21,26 @@ export default function AnalyticsReports() {
     "revenue" | "sales" | "expenses" | null
   >(null);
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
+
+  // ✅ State for summaries
+  const [plantSummary, setPlantSummary] = useState<any>(null);
+  const [fishSummary, setFishSummary] = useState<any>(null);
+
+  // ✅ Fetch Plant Summary
+  useEffect(() => {
+    fetch("/api/plant-batch/summary")
+      .then((res) => res.json())
+      .then((data) => setPlantSummary(data))
+      .catch((err) => console.error("Error fetching plant summary:", err));
+  }, []);
+
+  // ✅ Fetch Fish Summary
+  useEffect(() => {
+    fetch("/api/fish-batch/summary")
+      .then((res) => res.json())
+      .then((data) => setFishSummary(data))
+      .catch((err) => console.error("Error fetching fish summary:", err));
+  }, []);
 
   const openReportModal = (
     type: "revenue" | "sales" | "expenses",
@@ -46,7 +66,7 @@ export default function AnalyticsReports() {
         <div className="space-y-4 mb-10">
           <h2 className="text-lg font-semibold">Growth Analytics</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Lettuce */}
+            {/* Lettuce (Plant) */}
             <Card className="bg-green-600 text-white flex flex-col">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
@@ -54,40 +74,48 @@ export default function AnalyticsReports() {
                   Lettuce
                 </CardTitle>
                 <CardDescription className="text-white/80">
-                  View Details
+                  
                 </CardDescription>
               </CardHeader>
               <CardContent className="bg-white text-black rounded-b-xl py-6 min-h-[140px] flex-grow">
-                <div className="flex justify-between items-start text-sm">
-                  <div>
-                    <p>
-                      Total Batches:{" "}
-                      <span className="font-semibold text-blue-600">2</span>
-                    </p>
-                    <p>
-                      Total Plants:{" "}
-                      <span className="font-semibold text-blue-600">10</span>
-                    </p>
+                {plantSummary ? (
+                  <div className="flex justify-between items-start text-sm">
+                    <div>
+                      <p>
+                        Total Batches:{" "}
+                        <span className="font-semibold text-blue-600">
+                          {plantSummary.totalBatches}
+                        </span>
+                      </p>
+                      <p>
+                        Total Plants:{" "}
+                        <span className="font-semibold text-blue-600">
+                          {plantSummary.totalPlants}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        Avg Age:{" "}
+                        <span className="font-semibold text-green-600">
+                          {Math.round(plantSummary.avgAge)} days
+                        </span>
+                      </p>
+                      <p>
+                        Majority Stage:{" "}
+                        <span className="font-semibold text-green-600">
+                          {plantSummary.majorityStage}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p>
-                      Avg Age:{" "}
-                      <span className="font-semibold text-green-600">
-                        18 days
-                      </span>
-                    </p>
-                    <p>
-                      Majority Stage:{" "}
-                      <span className="font-semibold text-green-600">
-                        Vegetative
-                      </span>
-                    </p>
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-sm text-gray-500">Loading...</p>
+                )}
               </CardContent>
             </Card>
 
-            {/* Tilapia */}
+            {/* Tilapia (Fish) */}
             <Card className="bg-blue-500 text-white flex flex-col">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
@@ -95,32 +123,44 @@ export default function AnalyticsReports() {
                   Tilapia
                 </CardTitle>
                 <CardDescription className="text-white/80">
-                  View Details
+                 
                 </CardDescription>
               </CardHeader>
               <CardContent className="bg-white text-black rounded-b-xl py-6 min-h-[140px] flex-grow">
-                <div className="flex justify-between items-start text-sm">
-                  <div>
-                    <p>
-                      Total Fish:{" "}
-                      <span className="font-semibold text-blue-600">5</span>
-                    </p>
+                {fishSummary ? (
+                  <div className="flex justify-between items-start text-sm">
+                    <div>
+                      <p>
+                        Total Batches:{" "}
+                        <span className="font-semibold text-blue-600">
+                          {fishSummary.totalBatches}
+                        </span>
+                      </p>
+                      <p>
+                        Total Fish:{" "}
+                        <span className="font-semibold text-blue-600">
+                          {fishSummary.totalFish}
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        Avg Age:{" "}
+                        <span className="font-semibold text-blue-600">
+                          {Math.round(fishSummary.avgAge)} days
+                        </span>
+                      </p>
+                      <p>
+                        Majority Stage:{" "}
+                        <span className="font-semibold text-blue-600">
+                          {fishSummary.majorityStage}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p>
-                      Avg Age:{" "}
-                      <span className="font-semibold text-blue-600">
-                        25 days
-                      </span>
-                    </p>
-                    <p>
-                      Majority Stage:{" "}
-                      <span className="font-semibold text-blue-600">
-                        Juvenile
-                      </span>
-                    </p>
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-sm text-gray-500">Loading...</p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -195,7 +235,6 @@ function ReportCard({
       <CardContent className="space-y-4">
         <h3 className="text-lg font-semibold">{title}</h3>
         <div className="flex justify-center gap-2 flex-wrap">
-          {/* ✅ Period options */}
           <Button variant="secondary" onClick={() => onGenerate("daily")}>
             Daily
           </Button>
