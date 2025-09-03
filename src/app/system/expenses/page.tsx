@@ -8,6 +8,7 @@ import { Label } from "@/shadcn/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
 import { Trash, Plus } from "lucide-react";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 
 type Expense = {
   expenseId: number;
@@ -24,7 +25,6 @@ type Batch = {
   name: string;
 };
 
-
 export default function MyExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [category, setCategory] = useState<Expense["category"]>("feed");
@@ -33,6 +33,9 @@ export default function MyExpensesPage() {
   const [fishBatch, setFishBatch] = useState<number | "">("");
   const [batches, setBatches] = useState<Batch[]>([]);
 
+  // 🔹 State for modal
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null);
 
   // ✅ load from API
   useEffect(() => {
@@ -51,73 +54,77 @@ export default function MyExpensesPage() {
   }, []);
 
   useEffect(() => {
-  async function fetchBatches() {
-    if (category === "feed") {
-      try {
-        const res = await fetch("/api/fish-batch/batches-fish"); // ✅ same sa tasks
-        if (!res.ok) throw new Error("Failed to fetch fish batches");
-        const data = await res.json();
-        setBatches(data || []);
-      } catch (error) {
-        console.error("Error fetching fish batches:", error);
+    async function fetchBatches() {
+      if (category === "feed") {
+        try {
+          const res = await fetch("/api/fish-batch/batches-fish");
+          if (!res.ok) throw new Error("Failed to fetch fish batches");
+          const data = await res.json();
+          setBatches(data || []);
+        } catch (error) {
+          console.error("Error fetching fish batches:", error);
+        }
+      } else {
+        setBatches([]);
+        setFishBatch("");
       }
-    } else {
-      setBatches([]); // clear kapag di feed
-      setFishBatch("");
     }
-  }
+    fetchBatches();
+  }, [category]);
 
-  fetchBatches();
-}, [category]);
+  const handleAddExpense = async () => {
+    if (!category || !description || !amount) return;
 
+    if (category === "feed" && !fishBatch) {
+      alert("Please select a Fish Batch for Feed expenses.");
+      return;
+    }
 
-const handleAddExpense = async () => {
-  if (!category || !description || !amount) return;
+    const body = {
+      category,
+      description,
+      amount: Number(amount),
+      relatedFishBatchId: category === "feed" ? Number(fishBatch) : null,
+      relatedPlantBatchId: null,
+    };
 
-  // ✅ Require fish batch if category is "feed"
-  if (category === "feed" && !fishBatch) {
-    alert("Please select a Fish Batch for Feed expenses.");
-    return;
-  }
-
-  const body = {
-  category,
-  description,
-  amount: Number(amount),
-  relatedFishBatchId: category === "feed" ? Number(fishBatch) : null,
-  relatedPlantBatchId: null,
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        const newList = await fetch("/api/expenses").then((r) => r.json());
+        setExpenses(newList);
+        setCategory("feed");
+        setDescription("");
+        setAmount("");
+        setFishBatch("");
+      }
+    } catch (err) {
+      console.error("Failed to add expense:", err);
+    }
   };
 
+  // 🔹 Show modal instead of deleting directly
+  const confirmDelete = (id: number) => {
+    setExpenseToDelete(id);
+    setConfirmOpen(true);
+  };
 
-  try {
-    const res = await fetch("/api/expenses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      // reload list
-      const newList = await fetch("/api/expenses").then((r) => r.json());
-      setExpenses(newList);
-      setCategory("feed");
-      setDescription("");
-      setAmount("");
-      setFishBatch("");
-    }
-  } catch (err) {
-    console.error("Failed to add expense:", err);
-  }
-};
-
-
-  const handleDelete = async (id: number) => {
+  // 🔹 Execute actual delete after confirm
+  const handleDelete = async () => {
+    if (!expenseToDelete) return;
     try {
-      const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/expenses/${expenseToDelete}`, { method: "DELETE" });
       if (res.ok) {
-        setExpenses(expenses.filter((exp) => exp.expenseId !== id));
+        setExpenses(expenses.filter((exp) => exp.expenseId !== expenseToDelete));
       }
     } catch (err) {
       console.error("Failed to delete expense:", err);
+    } finally {
+      setExpenseToDelete(null);
     }
   };
 
@@ -169,10 +176,6 @@ const handleAddExpense = async () => {
           </div>
         )}
 
-
-        {/* Example: add fish/plant dropdowns same as before */}
-        {/* ... keep your FishBatch + PlantBatch UI here ... */}
-
         <div className="flex flex-col">
           <Label>Description</Label>
           <Input
@@ -223,7 +226,11 @@ const handleAddExpense = async () => {
                 <TableCell>{exp.relatedPlantBatchId ? `#${exp.relatedPlantBatchId}` : "-"}</TableCell>
                 <TableCell>₱ {Number(exp.amount).toFixed(2)}</TableCell>
                 <TableCell>
-                  <Button variant="destructive" size="icon" onClick={() => handleDelete(exp.expenseId)}>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => confirmDelete(exp.expenseId)}
+                  >
                     <Trash className="w-4 h-4" />
                   </Button>
                 </TableCell>
@@ -239,6 +246,18 @@ const handleAddExpense = async () => {
           </TableBody>
         </Table>
       </section>
+
+      {/* 🔹 Confirm Modal */}
+      <ConfirmModal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Expense"
+        description="Are you sure you want to delete this expense? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </div>
   );
 }
