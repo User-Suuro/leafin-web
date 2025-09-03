@@ -3,44 +3,53 @@
 import { useState, useEffect } from "react";
 import { Separator } from "@/shadcn/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shadcn/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shadcn/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/ui/tabs";
 import { History, ClipboardList, DollarSign, Activity } from "lucide-react";
 
-// Types
+// ✅ Matches your API response (/api/logs)
 type Log = {
   log_id: number;
   event_time: string;
   notes: string;
-  type: "task" | "fish_sale" | "plant_sale" | "sensor";
+  type: "task" | "fish_sale" | "plant_sale" | "expense" | "sensor";
 };
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<Log[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy fetch – replace with API later
+  // ✅ Fetch logs from API
   useEffect(() => {
-    setLogs([
-      {
-        log_id: 1,
-        event_time: "2025-08-30 10:15:00",
-        notes: "Feeding task completed",
-        type: "task",
-      },
-      {
-        log_id: 2,
-        event_time: "2025-08-29 15:42:00",
-        notes: "Sold 20 Tilapia from Batch #3",
-        type: "fish_sale",
-      },
-      {
-        log_id: 3,
-        event_time: "2025-08-28 09:00:00",
-        notes: "pH sensor detected abnormal reading",
-        type: "sensor",
-      },
-    ]);
+    async function fetchLogs() {
+      try {
+        const res = await fetch("/api/logss");
+        if (!res.ok) throw new Error("Failed to fetch logs");
+        const data: Log[] = await res.json();
+        setLogs(data);
+      } catch (err) {
+        console.error("Error loading logs:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLogs();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground">Loading logs...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -79,7 +88,8 @@ export default function LogsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {logs.filter((l) => l.type.includes("sale")).length}
+                {logs.filter((l) => ["fish_sale", "plant_sale"].includes(l.type))
+                  .length}
               </p>
             </CardContent>
           </Card>
@@ -88,12 +98,12 @@ export default function LogsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-orange-500" />
-                Sensors
+                Expenses
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {logs.filter((l) => l.type === "sensor").length}
+                {logs.filter((l) => l.type === "expense").length}
               </p>
             </CardContent>
           </Card>
@@ -115,7 +125,7 @@ export default function LogsPage() {
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="task">Tasks</TabsTrigger>
               <TabsTrigger value="sale">Sales</TabsTrigger>
-              <TabsTrigger value="sensor">Sensors</TabsTrigger>
+              <TabsTrigger value="expense">Expenses</TabsTrigger>
             </TabsList>
 
             {/* All logs */}
@@ -147,7 +157,7 @@ export default function LogsPage() {
               </Card>
             </TabsContent>
 
-            {/* Example for tasks only */}
+            {/* Task logs */}
             <TabsContent value="task">
               <Card>
                 <CardHeader>
@@ -173,16 +183,16 @@ export default function LogsPage() {
               </Card>
             </TabsContent>
 
-            {/* Example for sensors only */}
-            <TabsContent value="sensor">
+            {/* Expense logs */}
+            <TabsContent value="expense">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sensor Logs</CardTitle>
+                  <CardTitle>Expense Logs</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     {logs
-                      .filter((log) => log.type === "sensor")
+                      .filter((log) => log.type === "expense")
                       .map((log) => (
                         <li
                           key={log.log_id}

@@ -1,0 +1,7 @@
+ALTER TABLE `logs` ADD `plant_batch_id` int;--> statement-breakpoint
+ALTER TABLE `logs` ADD `fish_batch_id` int;--> statement-breakpoint
+ALTER TABLE `logs` ADD CONSTRAINT `logs_related_fish_sale_id_fish_sales_fish_sale_id_fk` FOREIGN KEY (`related_fish_sale_id`) REFERENCES `fish_sales`(`fish_sale_id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `logs` ADD CONSTRAINT `logs_related_plant_sale_id_plant_sales_plant_sale_id_fk` FOREIGN KEY (`related_plant_sale_id`) REFERENCES `plant_sales`(`plant_sale_id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `logs` ADD CONSTRAINT `logs_related_expense_id_expenses_expense_id_fk` FOREIGN KEY (`related_expense_id`) REFERENCES `expenses`(`expense_id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `logs` ADD CONSTRAINT `logs_plant_batch_id_plant_batch_plant_batch_id_fk` FOREIGN KEY (`plant_batch_id`) REFERENCES `plant_batch`(`plant_batch_id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `logs` ADD CONSTRAINT `logs_fish_batch_id_fish_batch_fish_batch_id_fk` FOREIGN KEY (`fish_batch_id`) REFERENCES `fish_batch`(`fish_batch_id`) ON DELETE cascade ON UPDATE no action;
