@@ -13,6 +13,15 @@ import autoTable from "jspdf-autotable";
 type ReportType = "revenue" | "sales" | "expenses";
 type Period = "daily" | "weekly" | "monthly";
 
+type ReportRow = {
+  day?: string;
+  week?: string;
+  month?: string;
+  period?: string;
+  fish_sales?: number;
+  plant_sales?: number;
+  expenses?: number;
+};
 export default function AddReportModal({
   open,
   onClose,
@@ -25,7 +34,7 @@ export default function AddReportModal({
   period?: Period;
 }) {
   const { toast } = useToast();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch API based on period

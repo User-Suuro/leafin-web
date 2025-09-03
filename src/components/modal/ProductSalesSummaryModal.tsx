@@ -16,6 +16,16 @@ import autoTable from "jspdf-autotable";
 
 type Period = "daily" | "weekly" | "monthly";
 
+type ProductSalesRow = {
+  day?: string;
+  week?: string;
+  month?: string;
+  period?: string;
+  fish_sales: number;
+  plant_sales: number;
+};
+
+
 export default function ProductSalesSummaryModal({
   open,
   onClose,
@@ -26,7 +36,7 @@ export default function ProductSalesSummaryModal({
   period?: Period;
 }) {
   const { toast } = useToast();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ProductSalesRow[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch product sales API

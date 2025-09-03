@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { fishSales } from "@/db/schema/fishSales";
 import { plantSales } from "@/db/schema/plantSales";
 import { expenses } from "@/db/schema/expenses";
-import { sql, eq, and, gte, lte } from "drizzle-orm";
+import { sql, and, gte, lte } from "drizzle-orm";
 
 export async function GET() {
   const now = new Date();

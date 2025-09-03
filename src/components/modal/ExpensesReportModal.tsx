@@ -16,6 +16,15 @@ import autoTable from "jspdf-autotable";
 
 type Period = "daily" | "weekly" | "monthly";
 
+type ExpenseRow = {
+  day?: string;
+  week?: string;
+  month?: string;
+  period?: string;
+  total: number;
+};
+
+
 export default function ExpensesReportModal({
   open,
   onClose,
@@ -26,7 +35,7 @@ export default function ExpensesReportModal({
   period?: Period;
 }) {
   const { toast } = useToast();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ExpenseRow[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ✅ Fetch expenses API
