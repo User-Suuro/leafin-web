@@ -195,6 +195,7 @@ export default function BatchTable<T extends FishBatch | PlantBatch>({
                   <TableActions
                     batchType={type}
                     batchId={getId(b)}
+                    status={b.batchStatus}
                     onAction={
                       onAction
                         ? (action: BatchAction) => onAction(action, getId(b))

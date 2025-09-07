@@ -55,6 +55,27 @@ export default function BatchPage() {
   >(null);
   const [harvestModalOpen, setHarvestModalOpen] = useState(false);
   const [harvestBatchId, setHarvestBatchId] = useState<number | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<null | (() => void)>(null);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmDescription, setConfirmDescription] = useState("");
+  const [confirmVariant, setConfirmVariant] = useState<
+    "default" | "destructive"
+  >("default");
+
+  // open confirmation modal
+  const openConfirm = (
+    title: string,
+    description: string,
+    onConfirm: () => void,
+    variant: "default" | "destructive" = "default"
+  ) => {
+    setConfirmTitle(title);
+    setConfirmDescription(description);
+    setConfirmAction(() => onConfirm);
+    setConfirmVariant(variant);
+    setConfirmOpen(true);
+  };
 
   // Fetch batches
   const fetchBatches = async () => {
@@ -352,6 +373,15 @@ export default function BatchPage() {
             open={modalOpen}
             onClose={() => setModalOpen(false)}
             type={selectedType}
+          />
+
+          <ConfirmModal
+            open={confirmOpen}
+            onClose={() => setConfirmOpen(false)}
+            onConfirm={confirmAction || (() => {})}
+            title={confirmTitle}
+            description={confirmDescription}
+            variant={confirmVariant}
           />
         </div>
       )}
