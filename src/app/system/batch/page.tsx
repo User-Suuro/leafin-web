@@ -8,6 +8,7 @@ import BatchTable from "@/components/pages/system/batch/batchTable";
 import AddBatchModal from "@/components/pages/system/modal/add-batch-modal";
 import EditBatchModal from "@/components/pages/system/modal/EditBatchModal";
 import HarvestBatchModal from "@/components/pages/system/modal/HarvestBatchModal";
+import ConfirmModal from "@/components/pages/system/modal/ConfirmModal";
 
 type BatchStatus = "growing" | "ready" | "harvested" | "discarded";
 
@@ -99,33 +100,42 @@ export default function BatchPage() {
 
   // Discard a batch
   const handleDiscard = async (type: BatchType, batchId: number) => {
-    if (!window.confirm("Are you sure you want to discard this batch?")) return;
+    openConfirm(
+      "Discard Batch?",
+      "Are you sure you want to discard this batch? This action cannot be undone.",
+      async () => {
+        try {
+          const res = await fetch("/api/batches/discard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, batchId }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to discard batch");
 
-    try {
-      const res = await fetch("/api/batches/discard", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, batchId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to discard batch");
-
-      if (type === "fish") {
-        setFishBatches((prev) =>
-          prev.map((b) =>
-            b.fishBatchId === batchId ? { ...b, batchStatus: "discarded" } : b
-          )
-        );
-      } else {
-        setPlantBatches((prev) =>
-          prev.map((b) =>
-            b.plantBatchId === batchId ? { ...b, batchStatus: "discarded" } : b
-          )
-        );
-      }
-    } catch (err: unknown) {
-      console.error(err);
-    }
+          if (type === "fish") {
+            setFishBatches((prev) =>
+              prev.map((b) =>
+                b.fishBatchId === batchId
+                  ? { ...b, batchStatus: "discarded" }
+                  : b
+              )
+            );
+          } else {
+            setPlantBatches((prev) =>
+              prev.map((b) =>
+                b.plantBatchId === batchId
+                  ? { ...b, batchStatus: "discarded" }
+                  : b
+              )
+            );
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      },
+      "default"
+    );
   };
 
   // New function to open harvest modal
@@ -225,33 +235,35 @@ export default function BatchPage() {
 
   // Delete a batch
   const handleDelete = async (type: BatchType, batchId: number) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this batch? This action cannot be undone."
-      )
-    )
-      return;
+    openConfirm(
+      "Delete Batch?",
+      "Are you sure you want to delete this batch? This action cannot be undone.",
+      async () => {
+        try {
+          const res = await fetch("/api/batches/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, batchId }),
+          });
 
-    try {
-      const res = await fetch("/api/batches/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, batchId }),
-      });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to delete batch");
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to delete batch");
-
-      if (type === "fish") {
-        setFishBatches((prev) => prev.filter((b) => b.fishBatchId !== batchId));
-      } else {
-        setPlantBatches((prev) =>
-          prev.filter((b) => b.plantBatchId !== batchId)
-        );
-      }
-    } catch (err: unknown) {
-      console.error(err);
-    }
+          if (type === "fish") {
+            setFishBatches((prev) =>
+              prev.filter((b) => b.fishBatchId !== batchId)
+            );
+          } else {
+            setPlantBatches((prev) =>
+              prev.filter((b) => b.plantBatchId !== batchId)
+            );
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      },
+      "destructive"
+    );
   };
 
   return (
