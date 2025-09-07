@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq } from "drizzle-orm";
@@ -12,9 +12,15 @@ export async function POST(req: Request) {
     let { type, batchId } = body as { type: string; batchId: number | string };
 
     // Validate type
-    if (typeof type !== "string" || !["fish", "plant"].includes(type.toLowerCase())) {
+    if (
+      typeof type !== "string" ||
+      !["fish", "plant"].includes(type.toLowerCase())
+    ) {
       return NextResponse.json(
-        { error: "Invalid type, must be 'fish' or 'plant'", bodyReceived: body },
+        {
+          error: "Invalid type, must be 'fish' or 'plant'",
+          bodyReceived: body,
+        },
         { status: 400 }
       );
     }
@@ -30,20 +36,28 @@ export async function POST(req: Request) {
     }
 
     const table = type === "fish" ? fishBatch : plantBatch;
-    const idColumn = type === "fish" ? fishBatch.fishBatchId : plantBatch.plantBatchId;
+    const idColumn =
+      type === "fish" ? fishBatch.fishBatchId : plantBatch.plantBatchId;
 
     const [batch] = await db.select().from(table).where(eq(idColumn, batchId));
     if (!batch) {
-      return NextResponse.json({ error: "Batch not found", batchId }, { status: 404 });
+      return NextResponse.json(
+        { error: "Batch not found", batchId },
+        { status: 404 }
+      );
     }
 
     // ✅ This is the missing piece
-    await db.update(table)
+    await db
+      .update(table)
       .set({ batchStatus: "discarded" })
       .where(eq(idColumn, batchId));
 
     // Return the updated batch (optional)
-    const [updatedBatch] = await db.select().from(table).where(eq(idColumn, batchId));
+    const [updatedBatch] = await db
+      .select()
+      .from(table)
+      .where(eq(idColumn, batchId));
     console.log("Updated batch:", updatedBatch);
 
     return NextResponse.json({ success: true, batch: updatedBatch });

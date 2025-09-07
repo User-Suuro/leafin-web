@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq } from "drizzle-orm";
@@ -25,14 +25,19 @@ export async function POST(req: Request) {
     const { type, batchId, updates } = body;
 
     if (!batchId || !type || !updates || Object.keys(updates).length === 0) {
-      return NextResponse.json({ error: "Invalid request or no updates" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request or no updates" },
+        { status: 400 }
+      );
     }
 
     const table = type === "fish" ? fishBatch : plantBatch;
-    const idColumn = type === "fish" ? fishBatch.fishBatchId : plantBatch.plantBatchId;
+    const idColumn =
+      type === "fish" ? fishBatch.fishBatchId : plantBatch.plantBatchId;
 
     const [batch] = await db.select().from(table).where(eq(idColumn, batchId));
-    if (!batch) return NextResponse.json({ error: "Batch not found" }, { status: 404 });
+    if (!batch)
+      return NextResponse.json({ error: "Batch not found" }, { status: 404 });
 
     await db.update(table).set(updates).where(eq(idColumn, batchId));
 

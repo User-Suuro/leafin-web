@@ -1,10 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Separator } from "@/shadcn/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shadcn/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/ui/tabs";
+import { Separator } from "@/components/shadcn/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/shadcn/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/ui/table";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/shadcn/ui/tabs";
 import { History, ClipboardList, DollarSign, Activity } from "lucide-react";
 
 // Types

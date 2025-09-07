@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { expenses } from "@/db/schema/expenses";
 import { eq } from "drizzle-orm";
 
@@ -10,11 +10,18 @@ export async function DELETE(req: Request) {
     const expenseId = Number(idParam);
 
     if (isNaN(expenseId)) {
-      return NextResponse.json({ error: "Invalid expense id" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid expense id" },
+        { status: 400 }
+      );
     }
 
     // Check if the expense exists
-    const expense = await db.select().from(expenses).where(eq(expenses.expenseId, expenseId)).limit(1);
+    const expense = await db
+      .select()
+      .from(expenses)
+      .where(eq(expenses.expenseId, expenseId))
+      .limit(1);
 
     if (!expense.length) {
       return NextResponse.json({ error: "Expense not found" }, { status: 404 });

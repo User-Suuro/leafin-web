@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Separator } from "@/shadcn/ui/separator";
-import AddBatchModal from "@/components/modal/add-batch-modal";
-import { OverviewCard } from "@/components/system/dashboard/overview-card";
-import LettuceStageChart from "@/components/system/dashboard/charts/lettuce-stage-chart";
-import TilapiaAgeChart from "@/components/system/dashboard/charts/tilapia-age-chart";
+import { Separator } from "@/components/shadcn/ui/separator";
+import AddBatchModal from "@/components/pages/system/modal/add-batch-modal";
+import { OverviewCard } from "@/components/pages/system/dashboard/overview-card";
+import LettuceStageChart from "@/components/pages/system/dashboard/charts/lettuce-stage-chart";
+import TilapiaAgeChart from "@/components/pages/system/dashboard/charts/tilapia-age-chart";
 import { Leaf, Fish } from "lucide-react";
-import { Alerts } from "@/components/system/dashboard/alerts";
+import { Alerts } from "@/components/pages/system/dashboard/alerts";
 import { fetchData } from "@/lib/api";
-
 
 type FishBatch = {
   fishBatchId?: number;
@@ -49,15 +48,16 @@ const LETTUCE_STAGE_ORDER = [
 export default function RootLayout() {
   const [lettuceData, setLettuceData] = useState<PlantBatch[]>([]);
   const [tilapiaData, setTilapiaData] = useState<FishBatch[]>([]);
-  const [fishStageData, setFishStageData] = useState<Record<string, number>>({});
-  const [plantStageData, setPlantStageData] = useState<Record<string, number>>({});
+  const [fishStageData, setFishStageData] = useState<Record<string, number>>(
+    {}
+  );
+  const [plantStageData, setPlantStageData] = useState<Record<string, number>>(
+    {}
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType] = useState<"plant" | "fish" | "">("");
 
-
-
   useEffect(() => {
-
     fetchData("/api/fish-batch/fish-batch-stages", setFishStageData);
     fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData);
 
@@ -128,12 +128,15 @@ export default function RootLayout() {
             }))}
           />
           {/* Alerts */}
-            <Alerts />
+          <Alerts />
         </section>
 
         {/* Charts */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <LettuceStageChart labels={LETTUCE_STAGE_ORDER} data={plantChartData} />
+          <LettuceStageChart
+            labels={LETTUCE_STAGE_ORDER}
+            data={plantChartData}
+          />
           <TilapiaAgeChart labels={TILAPIA_STAGE_ORDER} data={fishChartData} />
         </section>
 

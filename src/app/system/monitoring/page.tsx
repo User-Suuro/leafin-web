@@ -1,14 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/ui/tabs";
-import { Separator } from "@/shadcn/ui/separator";
-import { StageTimeline, TILAPIA_STAGES, LETTUCE_STAGES, TimelineEvent } from "@/components/system/monitoring/stage-timeline";
-import FeederStatus from "@/components/system/monitoring/feeder-status";
-
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/shadcn/ui/tabs";
+import { Separator } from "@/components/shadcn/ui/separator";
+import {
+  StageTimeline,
+  TILAPIA_STAGES,
+  LETTUCE_STAGES,
+  TimelineEvent,
+} from "@/components/pages/system/monitoring/stage-timeline";
+import FeederStatus from "@/components/pages/system/monitoring/feeder-status";
 
 const DEFAULT_FISH_API = "/api/fish-batch/timeline";
-const DEFAULT_LETTUCE_API = "/api/plant-batch/timeline"; 
+const DEFAULT_LETTUCE_API = "/api/plant-batch/timeline";
 
 /* ---------------------------
    Monitoring main component
@@ -62,7 +71,7 @@ export default function Monitoring() {
         setTilapiaBatches([]);
       }
 
-      // lettuce 
+      // lettuce
       if (lettuceRes && lettuceRes.status === "fulfilled" && lettuceRes.value) {
         try {
           const json = await lettuceRes.value.json();
@@ -81,21 +90,20 @@ export default function Monitoring() {
     }
   }, []);
 
-
   // initial load
   useEffect(() => {
-
     fetchTimelines();
   }, [fetchTimelines]);
 
   return (
     <div className="flex min-h-screen">
-     
       {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">Monitoring</h1>
-          <p className="text-muted-foreground">Monitor your aquaponics system in real-time</p>
+          <p className="text-muted-foreground">
+            Monitor your aquaponics system in real-time
+          </p>
         </div>
 
         <Separator className="mb-6" />
@@ -113,7 +121,9 @@ export default function Monitoring() {
           {/* Timeline Tab */}
           <TabsContent value="timeline" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Timeline (Lettuce & Tilapia)</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Timeline (Lettuce & Tilapia)
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Lettuce Timeline (uses lettuceBatches if API available, otherwise static example) */}
                 <StageTimeline
@@ -121,7 +131,9 @@ export default function Monitoring() {
                   stageDef={LETTUCE_STAGES}
                   apiUrl={DEFAULT_LETTUCE_API}
                   typeKey="lettuce"
-                  batchesProp={lettuceBatches.length ? lettuceBatches : undefined}
+                  batchesProp={
+                    lettuceBatches.length ? lettuceBatches : undefined
+                  }
                 />
 
                 {/* Tilapia Timeline */}
@@ -130,36 +142,34 @@ export default function Monitoring() {
                   stageDef={TILAPIA_STAGES}
                   apiUrl={DEFAULT_FISH_API}
                   typeKey="tilapia"
-                  batchesProp={tilapiaBatches.length ? tilapiaBatches : undefined}
+                  batchesProp={
+                    tilapiaBatches.length ? tilapiaBatches : undefined
+                  }
                 />
               </div>
               {/* quick load/error indicators */}
               <div className="mt-2 text-sm text-muted-foreground">
-                {loadingTilapia || loadingLettuce ? <span>Loading timelines…</span> : null}
-                {timelineError ? <span className="text-red-600 ml-2">{timelineError}</span> : null}
+                {loadingTilapia || loadingLettuce ? (
+                  <span>Loading timelines…</span>
+                ) : null}
+                {timelineError ? (
+                  <span className="text-red-600 ml-2">{timelineError}</span>
+                ) : null}
               </div>
             </div>
           </TabsContent>
-
-
 
           {/* Feeder Tab */}
           <TabsContent value="feeder" className="space-y-6">
             <FeederStatus />
           </TabsContent>
 
-
           {/* Sensors Tab */}
           <TabsContent value="sensors" className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold mb-4">System Sensors</h2>
-              <div className="mb-4 font-medium">
-                Device Status:{" "}
-              
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                
-              </div>
+              <div className="mb-4 font-medium">Device Status: </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
           </TabsContent>
         </Tabs>
@@ -167,4 +177,3 @@ export default function Monitoring() {
     </div>
   );
 }
-

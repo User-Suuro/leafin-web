@@ -1,6 +1,6 @@
 // app/api/fish-batch/batches-fish/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { sql } from "drizzle-orm";
 
@@ -11,7 +11,7 @@ export async function GET() {
         id: fishBatch.fishBatchId,
         name: sql<string>`CONCAT('Batch #', ${fishBatch.fishBatchId})`,
       })
-      .from(fishBatch)
+      .from(fishBatch);
     return NextResponse.json(batches);
   } catch (error) {
     console.error("Error fetching fish batches:", error);

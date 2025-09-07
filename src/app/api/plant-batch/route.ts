@@ -1,6 +1,6 @@
 // app/api/plant-batch/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq } from "drizzle-orm";
 
@@ -28,22 +28,31 @@ export async function GET() {
 
         // ✅ Update only if condition or status changed
         if (b.condition !== stage || b.batchStatus !== newStatus) {
-          await db.update(plantBatch)
-            .set({ 
+          await db
+            .update(plantBatch)
+            .set({
               condition: stage,
-              batchStatus: newStatus 
+              batchStatus: newStatus,
             })
             .where(eq(plantBatch.plantBatchId, b.plantBatchId));
         }
 
-        return { ...b, condition: stage, batchStatus: newStatus, plantDays: ageDays };
+        return {
+          ...b,
+          condition: stage,
+          batchStatus: newStatus,
+          plantDays: ageDays,
+        };
       })
     );
 
     return NextResponse.json({ batches: updatedBatches });
   } catch (error) {
     console.error("Error fetching plant batches:", error);
-    return NextResponse.json({ error: "Failed to fetch plant batches" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch plant batches" },
+      { status: 500 }
+    );
   }
 }
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq } from "drizzle-orm";
 
@@ -21,7 +21,10 @@ export async function GET(req: Request) {
       .limit(1);
 
     if (!batch.length) {
-      return NextResponse.json({ error: "Plant batch not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Plant batch not found" },
+        { status: 404 }
+      );
     }
 
     const created = new Date(batch[0].dateAdded);

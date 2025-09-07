@@ -1,14 +1,12 @@
 // File: src/app/api/send-sensor-data/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { sensorData } from "@/db/schema/sensorData";
 import { desc } from "drizzle-orm";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    // Insert without touching created_at (MySQL will auto-fill it)
     await db.insert(sensorData).values({
       time: body.time,
       date: body.date,
@@ -17,7 +15,7 @@ export async function POST(req: Request) {
       water_temp: body.water_temp,
       tds: body.tds,
       float_switch: body.float_switch,
-      nh3_gas: body.nh3_gas, 
+      nh3_gas: body.nh3_gas,
     });
 
     return NextResponse.json({ success: true });
@@ -85,4 +83,3 @@ export async function GET() {
     );
   }
 }
-

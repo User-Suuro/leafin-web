@@ -1,6 +1,6 @@
 // app/api/batches/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { plantBatch } from "@/db/schema/plantBatch";
 
@@ -17,7 +17,10 @@ export async function GET(req: Request) {
 
   try {
     if (type === "fish") {
-      const result = await db.select().from(fishBatch).orderBy(fishBatch.fishBatchId);
+      const result = await db
+        .select()
+        .from(fishBatch)
+        .orderBy(fishBatch.fishBatchId);
       const formatted = result.map((r) => ({
         ...r,
         dateAdded: formatDate(r.dateAdded),
@@ -27,7 +30,10 @@ export async function GET(req: Request) {
     }
 
     if (type === "plant") {
-      const result = await db.select().from(plantBatch).orderBy(plantBatch.plantBatchId);
+      const result = await db
+        .select()
+        .from(plantBatch)
+        .orderBy(plantBatch.plantBatchId);
       const formatted = result.map((r) => ({
         ...r,
         dateAdded: formatDate(r.dateAdded),
@@ -57,6 +63,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ fish: fishFormatted, plant: plantFormatted });
   } catch (error) {
     console.error("Error fetching batches:", error);
-    return NextResponse.json({ error: "Failed to fetch batches" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch batches" },
+      { status: 500 }
+    );
   }
 }

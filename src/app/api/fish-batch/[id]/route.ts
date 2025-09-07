@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { eq } from "drizzle-orm";
 
@@ -32,6 +32,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ ...batch[0], fishDays: ageDays });
   } catch (error) {
     console.error("Error fetching batch:", error);
-    return NextResponse.json({ error: "Failed to fetch batch" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch batch" },
+      { status: 500 }
+    );
   }
 }

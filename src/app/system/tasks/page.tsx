@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { CalendarCheck } from "lucide-react";
-import { Button } from "@/shadcn/ui/button";
-import { Input } from "@/shadcn/ui/input";
-import { Textarea } from "@/shadcn/ui/textarea";
-import { Separator } from "@/shadcn/ui/separator";
+import { Button } from "@/components/shadcn/ui/button";
+import { Input } from "@/components/shadcn/ui/input";
+import { Textarea } from "@/components/shadcn/ui/textarea";
+import { Separator } from "@/components/shadcn/ui/separator";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/shadcn/ui/select";
+} from "@/components/shadcn/ui/select";
 
 type Task = {
   taskId: number;
@@ -148,7 +148,7 @@ export default function TaskManagement() {
 
   // Prevent hydration mismatch
   if (!mounted) {
-    return (  
+    return (
       <div className="flex min-h-screen">
         <div className="flex-1 p-6">Loading...</div>
       </div>
@@ -157,7 +157,6 @@ export default function TaskManagement() {
 
   return (
     <div className="flex min-h-screen">
- 
       <div className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-2">Task Management</h1>
         <Separator className="mb-6" />
@@ -172,7 +171,9 @@ export default function TaskManagement() {
 
             <div className="border rounded-lg p-6 shadow-sm space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Task Title:</label>
+                <label className="block text-sm font-medium mb-1">
+                  Task Title:
+                </label>
                 <Input
                   value={formData.title}
                   onChange={(e) => handleChange("title", e.target.value)}
@@ -181,7 +182,9 @@ export default function TaskManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Description:</label>
+                <label className="block text-sm font-medium mb-1">
+                  Description:
+                </label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
@@ -190,8 +193,13 @@ export default function TaskManagement() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Category:</label>
-                <Select value={formData.taskType} onValueChange={handleCategoryChange}>
+                <label className="block text-sm font-medium mb-1">
+                  Category:
+                </label>
+                <Select
+                  value={formData.taskType}
+                  onValueChange={handleCategoryChange}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
@@ -208,8 +216,13 @@ export default function TaskManagement() {
               {/* Harvest Type - shown after mount */}
               {formData.taskType === "harvest" && (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Harvest Type:</label>
-                  <Select value={harvestType} onValueChange={handleHarvestTypeChange}>
+                  <label className="block text-sm font-medium mb-1">
+                    Harvest Type:
+                  </label>
+                  <Select
+                    value={harvestType}
+                    onValueChange={handleHarvestTypeChange}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Harvest Type" />
                     </SelectTrigger>
@@ -224,10 +237,14 @@ export default function TaskManagement() {
               {/* Batch Selector */}
               {batches.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Select Batch:</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Batch:
+                  </label>
                   <Select
                     value={formData.relatedBatchId}
-                    onValueChange={(value) => handleChange("relatedBatchId", value)}
+                    onValueChange={(value) =>
+                      handleChange("relatedBatchId", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Choose Batch" />
@@ -244,20 +261,28 @@ export default function TaskManagement() {
               )}
 
               <div>
-                <label className="block text-sm font-medium mb-1">Schedule Date:</label>
+                <label className="block text-sm font-medium mb-1">
+                  Schedule Date:
+                </label>
                 <Input
                   type="date"
                   value={formData.scheduledDate}
-                  onChange={(e) => handleChange("scheduledDate", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("scheduledDate", e.target.value)
+                  }
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Schedule Time:</label>
+                <label className="block text-sm font-medium mb-1">
+                  Schedule Time:
+                </label>
                 <Input
                   type="time"
                   value={formData.scheduledTime}
-                  onChange={(e) => handleChange("scheduledTime", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("scheduledTime", e.target.value)
+                  }
                 />
               </div>
 
@@ -293,24 +318,38 @@ export default function TaskManagement() {
               <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                 {tasks.length > 0 ? (
                   tasks.map((task) => (
-                    <div key={`task-${task.taskId}`} className="rounded-lg p-4 shadow">
+                    <div
+                      key={`task-${task.taskId}`}
+                      className="rounded-lg p-4 shadow"
+                    >
                       <h3 className="font-semibold">{task.title}</h3>
                       <p className="text-sm">{task.description}</p>
-                      <p className="text-blue-600 font-medium text-sm mt-1">{task.taskType}</p>
+                      <p className="text-blue-600 font-medium text-sm mt-1">
+                        {task.taskType}
+                      </p>
                       <p className="text-xs text-gray-500">
-                        {task.scheduledDate || "No date"} {task.scheduledTime || ""}
+                        {task.scheduledDate || "No date"}{" "}
+                        {task.scheduledTime || ""}
                       </p>
                       {task.relatedFishBatchId && (
-                        <p className="text-xs">Fish Batch: {task.relatedFishBatchId}</p>
+                        <p className="text-xs">
+                          Fish Batch: {task.relatedFishBatchId}
+                        </p>
                       )}
                       {task.relatedPlantBatchId && (
-                        <p className="text-xs">Plant Batch: {task.relatedPlantBatchId}</p>
+                        <p className="text-xs">
+                          Plant Batch: {task.relatedPlantBatchId}
+                        </p>
                       )}
-                      <p className="text-xs text-gray-500">Status: {task.status}</p>
+                      <p className="text-xs text-gray-500">
+                        Status: {task.status}
+                      </p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-white/80">No tasks available. Add one above.</p>
+                  <p className="text-sm text-white/80">
+                    No tasks available. Add one above.
+                  </p>
                 )}
               </div>
             </div>

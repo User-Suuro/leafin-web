@@ -1,12 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Wallet, BarChart, RefreshCcw, TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shadcn/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
-import { Separator } from "@/shadcn/ui/separator";
+import {
+  LayoutDashboard,
+  Wallet,
+  BarChart,
+  RefreshCcw,
+  TrendingUp,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/shadcn/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/ui/table";
+import { Separator } from "@/components/shadcn/ui/separator";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
-import {  ChartConfig,  ChartContainer,  ChartTooltip,  ChartTooltipContent,} from "@/shadcn/ui/chart";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/shadcn/ui/chart";
 
 type Summary = {
   revenue: number;
@@ -76,10 +99,26 @@ export default function SalesROI() {
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <MetricCard icon={<LayoutDashboard className="w-6 h-6 text-blue-500" />} label="Total Revenue" value={`₱ ${summary?.revenue?.toFixed(2) ?? "0.00"}`} />
-          <MetricCard icon={<Wallet className="w-6 h-6 text-blue-500" />} label="Total Expenses" value={`₱ ${summary?.expense?.toFixed(2) ?? "0.00"}`} />
-          <MetricCard icon={<BarChart className="w-6 h-6 text-blue-500" />} label="Net Profit" value={`₱ ${summary?.netProfit?.toFixed(2) ?? "0.00"}`} />
-          <MetricCard icon={<RefreshCcw className="w-6 h-6 text-blue-500" />} label="ROI" value={`${summary?.roi?.toFixed(2) ?? "0"} %`} />
+          <MetricCard
+            icon={<LayoutDashboard className="w-6 h-6 text-blue-500" />}
+            label="Total Revenue"
+            value={`₱ ${summary?.revenue?.toFixed(2) ?? "0.00"}`}
+          />
+          <MetricCard
+            icon={<Wallet className="w-6 h-6 text-blue-500" />}
+            label="Total Expenses"
+            value={`₱ ${summary?.expense?.toFixed(2) ?? "0.00"}`}
+          />
+          <MetricCard
+            icon={<BarChart className="w-6 h-6 text-blue-500" />}
+            label="Net Profit"
+            value={`₱ ${summary?.netProfit?.toFixed(2) ?? "0.00"}`}
+          />
+          <MetricCard
+            icon={<RefreshCcw className="w-6 h-6 text-blue-500" />}
+            label="ROI"
+            value={`${summary?.roi?.toFixed(2) ?? "0"} %`}
+          />
         </div>
 
         {/* Chart */}
@@ -98,11 +137,17 @@ export default function SalesROI() {
                   tickMargin={8}
                   tickFormatter={(value) => {
                     const [year, month] = value.split("-");
-                    return new Date(Number(year), Number(month) - 1).toLocaleString("default", { month: "short" });
+                    return new Date(
+                      Number(year),
+                      Number(month) - 1
+                    ).toLocaleString("default", { month: "short" });
                   }}
                 />
 
-                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent />}
+                />
 
                 <Line
                   dataKey="fish_sales"
@@ -125,10 +170,8 @@ export default function SalesROI() {
                   strokeWidth={2}
                   dot={false}
                 />
-
               </LineChart>
             </ChartContainer>
-
 
             <div className="text-center mt-4 text-sm text-muted-foreground">
               <TrendingUp className="h-4 w-4 inline-block mr-1" />
@@ -155,14 +198,19 @@ export default function SalesROI() {
               <TableBody>
                 {transactions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-muted-foreground"
+                    >
                       No recent transactions
                     </TableCell>
                   </TableRow>
                 ) : (
                   transactions.map((t) => (
                     <TableRow key={`${t.product}-${t.id}`}>
-                      <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {new Date(t.date).toLocaleDateString()}
+                      </TableCell>
                       <TableCell>{t.product}</TableCell>
                       <TableCell>{t.customer ?? "N/A"}</TableCell>
                       <TableCell>₱ {Number(t.total).toFixed(2)}</TableCell>
@@ -179,7 +227,15 @@ export default function SalesROI() {
 }
 
 // Reusable Metric Card
-function MetricCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function MetricCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">

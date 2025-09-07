@@ -1,5 +1,5 @@
 // app/api/expenses/weekly/route.ts
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { expenses } from "@/db/schema/expenses";
 import { sql } from "drizzle-orm";
 
@@ -18,15 +18,13 @@ export async function GET() {
         `,
         total: sql<number>`SUM(${expenses.amount})`,
       })
-      .from(expenses)
-      .groupBy(sql`
+      .from(expenses).groupBy(sql`
         CONCAT(
           YEARWEEK(${expenses.expenseDate}, 1) DIV 100,
           '-W',
           LPAD(YEARWEEK(${expenses.expenseDate}, 1) % 100, 2, '0')
         )
-      `)
-      .orderBy(sql`
+      `).orderBy(sql`
         CONCAT(
           YEARWEEK(${expenses.expenseDate}, 1) DIV 100,
           '-W',
@@ -40,6 +38,9 @@ export async function GET() {
     return Response.json(last12);
   } catch (error) {
     console.error("Error fetching weekly expenses:", error);
-    return Response.json({ error: "Failed to fetch weekly expenses" }, { status: 500 });
+    return Response.json(
+      { error: "Failed to fetch weekly expenses" },
+      { status: 500 }
+    );
   }
 }

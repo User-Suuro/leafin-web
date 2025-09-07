@@ -1,5 +1,5 @@
 // app/api/sales/recent/route.ts
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishSales } from "@/db/schema/fishSales";
 import { plantSales } from "@/db/schema/plantSales";
 import { desc, sql } from "drizzle-orm";
@@ -34,10 +34,9 @@ export async function GET() {
   );
 
   return Response.json(
-  recent.slice(0, 10).map((r) => ({
-    ...r,
-    uid: `${r.product}-${r.id}`, // unique identifier
-  }))
-);
-
+    recent.slice(0, 10).map((r) => ({
+      ...r,
+      uid: `${r.product}-${r.id}`, // unique identifier
+    }))
+  );
 }

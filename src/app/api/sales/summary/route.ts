@@ -1,5 +1,5 @@
 // app/api/sales/summary/route.ts
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishSales } from "@/db/schema/fishSales";
 import { plantSales } from "@/db/schema/plantSales";
 import { expenses } from "@/db/schema/expenses";
@@ -14,30 +14,31 @@ export async function GET() {
   const fishRevenue = await db
     .select({ total: sql`SUM(${fishSales.totalSaleAmount})` })
     .from(fishSales)
-    .where(and(
-      gte(fishSales.saleDate, firstDay),
-      lte(fishSales.saleDate, lastDay)
-    ));
+    .where(
+      and(gte(fishSales.saleDate, firstDay), lte(fishSales.saleDate, lastDay))
+    );
 
   // Plant sales
   const plantRevenue = await db
     .select({ total: sql`SUM(${plantSales.totalSaleAmount})` })
     .from(plantSales)
-    .where(and(
-      gte(plantSales.saleDate, firstDay),
-      lte(plantSales.saleDate, lastDay)
-    ));
+    .where(
+      and(gte(plantSales.saleDate, firstDay), lte(plantSales.saleDate, lastDay))
+    );
 
   // Expenses
   const totalExpenses = await db
     .select({ total: sql`SUM(${expenses.amount})` })
     .from(expenses)
-    .where(and(
-      gte(expenses.expenseDate, firstDay),
-      lte(expenses.expenseDate, lastDay)
-    ));
+    .where(
+      and(
+        gte(expenses.expenseDate, firstDay),
+        lte(expenses.expenseDate, lastDay)
+      )
+    );
 
-  const revenue = Number(fishRevenue[0].total ?? 0) + Number(plantRevenue[0].total ?? 0);
+  const revenue =
+    Number(fishRevenue[0].total ?? 0) + Number(plantRevenue[0].total ?? 0);
   const expense = Number(totalExpenses[0].total ?? 0);
   const netProfit = revenue - expense;
   const roi = expense > 0 ? (netProfit / expense) * 100 : 0;

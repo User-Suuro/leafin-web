@@ -1,7 +1,6 @@
-
 // app/api/plant-batch/batches-plant/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { eq, sql } from "drizzle-orm";
 

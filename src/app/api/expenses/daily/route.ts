@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { expenses } from "@/db/schema/expenses";
 import { sql } from "drizzle-orm";
 
@@ -16,6 +16,9 @@ export async function GET() {
     return Response.json(daily);
   } catch (error) {
     console.error("Error fetching daily expenses:", error);
-    return Response.json({ error: "Failed to fetch daily expenses" }, { status: 500 });
+    return Response.json(
+      { error: "Failed to fetch daily expenses" },
+      { status: 500 }
+    );
   }
 }

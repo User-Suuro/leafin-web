@@ -1,6 +1,6 @@
 // app/api/fish-batch/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { eq } from "drizzle-orm";
 
@@ -21,7 +21,9 @@ export async function GET() {
         else if (ageDays > 120) stage = "Ready to Harvest";
 
         // 🐟 Build update object
-        const updateData: Partial<typeof fishBatch.$inferInsert> = { condition: stage };
+        const updateData: Partial<typeof fishBatch.$inferInsert> = {
+          condition: stage,
+        };
 
         // If "Ready to Harvest", also update batchStatus to "ready"
         if (stage === "Ready to Harvest") {
@@ -29,13 +31,22 @@ export async function GET() {
         }
 
         // Update DB only if something changed
-        if (b.condition !== stage || (stage === "Ready to Harvest" && b.batchStatus !== "ready")) {
-          await db.update(fishBatch)
+        if (
+          b.condition !== stage ||
+          (stage === "Ready to Harvest" && b.batchStatus !== "ready")
+        ) {
+          await db
+            .update(fishBatch)
             .set(updateData)
             .where(eq(fishBatch.fishBatchId, b.fishBatchId));
         }
 
-        return { ...b, fishDays: ageDays, condition: stage, batchStatus: updateData.batchStatus ?? b.batchStatus };
+        return {
+          ...b,
+          fishDays: ageDays,
+          condition: stage,
+          batchStatus: updateData.batchStatus ?? b.batchStatus,
+        };
       })
     );
 
@@ -88,6 +99,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-
-

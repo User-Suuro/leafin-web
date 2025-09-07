@@ -1,12 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Separator } from "@/shadcn/ui/separator";
-import { Button } from "@/shadcn/ui/button";
-import { Input } from "@/shadcn/ui/input";
-import { Label } from "@/shadcn/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shadcn/ui/table";
+import { Separator } from "@/components/shadcn/ui/separator";
+import { Button } from "@/components/shadcn/ui/button";
+import { Input } from "@/components/shadcn/ui/input";
+import { Label } from "@/components/shadcn/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/ui/table";
 import { Trash, Plus } from "lucide-react";
 
 type Expense = {
@@ -24,7 +37,6 @@ type Batch = {
   name: string;
 };
 
-
 export default function MyExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [category, setCategory] = useState<Expense["category"]>("feed");
@@ -32,7 +44,6 @@ export default function MyExpensesPage() {
   const [amount, setAmount] = useState<number | "">("");
   const [fishBatch, setFishBatch] = useState<number | "">("");
   const [batches, setBatches] = useState<Batch[]>([]);
-
 
   // ✅ load from API
   useEffect(() => {
@@ -51,64 +62,61 @@ export default function MyExpensesPage() {
   }, []);
 
   useEffect(() => {
-  async function fetchBatches() {
-    if (category === "feed") {
-      try {
-        const res = await fetch("/api/fish-batch/batches-fish"); // ✅ same sa tasks
-        if (!res.ok) throw new Error("Failed to fetch fish batches");
-        const data = await res.json();
-        setBatches(data || []);
-      } catch (error) {
-        console.error("Error fetching fish batches:", error);
+    async function fetchBatches() {
+      if (category === "feed") {
+        try {
+          const res = await fetch("/api/fish-batch/batches-fish"); // ✅ same sa tasks
+          if (!res.ok) throw new Error("Failed to fetch fish batches");
+          const data = await res.json();
+          setBatches(data || []);
+        } catch (error) {
+          console.error("Error fetching fish batches:", error);
+        }
+      } else {
+        setBatches([]); // clear kapag di feed
+        setFishBatch("");
       }
-    } else {
-      setBatches([]); // clear kapag di feed
-      setFishBatch("");
     }
-  }
 
-  fetchBatches();
-}, [category]);
+    fetchBatches();
+  }, [category]);
 
+  const handleAddExpense = async () => {
+    if (!category || !description || !amount) return;
 
-const handleAddExpense = async () => {
-  if (!category || !description || !amount) return;
+    // ✅ Require fish batch if category is "feed"
+    if (category === "feed" && !fishBatch) {
+      alert("Please select a Fish Batch for Feed expenses.");
+      return;
+    }
 
-  // ✅ Require fish batch if category is "feed"
-  if (category === "feed" && !fishBatch) {
-    alert("Please select a Fish Batch for Feed expenses.");
-    return;
-  }
+    const body = {
+      category,
+      description,
+      amount: Number(amount),
+      relatedFishBatchId: category === "feed" ? Number(fishBatch) : null,
+      relatedPlantBatchId: null,
+    };
 
-  const body = {
-  category,
-  description,
-  amount: Number(amount),
-  relatedFishBatchId: category === "feed" ? Number(fishBatch) : null,
-  relatedPlantBatchId: null,
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        // reload list
+        const newList = await fetch("/api/expenses").then((r) => r.json());
+        setExpenses(newList);
+        setCategory("feed");
+        setDescription("");
+        setAmount("");
+        setFishBatch("");
+      }
+    } catch (err) {
+      console.error("Failed to add expense:", err);
+    }
   };
-
-
-  try {
-    const res = await fetch("/api/expenses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      // reload list
-      const newList = await fetch("/api/expenses").then((r) => r.json());
-      setExpenses(newList);
-      setCategory("feed");
-      setDescription("");
-      setAmount("");
-      setFishBatch("");
-    }
-  } catch (err) {
-    console.error("Failed to add expense:", err);
-  }
-};
-
 
   const handleDelete = async (id: number) => {
     try {
@@ -169,7 +177,6 @@ const handleAddExpense = async () => {
           </div>
         )}
 
-
         {/* Example: add fish/plant dropdowns same as before */}
         {/* ... keep your FishBatch + PlantBatch UI here ... */}
 
@@ -192,7 +199,10 @@ const handleAddExpense = async () => {
           />
         </div>
 
-        <Button className="h-10 w-full flex items-center justify-center gap-2" onClick={handleAddExpense}>
+        <Button
+          className="h-10 w-full flex items-center justify-center gap-2"
+          onClick={handleAddExpense}
+        >
           <Plus className="w-4 h-4" /> Add
         </Button>
       </section>
@@ -219,11 +229,21 @@ const handleAddExpense = async () => {
                 <TableCell>{exp.expenseDate}</TableCell>
                 <TableCell>{exp.category}</TableCell>
                 <TableCell>{exp.description}</TableCell>
-                <TableCell>{exp.relatedFishBatchId ? `#${exp.relatedFishBatchId}` : "-"}</TableCell>
-                <TableCell>{exp.relatedPlantBatchId ? `#${exp.relatedPlantBatchId}` : "-"}</TableCell>
+                <TableCell>
+                  {exp.relatedFishBatchId ? `#${exp.relatedFishBatchId}` : "-"}
+                </TableCell>
+                <TableCell>
+                  {exp.relatedPlantBatchId
+                    ? `#${exp.relatedPlantBatchId}`
+                    : "-"}
+                </TableCell>
                 <TableCell>₱ {Number(exp.amount).toFixed(2)}</TableCell>
                 <TableCell>
-                  <Button variant="destructive" size="icon" onClick={() => handleDelete(exp.expenseId)}>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => handleDelete(exp.expenseId)}
+                  >
                     <Trash className="w-4 h-4" />
                   </Button>
                 </TableCell>

@@ -1,6 +1,6 @@
 // app/api/fish-batch/timeline/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 
 export async function GET() {

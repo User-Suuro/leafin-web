@@ -1,5 +1,5 @@
 // app/api/sales/daily/route.ts
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishSales } from "@/db/schema/fishSales";
 import { plantSales } from "@/db/schema/plantSales";
 import { expenses } from "@/db/schema/expenses";
@@ -56,6 +56,9 @@ export async function GET() {
     return Response.json(last30);
   } catch (error) {
     console.error("Error fetching daily data:", error);
-    return Response.json({ error: "Failed to fetch daily data" }, { status: 500 });
+    return Response.json(
+      { error: "Failed to fetch daily data" },
+      { status: 500 }
+    );
   }
 }

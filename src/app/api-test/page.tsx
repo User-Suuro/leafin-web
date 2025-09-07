@@ -8,6 +8,8 @@ export default function ApiTest() {
   const [lastReply, setLastReply] = useState<string>("");
   const [messageStatus, setMessageStatus] = useState<string>("");
 
+  // send command
+
   const sendHello = async () => {
     try {
       const res = await fetch("/api/arduino/send-command", {
@@ -22,6 +24,8 @@ export default function ApiTest() {
       setMessageStatus("❌ Error sending command");
     }
   };
+
+  // fetch data every 6 seconds
 
   useEffect(() => {
     const fetchData = async () => {

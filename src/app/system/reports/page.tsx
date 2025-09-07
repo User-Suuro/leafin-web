@@ -8,13 +8,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/shadcn/ui/card";
-import { Separator } from "@/shadcn/ui/separator";
-import { Button } from "@/shadcn/ui/button";
-import AddReportModal from "@/components/modal/AddReportModal";
-import ProductSalesSummaryModal from "@/components/modal/ProductSalesSummaryModal";
-import ExpensesReportModal from "@/components/modal/ExpensesReportModal";
-
+} from "@/components/shadcn/ui/card";
+import { Separator } from "@/components/shadcn/ui/separator";
+import { Button } from "@/components/shadcn/ui/button";
+import AddReportModal from "@/components/pages/system/modal/AddReportModal";
+import ProductSalesSummaryModal from "@/components/pages/system/modal/ProductSalesSummaryModal";
+import ExpensesReportModal from "@/components/pages/system/modal/ExpensesReportModal";
 
 // types/summary.ts
 export type PlantSummary = {
@@ -31,9 +30,7 @@ export type FishSummary = {
   majorityStage: string;
 };
 
-
 export default function AnalyticsReports() {
-  
   const [modalOpen, setModalOpen] = useState(false);
   const [reportType, setReportType] = useState<
     "revenue" | "sales" | "expenses" | null
@@ -59,7 +56,6 @@ export default function AnalyticsReports() {
       .then((data: FishSummary) => setFishSummary(data))
       .catch((err) => console.error("Error fetching fish summary:", err));
   }, []);
-
 
   const openReportModal = (
     type: "revenue" | "sales" | "expenses",
@@ -92,9 +88,7 @@ export default function AnalyticsReports() {
                   <Leaf className="w-5 h-5" />
                   Lettuce
                 </CardTitle>
-                <CardDescription className="text-white/80">
-                  
-                </CardDescription>
+                <CardDescription className="text-white/80"></CardDescription>
               </CardHeader>
               <CardContent className="bg-white text-black rounded-b-xl py-6 min-h-[140px] flex-grow">
                 {plantSummary ? (
@@ -141,9 +135,7 @@ export default function AnalyticsReports() {
                   <Fish className="w-5 h-5" />
                   Tilapia
                 </CardTitle>
-                <CardDescription className="text-white/80">
-                 
-                </CardDescription>
+                <CardDescription className="text-white/80"></CardDescription>
               </CardHeader>
               <CardContent className="bg-white text-black rounded-b-xl py-6 min-h-[140px] flex-grow">
                 {fishSummary ? (

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { fishBatch } from "@/db/schema/fishBatch";
 import { plantBatch } from "@/db/schema/plantBatch";
 import { fishSales } from "@/db/schema/fishSales";
@@ -18,19 +18,33 @@ export async function POST(req: Request) {
 
     const { type, batchId, customerName, totalAmount, notes } = body;
 
-    if (!batchId || !type || !customerName || !totalAmount || totalAmount <= 0) {
+    if (
+      !batchId ||
+      !type ||
+      !customerName ||
+      !totalAmount ||
+      totalAmount <= 0
+    ) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
     const batchTable = type === "fish" ? fishBatch : plantBatch;
-    const idColumn = type === "fish" ? fishBatch.fishBatchId : plantBatch.plantBatchId;
+    const idColumn =
+      type === "fish" ? fishBatch.fishBatchId : plantBatch.plantBatchId;
 
     // Fetch batch
-    const [batch] = await db.select().from(batchTable).where(eq(idColumn, batchId));
-    if (!batch) return NextResponse.json({ error: "Batch not found" }, { status: 404 });
+    const [batch] = await db
+      .select()
+      .from(batchTable)
+      .where(eq(idColumn, batchId));
+    if (!batch)
+      return NextResponse.json({ error: "Batch not found" }, { status: 404 });
 
     // Update batch status
-    await db.update(batchTable).set({ batchStatus: "harvested" }).where(eq(idColumn, batchId));
+    await db
+      .update(batchTable)
+      .set({ batchStatus: "harvested" })
+      .where(eq(idColumn, batchId));
 
     const today = new Date();
     const amountStr = totalAmount.toFixed(2); // convert number to string with 2 decimals
