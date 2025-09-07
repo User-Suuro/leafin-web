@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db } from "@/db/drizzle";
 import { logs } from "@/db/schema/logs";
 import { tasks } from "@/db/schema/tasks";
 import { fishSales } from "@/db/schema/fishSales";
@@ -40,7 +40,8 @@ export async function GET() {
 
     // ✅ Normalize logs into a `type`
     const formatted = result.map((row) => {
-      let type: "task" | "fish_sale" | "plant_sale" | "expense" | "sensor" = "task";
+      let type: "task" | "fish_sale" | "plant_sale" | "expense" | "sensor" =
+        "task";
 
       if (row.fishSaleId) type = "fish_sale";
       else if (row.plantSaleId) type = "plant_sale";
@@ -58,6 +59,9 @@ export async function GET() {
     return NextResponse.json(formatted);
   } catch (error) {
     console.error("Error fetching logs:", error);
-    return NextResponse.json({ error: "Failed to fetch logs" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch logs" },
+      { status: 500 }
+    );
   }
 }
