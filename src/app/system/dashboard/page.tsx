@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Separator } from "@/components/shadcn/ui/separator";
 import AddBatchModal from "@/components/pages/system/modal/add-batch-modal";
 import { OverviewCard } from "@/components/pages/system/dashboard/overview-card";
@@ -8,28 +8,12 @@ import LettuceStageChart from "@/components/pages/system/dashboard/charts/lettuc
 import TilapiaAgeChart from "@/components/pages/system/dashboard/charts/tilapia-age-chart";
 import { Leaf, Fish } from "lucide-react";
 import { Alerts } from "@/components/pages/system/dashboard/alerts";
-import { fetchData } from "@/lib/api";
 
-type FishBatch = {
-  fishBatchId?: number;
-  fishQuantity?: number;
-  fish_quantity?: number;
-  fishDays?: number;
-  condition?: string;
-};
-
-type PlantBatch = {
-  plantBatchId?: number;
-  plantQuantity?: number;
-  plant_quantity?: number;
-  plantDays?: number;
-  condition?: string;
-};
-
-type ApiResponse<T> = {
-  batches?: T[];
-  totalFish?: number;
-};
+// ✅ hooks
+import { useFishStages } from "@/components/pages/system/batch/hooks/useFishStages";
+import { usePlantStages } from "@/components/pages/system/batch/hooks/usePlantStages";
+import { useFishBatches } from "@/components/pages/system/batch/hooks/useFishBatches";
+import { usePlantBatches } from "@/components/pages/system/batch/hooks/usePlantBatches";
 
 const TILAPIA_STAGE_ORDER = [
   "Larval Stage",
@@ -46,34 +30,13 @@ const LETTUCE_STAGE_ORDER = [
 ];
 
 export default function RootLayout() {
-  const [lettuceData, setLettuceData] = useState<PlantBatch[]>([]);
-  const [tilapiaData, setTilapiaData] = useState<FishBatch[]>([]);
-  const [fishStageData, setFishStageData] = useState<Record<string, number>>(
-    {}
-  );
-  const [plantStageData, setPlantStageData] = useState<Record<string, number>>(
-    {}
-  );
+  const { lettuceData } = usePlantBatches();
+  const { tilapiaData } = useFishBatches();
+  const { fishStageData } = useFishStages();
+  const { plantStageData } = usePlantStages();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedType] = useState<"plant" | "fish" | "">("");
-
-  useEffect(() => {
-    fetchData("/api/fish-batch/fish-batch-stages", setFishStageData);
-    fetchData("/api/plant-batch/plant-batch-stages", setPlantStageData);
-
-    fetch("/api/plant-batch")
-      .then((res) => res.json())
-      .then((data) => {
-        const batches = Array.isArray(data) ? data : data?.batches ?? [];
-        setLettuceData(batches);
-      })
-      .catch(() => setLettuceData([]));
-
-    fetch("/api/fish-batch")
-      .then((res) => res.json() as Promise<ApiResponse<FishBatch>>)
-      .then((data) => setTilapiaData(data?.batches ?? []))
-      .catch(() => setTilapiaData([]));
-  }, []);
 
   /** Chart data */
   const fishChartData = TILAPIA_STAGE_ORDER.map(
@@ -127,6 +90,7 @@ export default function RootLayout() {
               condition: b.condition ?? "Unknown",
             }))}
           />
+
           {/* Alerts */}
           <Alerts />
         </section>
