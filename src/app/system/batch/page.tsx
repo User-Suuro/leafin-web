@@ -1,6 +1,6 @@
 "use client";
 
-import { useState} from "react";
+import { useState } from "react";
 import { Separator } from "@/components/shadcn/ui/separator";
 import { Button } from "@/components/shadcn/ui/button";
 import { Plus } from "lucide-react";
@@ -12,7 +12,7 @@ import ConfirmModal from "@/components/pages/system/modal/ConfirmModal";
 
 import { useBatches } from "@/components/pages/system/batch/hooks/useBatches";
 import { useBatchActions } from "@/components/pages/system/batch/hooks/useBatchActions";
-// import { BatchType } from "@/components/pages/system/batch/types/batchTypes";
+import { FishBatch, PlantBatch } from "@/components/pages/system/batch/types/batchTypes";
 
 export default function BatchPage() {
   const { fishBatches, plantBatches, setFishBatches, setPlantBatches, loading } = useBatches();
@@ -29,7 +29,7 @@ export default function BatchPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingBatch, setEditingBatch] = useState<any>(null);
+  const [editingBatch, setEditingBatch] = useState<FishBatch | PlantBatch | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | (() => void)>(null);
   const [confirmTitle, setConfirmTitle] = useState("");
@@ -41,7 +41,7 @@ export default function BatchPage() {
     description: string,
     onConfirm: () => void,
     variant: "default" | "destructive" = "default"
-  ) => {  
+  ) => {
     setConfirmTitle(title);
     setConfirmDescription(description);
     setConfirmAction(() => onConfirm);
@@ -57,10 +57,20 @@ export default function BatchPage() {
       </header>
 
       <div className="flex gap-2">
-        <Button onClick={() => { setSelectedType("fish"); setModalOpen(true); }}>
+        <Button
+          onClick={() => {
+            setSelectedType("fish");
+            setModalOpen(true);
+          }}
+        >
           <Plus className="w-4 h-4" /> Add Fish Batch
         </Button>
-        <Button onClick={() => { setSelectedType("plant"); setModalOpen(true); }}>
+        <Button
+          onClick={() => {
+            setSelectedType("plant");
+            setModalOpen(true);
+          }}
+        >
           <Plus className="w-4 h-4" /> Add Plant Batch
         </Button>
       </div>
@@ -69,6 +79,7 @@ export default function BatchPage() {
         <p>Loading batches...</p>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* FISH BATCH TABLE */}
           <BatchTable
             data={fishBatches}
             type="fish"
@@ -87,7 +98,6 @@ export default function BatchPage() {
                   "Delete Batch",
                   "Are you sure you want to delete this fish batch?",
                   () => {
-                    // TODO: call delete logic here
                     console.log("Deleting batch", batchId);
                   },
                   "destructive"
@@ -96,7 +106,7 @@ export default function BatchPage() {
             }}
           />
 
-
+          {/* PLANT BATCH TABLE */}
           <BatchTable
             data={plantBatches}
             type="plant"
@@ -117,10 +127,7 @@ export default function BatchPage() {
                   "Delete Plant Batch",
                   "Are you sure you want to delete this plant batch?",
                   () => {
-                    // 👉 TODO: replace with actual delete logic for plant
                     console.log("Deleting plant batch", batchId);
-                    // Example kung may deletePlantBatch function ka:
-                    // deletePlantBatch(batchId);
                   },
                   "destructive"
                 );
@@ -128,6 +135,7 @@ export default function BatchPage() {
             }}
           />
 
+          {/* EDIT BATCH MODAL */}
           {editingBatch && selectedType && (
             <EditBatchModal
               open={editModalOpen}
@@ -137,9 +145,13 @@ export default function BatchPage() {
               onSave={(updates) => {
                 if (!editingBatch) return;
                 if (selectedType === "fish" && "fishBatchId" in editingBatch) {
-                  handleEdit("fish", editingBatch.fishBatchId, { fishQuantity: updates.batchQuantity ?? editingBatch.fishQuantity });
+                  handleEdit("fish", editingBatch.fishBatchId, {
+                    fishQuantity: updates.batchQuantity ?? editingBatch.fishQuantity,
+                  });
                 } else if (selectedType === "plant" && "plantBatchId" in editingBatch) {
-                  handleEdit("plant", editingBatch.plantBatchId, { plantQuantity: updates.batchQuantity ?? editingBatch.plantQuantity });
+                  handleEdit("plant", editingBatch.plantBatchId, {
+                    plantQuantity: updates.batchQuantity ?? editingBatch.plantQuantity,
+                  });
                 }
                 setEditingBatch(null);
                 setEditModalOpen(false);
@@ -147,6 +159,7 @@ export default function BatchPage() {
             />
           )}
 
+          {/* HARVEST BATCH MODAL */}
           {harvestBatchId && selectedType && (
             <HarvestBatchModal
               open={harvestModalOpen}
@@ -157,8 +170,10 @@ export default function BatchPage() {
             />
           )}
 
+          {/* ADD BATCH MODAL */}
           <AddBatchModal open={modalOpen} onClose={() => setModalOpen(false)} type={selectedType} />
 
+          {/* CONFIRM MODAL */}
           <ConfirmModal
             open={confirmOpen}
             onClose={() => setConfirmOpen(false)}
