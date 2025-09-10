@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { Separator } from "@/components/shadcn/ui/separator";
 import { Button } from "@/components/shadcn/ui/button";
 import { Plus } from "lucide-react";
@@ -12,7 +12,7 @@ import ConfirmModal from "@/components/pages/system/modal/ConfirmModal";
 
 import { useBatches } from "@/components/pages/system/batch/hooks/useBatches";
 import { useBatchActions } from "@/components/pages/system/batch/hooks/useBatchActions";
-import { BatchType } from "@/components/pages/system/batch/types/batchTypes";
+// import { BatchType } from "@/components/pages/system/batch/types/batchTypes";
 
 export default function BatchPage() {
   const { fishBatches, plantBatches, setFishBatches, setPlantBatches, loading } = useBatches();
@@ -41,7 +41,7 @@ export default function BatchPage() {
     description: string,
     onConfirm: () => void,
     variant: "default" | "destructive" = "default"
-  ) => {
+  ) => {  
     setConfirmTitle(title);
     setConfirmDescription(description);
     setConfirmAction(() => onConfirm);
@@ -82,14 +82,27 @@ export default function BatchPage() {
                   setEditModalOpen(true);
                 }
               }
+              if (action === "delete") {
+                openConfirm(
+                  "Delete Batch",
+                  "Are you sure you want to delete this fish batch?",
+                  () => {
+                    // TODO: call delete logic here
+                    console.log("Deleting batch", batchId);
+                  },
+                  "destructive"
+                );
+              }
             }}
           />
+
 
           <BatchTable
             data={plantBatches}
             type="plant"
             onAction={(action, batchId) => {
               if (action === "harvest") openHarvestModal(batchId, "plant");
+
               if (action === "edit") {
                 const batch = plantBatches.find((b) => b.plantBatchId === batchId);
                 if (batch) {
@@ -97,6 +110,20 @@ export default function BatchPage() {
                   setSelectedType("plant");
                   setEditModalOpen(true);
                 }
+              }
+
+              if (action === "delete") {
+                openConfirm(
+                  "Delete Plant Batch",
+                  "Are you sure you want to delete this plant batch?",
+                  () => {
+                    // 👉 TODO: replace with actual delete logic for plant
+                    console.log("Deleting plant batch", batchId);
+                    // Example kung may deletePlantBatch function ka:
+                    // deletePlantBatch(batchId);
+                  },
+                  "destructive"
+                );
               }
             }}
           />
